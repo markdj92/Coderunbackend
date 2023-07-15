@@ -23,6 +23,6 @@ export const postLogin = (userAccount: UserAccount | { [k: string]: string }) =>
   // return loginInstance.post(PATH_API.login, userAccount);
 };
 
-export const postSignOut = () => {
+export const postLogout = () => {
   localStorage.removeItem(USER_TOKEN_KEY);
 };

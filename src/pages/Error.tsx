@@ -29,7 +29,12 @@ const ErrorPage = () => {
       </div>
     );
   } else {
-    return <></>;
+    return (
+      <div>
+        <h1>404 ERROR</h1>
+        <button onClick={() => navigate('/')}>메인페이지로 가기</button>
+      </div>
+    );
   }
 };
 

@@ -34,6 +34,12 @@ const routes: RouteObject[] = [
     errorElement: <Error />,
     loader: authLoader,
   },
+  {
+    path: PATH_ROUTE.error,
+    element: <Error />,
+    errorElement: <Error />,
+    loader: authLoader,
+  },
 ];
 
 const router = createBrowserRouter(routes);
