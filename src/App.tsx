@@ -1,8 +1,12 @@
+import { Suspense } from 'react';
+
+import PageRouter from '@/routes';
+
 function App() {
   return (
-    <>
-      <h1>Hello,World</h1>
-    </>
+    <Suspense fallback={<div>Loading...</div>}>
+      <PageRouter />
+    </Suspense>
   );
 }
 
