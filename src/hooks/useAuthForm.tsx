@@ -5,8 +5,8 @@ import { validateUserInfo } from '@/utils';
 import { useInput } from '@/hooks/useInput';
 
 export const useAuthForm = () => {
-  const emailRef = useRef(null);
-  const passwordRef = useRef(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const { value: userAccount, setValue: setUserAccount } = useInput({ email: '', password: '' });
 
   const isValidAccount = () => {
