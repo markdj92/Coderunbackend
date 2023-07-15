@@ -11,9 +11,9 @@ export class validateUserInfo {
     return this.#isMinimumLength(password);
   }
 
-  static #isExistString(string: string): boolean {
-    return string.trim().length > 0;
-  }
+  // static #isExistString(string: string): boolean {
+  //   return string.trim().length > 0;
+  // }
 
   static #hasAtSign(value: string): boolean {
     return value.includes('@');
