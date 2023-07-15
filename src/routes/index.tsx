@@ -6,11 +6,13 @@ import { PATH_ROUTE } from '@/constants';
 const Root = lazy(() => import('@/pages/Root'));
 const Lobby = lazy(() => import('@/pages/Lobby'));
 const Login = lazy(() => import('@/pages/Login'));
+const Error = lazy(() => import('@/pages/Error'));
 
 const routes: RouteObject[] = [
   {
     path: PATH_ROUTE.root,
     element: <Root />,
+    errorElement: <Error />,
     children: [
       {
         index: true,
@@ -26,6 +28,7 @@ const routes: RouteObject[] = [
   {
     path: PATH_ROUTE.login,
     element: <Login />,
+    errorElement: <Error />,
   },
 ];
 
