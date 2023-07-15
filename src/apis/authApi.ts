@@ -18,7 +18,7 @@ export const postSignUp = (userAccount: UserAccount) => {
   return loginInstance.post(PATH_API.signUp, userAccount);
 };
 
-export const postLogin = (userAccount: UserAccount) => {
+export const postLogin = (userAccount: UserAccount | { [k: string]: string }) => {
   return { data: { access_token: userAccount.email } };
   // return loginInstance.post(PATH_API.login, userAccount);
 };
