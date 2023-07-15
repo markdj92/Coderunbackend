@@ -3,6 +3,8 @@ import { createBrowserRouter, RouterProvider, RouteObject } from 'react-router-d
 
 import { PATH_ROUTE } from '@/constants';
 
+import { rootLoader, authLoader } from './loaders';
+
 const Root = lazy(() => import('@/pages/Root'));
 const Lobby = lazy(() => import('@/pages/Lobby'));
 const Login = lazy(() => import('@/pages/Login'));
@@ -13,6 +15,7 @@ const routes: RouteObject[] = [
     path: PATH_ROUTE.root,
     element: <Root />,
     errorElement: <Error />,
+    loader: rootLoader,
     children: [
       {
         index: true,
@@ -29,6 +32,7 @@ const routes: RouteObject[] = [
     path: PATH_ROUTE.login,
     element: <Login />,
     errorElement: <Error />,
+    loader: authLoader,
   },
 ];
 
