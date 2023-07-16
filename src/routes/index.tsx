@@ -10,6 +10,8 @@ const Lobby = lazy(() => import('@/pages/Lobby'));
 const Login = lazy(() => import('@/pages/Login'));
 const Error = lazy(() => import('@/pages/Error'));
 
+const Room = lazy(() => import('@/pages/Room'));
+
 const routes: RouteObject[] = [
   {
     path: PATH_ROUTE.root,
@@ -21,10 +23,18 @@ const routes: RouteObject[] = [
         index: true,
         path: PATH_ROUTE.root,
         element: <Lobby />,
+        errorElement: <Error />,
       },
       {
+        index: true,
         path: PATH_ROUTE.lobby,
         element: <Lobby />,
+        errorElement: <Error />,
+      },
+      {
+        path: PATH_ROUTE.room + '/:roomName',
+        element: <Room />,
+        errorElement: <Error />,
       },
     ],
   },
@@ -38,7 +48,6 @@ const routes: RouteObject[] = [
     path: PATH_ROUTE.error,
     element: <Error />,
     errorElement: <Error />,
-    loader: authLoader,
   },
 ];
 
