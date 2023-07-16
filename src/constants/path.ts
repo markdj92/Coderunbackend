@@ -4,6 +4,7 @@ export const PATH_ROUTE = Object.freeze({
   signUp: '/signup',
   lobby: '/lobby',
   error: '/error',
+  room: '/room',
 });
 
 export const PATH_API = Object.freeze({
