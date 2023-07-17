@@ -2,6 +2,7 @@ node_modules
 .DS_Store
 dist
 .env
+nohup.out
 
 # IDE - VSCode
 .vscode/*
