@@ -14,7 +14,7 @@ const axiosConfig = {
 
 const loginInstance = axios.create(axiosConfig);
 
-export const postSignUp = (userAccount: UserAccount) => {
+export const postSignUp = (userAccount: UserAccount | { [k: string]: string }) => {
   return loginInstance.post(PATH_API.signUp, userAccount);
 };
 

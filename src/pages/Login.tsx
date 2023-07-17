@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
 
 import { postLogin } from '@/apis/authApi';
+import Signup from '@/components/Signup';
 import { useAuthForm } from '@/hooks/useAuthForm';
 
 const Login = () => {
+  const [isShownSignup, setShownSignup] = useState(false);
+
   const { emailRef, passwordRef, userAccount, handleAccountChange, isValidAccount } = useAuthForm();
 
   const navigate = useNavigate();
@@ -25,8 +28,13 @@ const Login = () => {
     }
   };
 
+  const handleShowSignup = () => {
+    setShownSignup(!isShownSignup);
+  };
+
   return (
     <>
+      {isShownSignup && <Signup handleShowSignup={handleShowSignup} />}
       <h1>로그인</h1>
       <form onSubmit={handleLogin}>
         <input
@@ -49,6 +57,7 @@ const Login = () => {
           로그인하기
         </button>
       </form>
+      <button onClick={handleShowSignup}>회원가입</button>
     </>
   );
 };

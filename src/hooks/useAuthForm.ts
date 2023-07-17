@@ -7,6 +7,7 @@ import { useInput } from '@/hooks/useInput';
 export const useAuthForm = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const rePasswordRef = useRef<HTMLInputElement>(null);
   const { value: userAccount, setValue: setUserAccount } = useInput({ email: '', password: '' });
 
   const isValidAccount = () => {
@@ -24,6 +25,7 @@ export const useAuthForm = () => {
   return {
     emailRef,
     passwordRef,
+    rePasswordRef,
     userAccount,
     handleAccountChange,
     isValidAccount,
