@@ -1,8 +1,10 @@
 import { Body, Controller, Get, Patch, Post, Query, UseGuards, Param, Req, Request, UsePipes, ValidationPipe } from '@nestjs/common';
 import { UserRequestDto } from './dto/user.dto';
 import { UserService } from './user.service';
+import { AuthGuard } from '@nestjs/passport';
 import { User } from './schemas/user.schema';
 import {SignUpDto, LoginDto, UpdateDto, LostDto, RenameDto, GetoneDto} from "./dto"
+
 @Controller('user')
 export class UserController {
     constructor(private userService: UserService) {}
