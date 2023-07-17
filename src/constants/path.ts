@@ -9,7 +9,7 @@ export const PATH_ROUTE = Object.freeze({
 
 export const PATH_API = Object.freeze({
   room: '/room',
-  auth: '/auth',
-  login: '/login',
-  signUp: '/signup',
+  auth: '/user',
+  login: '',
+  signUp: '/user/join',
 });
