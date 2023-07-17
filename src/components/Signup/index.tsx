@@ -24,7 +24,7 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
   };
 
   return (
-    <Modal handleHideSignup={handleShowSignup}>
+    <Modal handleHideModal={handleShowSignup}>
       <button style={{ float: 'right' }} onClick={handleShowSignup}>
         x
       </button>
