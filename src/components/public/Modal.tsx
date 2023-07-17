@@ -2,13 +2,13 @@ import styled from 'styled-components';
 
 type ModalProps = {
   children: React.ReactNode;
-  handleHideSignup: () => void;
+  handleHideModal: () => void;
 };
 
-const Modal = ({ children, handleHideSignup }: ModalProps) => {
+const Modal = ({ children, handleHideModal }: ModalProps) => {
   return (
     <>
-      <Backdrop onClick={handleHideSignup} />
+      <Backdrop onClick={handleHideModal} />
       <ModalOverlay>{children}</ModalOverlay>
     </>
   );
