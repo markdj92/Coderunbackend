@@ -33,22 +33,27 @@ export class RoomCreateDto {
 
     @IsNotEmpty()
     @IsString()
+    @ApiProperty()
     title : string;
 
     @IsNotEmpty()
     @IsNumber()
+    @ApiProperty()
     max_members : number;
 
     @IsEnum(RoomStatus)
+    @ApiProperty()
     status : RoomStatus;
 
-    @IsOptional()
-    @Validate(IsPasswordRequiredConstraint)
+    @ApiProperty()
+    @Validate(IsPasswordRequiredConstraint,{ message: 'password should not be empty' })
     password : string;
 
+    @ApiProperty()
     @IsNotEmpty()
     level : number;
 
+    @ApiProperty()
     @IsEnum(RoomMode)
     mode : RoomMode;
 }

@@ -1,5 +1,6 @@
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose"
 import { IsNotEmpty } from 'class-validator';
+import { Document, SchemaOptions } from "mongoose";
 
 export enum RoomStatus {
     PUBLIC = 'PUBLIC',
@@ -23,7 +24,7 @@ export class Room extends Document {
     })
     title : string;
 
-    @Prop()
+    @Prop({ default: 1 })
     member_count : number;
 
     @Prop({required: true})
@@ -32,7 +33,7 @@ export class Room extends Document {
     @Prop({required: true})
     status : RoomStatus;
     
-    @Prop({ default: null })
+    @Prop()
     password : string;
     
     @Prop({required: true, default : 1})
