@@ -4,13 +4,9 @@ import { Model } from 'mongoose';
 import { UserRequestDto } from './dto/user.dto';
 import { User } from './schemas/user.schema';
 import * as bcrypt from 'bcrypt';
-import { SignUpDto } from './dto/signup.dto';
-import { LoginDto } from './dto/login.dto';
-import { UpdateDto } from './dto/update.dto';
-import { LostDto } from './dto/lost.dto';
-import { RenameDto } from './dto/rename.dto';
 import { JwtService } from '@nestjs/jwt';
-import { GetoneDto } from './dto/getone.dto';
+import {SignUpDto, LoginDto, UpdateDto, LostDto, RenameDto, GetoneDto} from "./dto"
+
 
 @Injectable()
 export class UserService {
@@ -54,7 +50,7 @@ export class UserService {
     async login(loginDto: LoginDto): Promise<{ token: string }> {
     const { email, password } = loginDto;
 
-    const user = await this.userModel.findOne({ email });
+    const user = await this.userModel.findOne({ email: email });
 
     if (!user) {
         throw new UnauthorizedException('Invalid email or password');
@@ -81,7 +77,7 @@ export class UserService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await this.userModel.updateOne({email}, {password: hashedPassword})
+    await this.userModel.updateOne({email: email}, {password: hashedPassword})
 
     return {msg:"Password Changed"};
     }
@@ -91,7 +87,7 @@ export class UserService {
     
     const newPassword = Math.floor(100000 + Math.random() * 900000).toString();
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await this.userModel.updateOne({email}, {password: hashedPassword})
+    await this.userModel.updateOne({email: email}, {password: hashedPassword})
 
     return {password: newPassword};
     }
@@ -99,7 +95,7 @@ export class UserService {
     async rename(renameDto: RenameDto) {
     const { name, email} = renameDto;
 
-    await this.userModel.updateOne({email}, {name: name})
+    await this.userModel.updateOne({email: email}, {name: name})
 
     return {msg:`Name Changed to ${name}`};
     }
@@ -111,7 +107,7 @@ export class UserService {
 
     async getOne(getoneDto: GetoneDto) {
     const { email } = getoneDto;
-    const user = await this.userModel.findOne({ email });
+    const user = await this.userModel.findOne({ email: email });
     if(!user){
         throw new NotFoundException(`User with name ${email} not found.`)
     }
