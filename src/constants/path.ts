@@ -11,5 +11,5 @@ export const PATH_API = Object.freeze({
   room: '/room',
   auth: '/user',
   login: '',
-  signUp: '/user/join',
+  signUp: '/join',
 });
