@@ -1,0 +1,27 @@
+import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose"
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { Document, SchemaOptions } from "mongoose";
+
+@Schema()
+
+export class User extends Document {
+    
+    @Prop({
+        required: true,
+        unique: true,
+    })
+
+    @IsEmail()
+    @IsNotEmpty()
+    email: string;
+
+    @Prop({
+        required: true,
+    })
+    @IsString()
+    @IsNotEmpty()
+    password: string;
+
+}
+
+export const UserSchema  = SchemaFactory.createForClass(User);
