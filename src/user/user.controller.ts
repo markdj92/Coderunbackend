@@ -30,7 +30,7 @@ export class UserController {
       return this.userService.signUp(signUpDto);
     }
   
-    @Get('/login')
+    @Post('/login')
     login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
       return this.userService.login(loginDto);
     }

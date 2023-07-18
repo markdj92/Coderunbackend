@@ -29,7 +29,10 @@ export class UserService {
 
     async signUp(signUpDto: SignUpDto): Promise<{ token: string }> {
         const { email, password } = signUpDto;
-    
+        const isUserExist = await this.userModel.exists({email: email});
+        if (isUserExist) {
+          throw new UnauthorizedException('duplicate email');
+        }
         // const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,12}$/;
         // if (!passwordRegex.test(password)) {
         //   throw new Error('Password must be 8 to 12 characters long and include at least one letter, one number, and one special character.');
