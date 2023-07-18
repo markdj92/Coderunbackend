@@ -13,19 +13,19 @@ export class UserService {
     constructor(@InjectModel(User.name) private userModel: Model<User>,
     private jwtService: JwtService,) {}
 
-    async createUser(user : UserRequestDto) : Promise<UserRequestDto> {
-        const hashedPassword = await bcrypt.hash(user.password, 10);
-        const newUser = new this.userModel({...user, password : hashedPassword});
-        return newUser.save();
-    }
+    // async createUser(user : UserRequestDto) : Promise<UserRequestDto> {
+    //     const hashedPassword = await bcrypt.hash(user.password, 10);
+    //     const newUser = new this.userModel({...user, password : hashedPassword});
+    //     return newUser.save();
+    // }
 
-    async validateUser(user : UserRequestDto) : Promise<any> {
-        const user_info = await this.userModel.findOne({email : user.email});
-        if (!user_info || !await bcrypt.compare(user.password, user_info.password)){
-            throw new UnauthorizedException('Invalid email or password');
-        }
-        return "Success";
-    }
+    // async validateUser(user : UserRequestDto) : Promise<any> {
+    //     const user_info = await this.userModel.findOne({email : user.email});
+    //     if (!user_info || !await bcrypt.compare(user.password, user_info.password)){
+    //         throw new UnauthorizedException('Invalid email or password');
+    //     }
+    //     return "Success";
+    // }
 
     async signUp(signUpDto: SignUpDto): Promise<{ token: string }> {
         const { email, password } = signUpDto;
