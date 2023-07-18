@@ -4,12 +4,12 @@ import { RoomCreateDto } from './dto/room.dto';
 
 @Controller('room')
 export class RoomController {
-    constructor(private roomService: RoomService) {}
-    @Post('/create-room')
-    @UsePipes(new ValidationPipe())
-    createRoom(
-        @Body() roomCreateDto : RoomCreateDto 
-    ): Promise<RoomCreateDto>{
-        return this.roomService.createRoom(roomCreateDto);
-    }
+    // constructor(private roomService: RoomService) {}
+    // @Post('/create-room')
+    // @UsePipes(new ValidationPipe())
+    // createRoom(
+    //     @Body() roomCreateDto : RoomCreateDto 
+    // ): Promise<RoomCreateDto>{
+    //     return this.roomService.createRoom(roomCreateDto);
+    // }
 }
