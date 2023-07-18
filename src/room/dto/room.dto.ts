@@ -1,7 +1,8 @@
 import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
 import { IsEnum, IsOptional, Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator";
 
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiTags } from '@nestjs/swagger';
+import { Controller } from '@nestjs/common';
 
 @ValidatorConstraint({ async: false })
 export class IsPasswordRequiredConstraint implements ValidatorConstraintInterface {
