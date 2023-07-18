@@ -18,6 +18,7 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
         alert('비밀번호가 일치하지 않습니다');
         return;
       }
+      delete userAccount.rePassword;
       const response = await postSignUp(userAccount);
       if (response) {
         alert('가입 완료!');
