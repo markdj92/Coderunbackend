@@ -19,8 +19,7 @@ export const postSignUp = (userAccount: UserAccount | { [k: string]: string }) =
 };
 
 export const postLogin = (userAccount: UserAccount | { [k: string]: string }) => {
-  return { data: { access_token: userAccount.email } };
-  // return loginInstance.post(PATH_API.login, userAccount);
+  return loginInstance.post(PATH_API.login, userAccount);
 };
 
 export const postLogout = () => {
