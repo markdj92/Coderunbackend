@@ -13,23 +13,26 @@ export class UserService {
     constructor(@InjectModel(User.name) private userModel: Model<User>,
     private jwtService: JwtService,) {}
 
-    async createUser(user : UserRequestDto) : Promise<UserRequestDto> {
-        const hashedPassword = await bcrypt.hash(user.password, 10);
-        const newUser = new this.userModel({...user, password : hashedPassword});
-        return newUser.save();
-    }
+    // async createUser(user : UserRequestDto) : Promise<UserRequestDto> {
+    //     const hashedPassword = await bcrypt.hash(user.password, 10);
+    //     const newUser = new this.userModel({...user, password : hashedPassword});
+    //     return newUser.save();
+    // }
 
-    async validateUser(user : UserRequestDto) : Promise<any> {
-        const user_info = await this.userModel.findOne({email : user.email});
-        if (!user_info || !await bcrypt.compare(user.password, user_info.password)){
-            throw new UnauthorizedException('Invalid email or password');
-        }
-        return "Success";
-    }
+    // async validateUser(user : UserRequestDto) : Promise<any> {
+    //     const user_info = await this.userModel.findOne({email : user.email});
+    //     if (!user_info || !await bcrypt.compare(user.password, user_info.password)){
+    //         throw new UnauthorizedException('Invalid email or password');
+    //     }
+    //     return "Success";
+    // }
 
     async signUp(signUpDto: SignUpDto): Promise<{ token: string }> {
         const { email, password } = signUpDto;
-    
+        const isUserExist = await this.userModel.exists({email: email});
+        if (isUserExist) {
+          throw new UnauthorizedException('duplicate email');
+        }
         // const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,12}$/;
         // if (!passwordRegex.test(password)) {
         //   throw new Error('Password must be 8 to 12 characters long and include at least one letter, one number, and one special character.');
