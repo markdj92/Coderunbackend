@@ -104,6 +104,7 @@ const MainFrame = styled.div`
 const LoginContainer = styled.form`
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-direction: column;
   width: 500px;
   height: 50vh;
@@ -118,7 +119,8 @@ const LoginContainer = styled.form`
 `;
 
 const WelcomeText = styled.h2`
-  margin: 3rem 0 2rem 0;
+  margin: 0rem 0 2rem 0;
+  font-size: 1.2rem;
 `;
 
 const InputContainer = styled.div`
@@ -126,7 +128,7 @@ const InputContainer = styled.div`
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-  height: 200px;
+  height: 100px;
   width: 100%;
 `;
 
@@ -140,7 +142,6 @@ const ButtonContainer = styled.div`
 
 const LoginWith = styled.h5`
   cursor: pointer;
-  margin-bottom: 1.5rem;
   transition: all 0.5s ease;
 
   &:hover {
