@@ -1,5 +1,8 @@
-import { Controller, Logger } from '@nestjs/common';
+import { UserService } from './../user/user.service';
+import { Controller, Header, Logger, Req, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import * as jwt from 'jsonwebtoken'
 import {
   ConnectedSocket,
   MessageBody,
@@ -13,11 +16,15 @@ import {
 import { Namespace, Socket } from 'socket.io';
 import { RoomCreateDto } from 'src/room/dto/room.dto';
 import { RoomService } from 'src/room/room.service';
+import { jwtSocketIoMiddleware } from './jwt-socket-io.middleware';
 
 @ApiTags('Room')
+@UseGuards(jwtSocketIoMiddleware)
 @WebSocketGateway({cors : true, namespace: 'room'})
 export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
-    constructor(private readonly roomService: RoomService) {}
+    constructor(private readonly roomService: RoomService,
+        private readonly userService: UserService, // Add this line    
+    ) {}
 
     private logger = new Logger('Gateway');
     @WebSocketServer() nsp: Namespace;
@@ -40,11 +47,16 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     handleDisconnect(@ConnectedSocket() socket: Socket)  {
         this.logger.log(`${socket.id} sockect disconnected!`);
     }
+
     @SubscribeMessage('create-room')
     @ApiOperation({ summary: 'Create a new room' })
-    async handleCreateRoom(@MessageBody() roomCreateDto: RoomCreateDto, @ConnectedSocket() socket: Socket): Promise<void> {
-        const room = await this.roomService.createRoom(roomCreateDto, socket.id);
-        this.nsp.emit('room-created', room);
+    async handleCreateRoom(
+      @MessageBody() roomCreateDto: RoomCreateDto,
+      @ConnectedSocket() socket: Socket
+    ): Promise<void> {
+        const token = await socket.handshake.headers.authorization;
+        const user = await this.userService.validateToken(token);
+        const room = await this.roomService.createRoom(roomCreateDto, socket.id, user);
+        this.nsp.emit('room-created', room);  
     }
-  
 }

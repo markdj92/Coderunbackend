@@ -1,5 +1,4 @@
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose"
-import { IsNotEmpty } from 'class-validator';
 import { Document, SchemaOptions } from "mongoose";
 
 export enum RoomStatus {
