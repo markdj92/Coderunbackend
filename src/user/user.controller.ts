@@ -33,13 +33,13 @@ export class UserController {
     }
   
     @Post('/login')
-    login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
+    login(@Body() loginDto: LoginDto) {
       return this.userService.login(loginDto);
     }
   
     @Get('/logout')
     logout(@Request() req): any {
-      req.cookie.destroy();
+      //req.cookie.destroy();
       return { msg: 'The user has loggedout' }
     }
   
