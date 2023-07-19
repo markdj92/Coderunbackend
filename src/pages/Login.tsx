@@ -75,7 +75,7 @@ const Login = () => {
 
 const MainFrame = styled.div`
   font-family: 'Raleway', sans-serif;
-  background-image: url('/public/background.jpg');
+  background-image: url('/background.jpg');
   background-size: cover;
   display: flex;
   justify-content: center;
