@@ -25,6 +25,9 @@ export class User extends Document {
     password: string;
 
     @Prop()
+    socket_id : string;
+
+    @Prop()
     online: boolean;
     
     @Prop()

@@ -1,7 +1,8 @@
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiQuery, ApiResponse, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import { RoomService } from './room.service';
-import { Body, Controller, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Post, UsePipes, ValidationPipe, Get } from '@nestjs/common';
 import { RoomCreateDto } from './dto/room.dto';
+import { Room } from './schemas/room.schema';
 
 @ApiTags('Room')
 @Controller('room')
@@ -18,4 +19,14 @@ export class RoomController {
     // ): Promise<RoomCreateDto>{
     //     return this.roomService.createRoom(roomCreateDto);
     // }
+    @ApiOperation({ summary: '입장 가능한 방 보여주기'})
+    @ApiResponse({
+        status: 200,
+        description: 'Success',
+        type: Room, // 스키마 클래스 지정
+    })
+    @Get('/')
+    getRoomList(){
+        return this.roomService.getRoomList();
+    }
 }

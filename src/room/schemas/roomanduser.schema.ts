@@ -3,8 +3,6 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema()
 export class RoomAndUser extends Document {
-  @Prop({ required: true })
-  socket_id: string;
 
   @Prop({ required: true, type: MongooseSchema.Types.ObjectId })
   room_id: MongooseSchema.Types.ObjectId;

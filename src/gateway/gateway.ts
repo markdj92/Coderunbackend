@@ -2,7 +2,7 @@ import { UserService } from './../user/user.service';
 import { Controller, Header, Logger, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import * as jwt from 'jsonwebtoken'
+
 import {
   ConnectedSocket,
   MessageBody,
@@ -14,7 +14,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
-import { RoomCreateDto } from 'src/room/dto/room.dto';
+import { RoomAndUserDto, RoomCreateDto } from 'src/room/dto/room.dto';
 import { RoomService } from 'src/room/room.service';
 import { jwtSocketIoMiddleware } from './jwt-socket-io.middleware';
 
@@ -31,21 +31,22 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
 
     afterInit(server: any) {
         this.nsp.adapter.on('create-room', (room) => {
-        this.logger.log(`"Room:${room}"이 생성되었습니다.`);
+        this.logger.log(`"client sokect id : ${room}"이 생성되었습니다.`);
         });
     
         this.logger.log('웹소켓 서버 초기화');
     }
 
-    handleConnection(@ConnectedSocket() socket: Socket) {
+    async handleConnection(@ConnectedSocket() socket: Socket) {
+        const token = await socket.handshake.headers.authorization;
         this.logger.log(`"${socket.id} socket connected!`);
-        socket.broadcast.emit('message', {
-            message: `${socket.id}가 들어왔습니다.`,
-        });
+        this.userService.saveSocketId(token, socket.id);
     }
 
-    handleDisconnect(@ConnectedSocket() socket: Socket)  {
+    async handleDisconnect(@ConnectedSocket() socket: Socket)  {
+        const token = await socket.handshake.headers.authorization;
         this.logger.log(`${socket.id} sockect disconnected!`);
+        this.userService.deleteSocketId(token);
     }
 
     @SubscribeMessage('create-room')
@@ -55,8 +56,34 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
       @ConnectedSocket() socket: Socket
     ): Promise<void> {
         const token = await socket.handshake.headers.authorization;
-        const user = await this.userService.validateToken(token);
-        const room = await this.roomService.createRoom(roomCreateDto, socket.id, user);
+        const user = await this.userService.decodeToken(token);
+        const room = await this.roomService.createRoom(roomCreateDto, user);
+        await room.save(); // 변경 사항 저장
+        room.socket_id = socket.id; // 소켓 ID 할당
         this.nsp.emit('room-created', room);  
     }
+
+    // @UseGuards(AuthGuard())  토큰 확인하는 정보를 추가. 
+    @SubscribeMessage('join-room')
+    async handleJoinRoom( 
+        @MessageBody() { title }: { title: string },
+        @ConnectedSocket() socket: Socket): Promise<void> {
+        const token = await socket.handshake.headers.authorization;
+
+        const condition = await this.roomService.checkRoomCondition(title);
+        if(!condition){
+            socket.emit("Can't join the room!");
+        }
+        else {
+            const user_socket_id = await this.userService.getSocketId(token);
+            socket.join(await user_socket_id);
+            const roomAndUserDto = new RoomAndUserDto;
+            roomAndUserDto.room_id = await this.roomService.getRoomIdFromTitle(title);
+            roomAndUserDto.user_id = await this.userService.decodeToken(token);
+            await this.roomService.saveRoomAndUser(roomAndUserDto);
+            await this.roomService.chageRoomStatus(roomAndUserDto.room_id);
+        }
+        // 게임방에 메시지 또는 이벤트를 보낼 수 있음
+        socket.to(socket.id).emit('message', 'Welcome to the game room!');
+      }
 }

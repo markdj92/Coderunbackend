@@ -22,9 +22,11 @@ export class IsPasswordRequiredConstraint implements ValidatorConstraintInterfac
     }
 }
 
+
 export enum RoomStatus {
     PUBLIC = 'PUBLIC',
-    PRIVATE = 'PRIVATE'
+    PRIVATE = 'PRIVATE',
+    ACTIVE = "ACTIVE"
 }
 
 export enum RoomMode {
@@ -61,20 +63,16 @@ export class RoomCreateDto {
     mode : RoomMode;
 }
 
-export class RoomAndUserDto{
+export class RoomAndUserDto {
 
     @IsNotEmpty()
-    @IsNumber()
     @ApiProperty()
-    socket_id : string;
-
+    @IsNumber()
+    room_id: ObjectId;
+  
     @IsNotEmpty()
-    @IsNumber()
     @ApiProperty()
-    room_id : ObjectId;
-
-    @IsNotEmpty()
     @IsNumber()
-    @ApiProperty()
-    user_id : ObjectId;
-}
+    user_id: ObjectId;
+    roomAndUserDto: Promise<import("mongoose").Schema.Types.ObjectId>;
+  }

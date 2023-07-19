@@ -15,7 +15,7 @@ export class RoomService {
 
     ) {}
     
-    async createRoom(room : RoomCreateDto, socket_id : string, user_id: ObjectId) : Promise<Room> {
+    async createRoom(room : RoomCreateDto, user_id: ObjectId) : Promise<Room> {
         let newRoom;
         const found = await this.roomModel.findOne({title : room.title});
         if(found){
@@ -23,13 +23,12 @@ export class RoomService {
         }
         if(room.status == "PRIVATE"){
             const hashedPassword = await bcrypt.hash(room.password, 10);
-            newRoom = new this.roomModel({...room, password : hashedPassword, socket_id : socket_id});
+            newRoom = new this.roomModel({...room, password : hashedPassword});
         }
         else{
-            newRoom = new this.roomModel({...room, socket_id : socket_id});
+            newRoom = new this.roomModel({...room});
         }
         const roomAndUserDto = new RoomAndUserDto();
-        roomAndUserDto.socket_id = socket_id;
         roomAndUserDto.room_id = newRoom._id;
         roomAndUserDto.user_id = user_id;
 
@@ -42,5 +41,31 @@ export class RoomService {
         const newInfoForRoom = new this.roomAndUserModel({...info});
         await newInfoForRoom.save();
     }
-    
+
+    async getRoomList() : Promise<Room[]> {
+        const rooms = await this.roomModel.find().exec();
+        const result = rooms.filter(room => room.ready === true);
+        return result;
+    }
+    async getRoomIdFromTitle(title : string) : Promise<ObjectId> {
+        const room = await this.roomModel.findOne({title: title}).exec();
+        return room._id;
+    }
+
+    async checkRoomCondition(title_name : string) : Promise<boolean> {
+        const room = await this.roomModel.findOne({title : title_name}).exec();
+        if (room && room.member_count < room.max_members && room.ready === true){
+            return true;
+        }
+        return false;
+    }
+
+    async chageRoomStatus(room_id : ObjectId) : Promise<void> {
+        const room = await this.roomModel.findById(room_id);
+        room.member_count += 1;
+        if(room.member_count === room.max_members){
+            room.ready = false;
+        }
+
+    }
 }
