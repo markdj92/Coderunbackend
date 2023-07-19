@@ -5,6 +5,7 @@ const GlobalStyle = createGlobalStyle`
   ${reset}
   * {
     box-sizing: border-box;
+    color: white;
   }
   a {
   color: inherit;
@@ -12,6 +13,9 @@ const GlobalStyle = createGlobalStyle`
   }
   li {
   list-style: none;
+  }
+  body{
+    background-image: url('/background.jpg');
   }
 
   button{
