@@ -33,7 +33,7 @@ export class UserController {
     }
   
     @Post('/login')
-    login(@Body() loginDto: LoginDto): Promise<{ token: string }> {
+    login(@Body() loginDto: LoginDto) {
       return this.userService.login(loginDto);
     }
   

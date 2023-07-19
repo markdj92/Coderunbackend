@@ -39,8 +39,9 @@ export class UserService {
         // }
     
         const hashedPassword = await bcrypt.hash(password, 10);
-    
+        const name ="";
         const user = await this.userModel.create({
+          name,
           email,
           password: hashedPassword,
         });
@@ -50,7 +51,7 @@ export class UserService {
         return { token };
     }
 
-    async login(loginDto: LoginDto): Promise<{ token: string }> {
+    async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
 
     const user = await this.userModel.findOne({ email: email });
@@ -66,8 +67,9 @@ export class UserService {
     }
 
     const token = this.jwtService.sign({ id: user._id });
-
-    return { token };
+    const name = user.name;
+    const res = {name, token};
+    return { name, token};
     }
 
     async update(updateDto: UpdateDto) {
