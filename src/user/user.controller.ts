@@ -39,7 +39,7 @@ export class UserController {
   
     @Get('/logout')
     logout(@Request() req): any {
-      req.cookie.destroy();
+      //req.cookie.destroy();
       return { msg: 'The user has loggedout' }
     }
   
