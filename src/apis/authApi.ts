@@ -5,7 +5,7 @@ import { USER_TOKEN_KEY, PATH_API } from '@/constants';
 import { UserAccount } from '@/types/auth';
 
 const axiosConfig = {
-  baseURL: `${import.meta.env.VITE_API_URL}${PATH_API.auth}`,
+  baseURL: `http://43.206.213.192:3000${PATH_API.auth}`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
