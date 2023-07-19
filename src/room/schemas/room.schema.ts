@@ -47,6 +47,9 @@ export class Room extends Document {
 
     @Prop()
     create_time : Date;
+
+    @Prop()
+    socket_id : string;
 }
 
 export const RoomSchemas  = SchemaFactory.createForClass(Room);

@@ -12,7 +12,10 @@ export class RoomController {
     @UsePipes(new ValidationPipe())
     createRoom(
         @Body() roomCreateDto : RoomCreateDto 
-    ): Promise<RoomCreateDto>{
-        return this.roomService.createRoom(roomCreateDto);
+    ) : void {
+        
     }
+    // ): Promise<RoomCreateDto>{
+    //     return this.roomService.createRoom(roomCreateDto);
+    // }
 }

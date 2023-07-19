@@ -8,7 +8,7 @@ import * as bcrypt from 'bcrypt';
 export class RoomService {
     constructor(@InjectModel(Room.name) private roomModel: Model<Room>) {}
     
-    async createRoom(room : RoomCreateDto) : Promise<Room> {
+    async createRoom(room : RoomCreateDto, socket_id : string) : Promise<Room> {
         let newRoom;
         const found = await this.roomModel.findOne({title : room.title});
         if(found){
@@ -16,10 +16,10 @@ export class RoomService {
         }
         if(room.status == "PRIVATE"){
             const hashedPassword = await bcrypt.hash(room.password, 10);
-            newRoom = new this.roomModel({...room, password : hashedPassword});
+            newRoom = new this.roomModel({...room, password : hashedPassword, socket_id : socket_id});
         }
         else{
-            newRoom = new this.roomModel({...room});
+            newRoom = new this.roomModel({...room, socket_id : socket_id});
         }
        
         return newRoom.save()

@@ -42,8 +42,8 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     }
     @SubscribeMessage('create-room')
     @ApiOperation({ summary: 'Create a new room' })
-    async handleCreateRoom(@MessageBody() roomCreateDto: RoomCreateDto): Promise<void> {
-        const room = await this.roomService.createRoom(roomCreateDto);
+    async handleCreateRoom(@MessageBody() roomCreateDto: RoomCreateDto, @ConnectedSocket() socket: Socket): Promise<void> {
+        const room = await this.roomService.createRoom(roomCreateDto, socket.id);
         this.nsp.emit('room-created', room);
     }
   
