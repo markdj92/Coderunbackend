@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 import { User,UserSchema} from './user/schemas/user.schema';
+import { PassportModule } from '@nestjs/passport';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -15,6 +16,7 @@ import { User,UserSchema} from './user/schemas/user.schema';
     }),
     GatewayModule,
     MongooseModule.forRoot(process.env.MONGODB_ID),
+    PassportModule,
     UserModule,
     RoomModule,
   ],

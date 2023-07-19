@@ -1,3 +1,4 @@
+import { RoomModule } from 'src/room/room.module';
 import { Module } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
@@ -26,6 +27,6 @@ import { UserSchema } from './schemas/user.schema';
   ],
   controllers: [UserController],
   providers: [UserService, JwtStrategy],
-  exports: [JwtStrategy, PassportModule],
+  exports: [UserService, JwtStrategy], // exports에 UserService 추가
 })
 export class UserModule {}

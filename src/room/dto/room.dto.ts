@@ -3,6 +3,8 @@ import { IsEnum, IsOptional, Validate, ValidationArguments, ValidatorConstraint,
 
 import { ApiProperty, ApiTags } from '@nestjs/swagger';
 import { Controller } from '@nestjs/common';
+import { ObjectId } from 'mongoose';
+import { Prop } from '@nestjs/mongoose';
 
 @ValidatorConstraint({ async: false })
 export class IsPasswordRequiredConstraint implements ValidatorConstraintInterface {
@@ -20,9 +22,11 @@ export class IsPasswordRequiredConstraint implements ValidatorConstraintInterfac
     }
 }
 
+
 export enum RoomStatus {
     PUBLIC = 'PUBLIC',
-    PRIVATE = 'PRIVATE'
+    PRIVATE = 'PRIVATE',
+    ACTIVE = "ACTIVE"
 }
 
 export enum RoomMode {
@@ -58,3 +62,17 @@ export class RoomCreateDto {
     @IsEnum(RoomMode)
     mode : RoomMode;
 }
+
+export class RoomAndUserDto {
+
+    @IsNotEmpty()
+    @ApiProperty()
+    @IsNumber()
+    room_id: ObjectId;
+  
+    @IsNotEmpty()
+    @ApiProperty()
+    @IsNumber()
+    user_id: ObjectId;
+    roomAndUserDto: Promise<import("mongoose").Schema.Types.ObjectId>;
+  }

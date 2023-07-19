@@ -1,5 +1,5 @@
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose"
-import { IsNotEmpty } from 'class-validator';
+import { ApiProperty } from "@nestjs/swagger";
 import { Document, SchemaOptions } from "mongoose";
 
 export enum RoomStatus {
@@ -17,36 +17,52 @@ export enum RoomMode {
 })
 
 export class Room extends Document {
-
+    @ApiProperty()
     @Prop({
         required: true,
         unique: true,
     })
     title : string;
 
+    @ApiProperty()
     @Prop({ default: 1 })
     member_count : number;
 
+    @ApiProperty()
     @Prop({required: true})
     max_members : number;
 
+    @ApiProperty()
     @Prop({required: true})
     status : RoomStatus;
     
+    @ApiProperty()
     @Prop()
     password : string;
     
+    @ApiProperty()
     @Prop({required: true, default : 1})
     level : number;
 
+    @ApiProperty()
     @Prop({required: true, default : 'STUDY'})
     mode : RoomMode;
 
+    @ApiProperty()
     @Prop({default : true})
     ready : boolean; 
 
+    @ApiProperty()
     @Prop()
     create_time : Date;
+
+    @ApiProperty()
+    @Prop()
+    socket_id : string;
 }
 
 export const RoomSchemas  = SchemaFactory.createForClass(Room);
+
+function ApiModelProperty() {
+    throw new Error("Function not implemented.");
+}
