@@ -12,6 +12,7 @@ export const useAuthForm = () => {
   const { value: validateState, setValue: setValidateState } = useInput({
     email: false,
     password: false,
+    errorMessage: '',
   });
 
   const isValidAccount = () => {
@@ -43,6 +44,7 @@ export const useAuthForm = () => {
       if (isValidPassword()) setValidateState({ ...validateState, password: true });
       else setValidateState({ ...validateState, password: false });
     }
+    if (validateState.errorMessage) setValidateState({ ...validateState, errorMessage: '' });
     setUserAccount({ ...userAccount, [name]: value });
   };
 
@@ -52,6 +54,7 @@ export const useAuthForm = () => {
     rePasswordRef,
     userAccount,
     validateState,
+    setValidateState,
     handleAccountChange,
     isValidAccount,
   };

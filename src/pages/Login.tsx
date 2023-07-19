@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components';
 
 import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
 
-import { postLogin } from '@/apis/authApi';
+import { loginInstance, postLogin } from '@/apis/authApi';
 import InputAnimation from '@/components/public/inputAnimation';
 import Signup from '@/components/Signup';
 import { useAuthForm } from '@/hooks/useAuthForm';
@@ -12,7 +12,14 @@ import { useAuthForm } from '@/hooks/useAuthForm';
 const Login = () => {
   const [isShownSignup, setShownSignup] = useState(false);
 
-  const { emailRef, passwordRef, userAccount, validateState, handleAccountChange } = useAuthForm();
+  const {
+    emailRef,
+    passwordRef,
+    userAccount,
+    validateState,
+    setValidateState,
+    handleAccountChange,
+  } = useAuthForm();
 
   const navigate = useNavigate();
 
@@ -20,13 +27,16 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await postLogin(userAccount);
-      const { access_token: accessToken } = response.data;
+      const { token: accessToken } = response.data;
       if (accessToken) {
         localStorage.setItem(USER_TOKEN_KEY, accessToken);
+        loginInstance.defaults.headers.common.token = 'Bearer ' + accessToken;
         navigate(PATH_ROUTE.lobby);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      if (error.response.data)
+        setValidateState({ ...validateState, errorMessage: error.response.data.message });
+      console.error(error.response.data);
     }
   };
 
@@ -58,6 +68,7 @@ const Login = () => {
             isValid={validateState.password}
           />
         </InputContainer>
+        {validateState.errorMessage && <ErrorMsg>{validateState.errorMessage}</ErrorMsg>}
         <ButtonContainer>
           <StyledButton
             type='submit'
@@ -72,6 +83,12 @@ const Login = () => {
     </MainFrame>
   );
 };
+
+const ErrorMsg = styled.div`
+  color: white;
+  font-size: 0.5rem;
+  margin-top: 1rem;
+`;
 
 const MainFrame = styled.div`
   font-family: 'Raleway', sans-serif;

@@ -12,4 +12,5 @@ export const PATH_API = Object.freeze({
   auth: '/user',
   login: '/login',
   signUp: '/signup',
+  logout: '/logout',
 });
