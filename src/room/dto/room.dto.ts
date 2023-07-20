@@ -74,5 +74,4 @@ export class RoomAndUserDto {
     @ApiProperty()
     @IsNumber()
     user_id: ObjectId;
-    roomAndUserDto: Promise<import("mongoose").Schema.Types.ObjectId>;
   }

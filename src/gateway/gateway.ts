@@ -52,10 +52,16 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     @SubscribeMessage('create-room')
     @ApiOperation({ summary: 'Create a new room' })
     async handleCreateRoom(
-      @MessageBody() roomCreateDto: RoomCreateDto,
+      @MessageBody() roombodystring: string,
       @ConnectedSocket() socket: Socket
     ): Promise<void> {
         const token = await socket.handshake.headers.authorization;
+        console.log(token);
+        console.log("first : ",roombodystring);
+        let roomCreateDto = JSON.parse(roombodystring);
+
+        console.log("second : ",roomCreateDto);
+
         const user = await this.userService.decodeToken(token);
         const room = await this.roomService.createRoom(roomCreateDto, user);
         await room.save(); // 변경 사항 저장
