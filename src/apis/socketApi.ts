@@ -2,4 +2,8 @@ import { io } from 'socket.io-client';
 
 import { PATH_API } from '@/constants';
 
-export const socket = io(`http://43.206.213.192:3000${PATH_API.room}`);
+export const socket = io(`http://52.69.242.42:3000${PATH_API.room}`, {
+  extraHeaders: {},
+  autoConnect: false,
+});
+// export const socket = io(`http://localhost:3000${PATH_API.room}`);

@@ -5,6 +5,7 @@ import styled, { css } from 'styled-components';
 import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
 
 import { loginInstance, postLogin } from '@/apis/authApi';
+import { socket } from '@/apis/socketApi';
 import InputAnimation from '@/components/public/inputAnimation';
 import Signup from '@/components/Signup';
 import { useAuthForm } from '@/hooks/useAuthForm';
@@ -30,7 +31,13 @@ const Login = () => {
       const { token: accessToken } = response.data;
       if (accessToken) {
         localStorage.setItem(USER_TOKEN_KEY, accessToken);
-        loginInstance.defaults.headers.common.token = 'Bearer ' + accessToken;
+        loginInstance.defaults.headers.common.token = accessToken;
+        socket.on('connect', () => {
+          socket.io.opts.extraHeaders = {
+            Authorization: accessToken,
+          };
+        });
+        socket.connect();
         navigate(PATH_ROUTE.lobby);
       }
     } catch (error: any) {
