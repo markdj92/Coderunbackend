@@ -5,7 +5,7 @@ import { Body, Controller, Post, UsePipes, ValidationPipe, Get, UseGuards, Req }
 import { RoomCreateDto } from './dto/room.dto';
 import { Room } from './schemas/room.schema';
 import { AuthGuard } from '@nestjs/passport';
-
+import { UserService } from 'src/user/user.service';
 
 @ApiTags('Room')
 @Controller('room')
