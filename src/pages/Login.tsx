@@ -32,12 +32,12 @@ const Login = () => {
       if (accessToken) {
         localStorage.setItem(USER_TOKEN_KEY, accessToken);
         loginInstance.defaults.headers.common.token = accessToken;
+        socket.connect();
         socket.on('connect', () => {
           socket.io.opts.extraHeaders = {
             Authorization: accessToken,
           };
         });
-        socket.connect();
         navigate(PATH_ROUTE.lobby);
       }
     } catch (error: any) {
