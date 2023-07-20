@@ -1,5 +1,3 @@
-import { Socket } from 'socket.io';
-import { UserService } from './../user/user.service';
 import { RoomAndUser } from './schemas/roomanduser.schema';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { RoomCreateDto, RoomAndUserDto } from './dto/room.dto';
@@ -7,10 +5,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Room } from './schemas/room.schema'
 import { Model,ObjectId,ObjectIdSchemaDefinition,Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import { UsersService } from 'src/users/users.service';
 @Injectable()
 export class RoomService {
     constructor(
-        private readonly userService: UserService,
+        private readonly userService: UsersService,
         @InjectModel(Room.name) private readonly roomModel: Model<Room>,
         @InjectModel(RoomAndUser.name) private readonly roomAndUserModel: Model<RoomAndUser>,
 

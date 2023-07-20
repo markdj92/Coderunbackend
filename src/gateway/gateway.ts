@@ -1,6 +1,4 @@
-import { UserService } from './../user/user.service';
-import { Controller, Header, Logger, Req, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Logger, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import {
@@ -16,6 +14,7 @@ import {
 import { Namespace, Socket } from 'socket.io';
 import { RoomAndUserDto, RoomCreateDto } from 'src/room/dto/room.dto';
 import { RoomService } from 'src/room/room.service';
+import { UsersService } from 'src/users/users.service';
 import { jwtSocketIoMiddleware } from './jwt-socket-io.middleware';
 
 @ApiTags('Room')
@@ -23,7 +22,7 @@ import { jwtSocketIoMiddleware } from './jwt-socket-io.middleware';
 @WebSocketGateway({cors : true, namespace: 'room'})
 export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
     constructor(private readonly roomService: RoomService,
-        private readonly userService: UserService, // Add this line    
+        private readonly userService: UsersService, // Add this line    
     ) {}
 
     private logger = new Logger('Gateway');

@@ -1,12 +1,9 @@
 import { AppGateway } from './gateway';
 import { Module } from '@nestjs/common';
-import { RoomService } from 'src/room/room.service';
 import { RoomModule } from 'src/room/room.module';
-import { UserModule } from 'src/user/user.module';
-import { JwtStrategy } from 'src/user/jwt.strategy';
-
+import { UsersModule } from 'src/users/users.module';
 @Module({
-    imports: [UserModule, RoomModule],
+    imports: [UsersModule, RoomModule],
     providers : [AppGateway],
 })
 export class GatewayModule {}

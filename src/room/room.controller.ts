@@ -5,13 +5,13 @@ import { Body, Controller, Post, UsePipes, ValidationPipe, Get, UseGuards, Req }
 import { RoomCreateDto } from './dto/room.dto';
 import { Room } from './schemas/room.schema';
 import { AuthGuard } from '@nestjs/passport';
-import { UserService } from 'src/user/user.service';
+import { UsersService } from 'src/users/users.service';
 
 @ApiTags('Room')
 @Controller('room')
 export class RoomController {
     constructor(private roomService: RoomService,
-        private readonly userService: UserService,) {}
+        private readonly userService: UsersService,) {}
     @ApiOperation({ summary: '해당 기능은 사용하지 않는 API 입니다, 소켓 create-room 호출시 클라이언트에서 제공해야 되는 값을 나타내기 위해 작성되었습니다. '})
     @Post('/create-room')
     @UsePipes(new ValidationPipe())
