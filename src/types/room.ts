@@ -13,3 +13,17 @@ export type userInfo = {
   isUser: string;
   isHost: string;
 };
+
+export interface RoomInformation {
+  title: string;
+  member_count: number;
+  max_members: number;
+  status: 'PUBLIC' | 'PRIVATE';
+  password?: string;
+  level: number;
+  mode: 'STUDY' | 'COOPERATIVE';
+  ready: boolean;
+  create_time: string;
+  socket_id: string;
+  master: string;
+}
