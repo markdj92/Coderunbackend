@@ -67,12 +67,15 @@ export class RoomAndUserDto {
 
     @IsNotEmpty()
     @ApiProperty()
-    @IsNumber()
     room_id: ObjectId;
   
     @IsNotEmpty()
     @ApiProperty()
-    @IsNumber()
     user_id: ObjectId;
+
+    @IsNotEmpty()
+    @ApiProperty()
+    socket_id: string;
+
     roomAndUserDto: Promise<import("mongoose").Schema.Types.ObjectId>;
   }
