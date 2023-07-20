@@ -1,8 +1,9 @@
 import { ApiOkResponse, ApiOperation, ApiQuery, ApiResponse, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import { RoomService } from './room.service';
-import { Body, Controller, Post, UsePipes, ValidationPipe, Get } from '@nestjs/common';
+import { Body, Controller, Post, UsePipes, ValidationPipe, Get, UseGuards, Req } from '@nestjs/common';
 import { RoomCreateDto } from './dto/room.dto';
 import { Room } from './schemas/room.schema';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('Room')
 @Controller('room')
@@ -26,7 +27,8 @@ export class RoomController {
         type: Room, // 스키마 클래스 지정
     })
     @Get('/')
-    getRoomList(){
-        return this.roomService.getRoomList();
+    @UseGuards(AuthGuard())
+    getRoomList(@Req() req){
+        return this.roomService.getRoomList(req.user);
     }
 }

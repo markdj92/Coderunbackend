@@ -42,11 +42,14 @@ export class RoomService {
         await newInfoForRoom.save();
     }
 
-    async getRoomList() : Promise<Room[]> {
+    async getRoomList(req) : Promise<Room[]> {
         const rooms = await this.roomModel.find().exec();
         const result = rooms.filter(room => room.ready === true);
+        const userid = req._id;
+        console.log(userid);
         return result;
     }
+    
     async getRoomIdFromTitle(title : string) : Promise<ObjectId> {
         const room = await this.roomModel.findOne({title: title}).exec();
         return room._id;
