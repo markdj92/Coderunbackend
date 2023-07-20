@@ -29,8 +29,8 @@ export class RoomService {
             newRoom = new this.roomModel({...room});
         }
         const roomAndUserDto = new RoomAndUserDto();
-        roomAndUserDto.room_id = newRoom._id;
-        roomAndUserDto.user_id = user_id;
+        roomAndUserDto.room_id = await newRoom._id;
+        roomAndUserDto.user_id = await user_id;
 
         await this.saveRoomAndUser(roomAndUserDto);
 
