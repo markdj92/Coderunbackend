@@ -5,7 +5,7 @@ import { USER_TOKEN_KEY, PATH_API } from '@/constants';
 import { UserAccount } from '@/types/auth';
 
 const axiosConfig = {
-  baseURL: `http://43.206.213.192:3000${PATH_API.auth}`,
+  baseURL: `http://52.69.242.42:3000${PATH_API.auth}`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -19,7 +19,7 @@ export const postSignUp = (userAccount: UserAccount | { [k: string]: string }) =
 };
 
 export const postLogin = (userAccount: UserAccount | { [k: string]: string }) => {
-  // return { data: { access_token: userAccount.email } };
+  // return { data: { token: userAccount.email } };
   return loginInstance.post(PATH_API.login, userAccount);
 };
 
