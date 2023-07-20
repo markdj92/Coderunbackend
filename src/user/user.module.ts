@@ -27,6 +27,6 @@ import { UserSchema } from './schemas/user.schema';
   ],
   controllers: [UserController],
   providers: [UserService, JwtStrategy],
-  exports: [UserService, JwtStrategy], // exports에 UserService 추가
+  exports: [UserService, PassportModule], // exports에 UserService 추가
 })
 export class UserModule {}
