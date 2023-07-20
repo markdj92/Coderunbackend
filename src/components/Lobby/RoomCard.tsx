@@ -1,18 +1,38 @@
+import { BsFillBookFill } from 'react-icons/bs';
 import { FaKey } from 'react-icons/fa';
+import { RiTeamFill } from 'react-icons/ri';
 import styled from 'styled-components';
 
-const RoomCard = () => {
+import { RoomInformation } from '@/types/room';
+
+const RoomCard = ({ roomInfo }: { roomInfo: RoomInformation }) => {
   return (
     <Container>
-      <CardFrame>
-        <CardTop>
-          <RoomTitle>방 타이틀</RoomTitle>
-          <RoomLimit> 5 / 10</RoomLimit>
-        </CardTop>
-        <RoomInfo> 방장 닉네임 / 난이도 / 모드</RoomInfo>
-        <CardBottom>
-          <FaKey size={'1.5rem'} />
-        </CardBottom>
+      <CardFrame ready={roomInfo.ready ? 'true' : 'false'}>
+        {roomInfo.title ? (
+          <>
+            <CardTop>
+              <RoomTitle>{roomInfo.title}</RoomTitle>
+              <RoomLimit>
+                {roomInfo.member_count + ''} / {roomInfo.max_members + ''}
+              </RoomLimit>
+            </CardTop>
+            <RoomInfo>
+              {roomInfo.master} / Level {roomInfo.level + ''} / {roomInfo.mode}
+            </RoomInfo>
+            <CardBottom>
+              {roomInfo.status === 'PRIVATE' ? (
+                <FaKey size={'1.5rem'} style={{ fill: '#ece800' }} />
+              ) : roomInfo.mode === 'COOPERATIVE' ? (
+                <RiTeamFill size={'1.5rem'} />
+              ) : (
+                <BsFillBookFill size={'1.5rem'} />
+              )}
+            </CardBottom>
+          </>
+        ) : (
+          <EmptyCard>empty</EmptyCard>
+        )}
       </CardFrame>
     </Container>
   );
@@ -23,18 +43,37 @@ const Container = styled.div`
   height: 25%;
 `;
 
-const CardFrame = styled.div`
+const CardFrame = styled.div<{ ready: string }>`
   border: 2px solid #fff;
   border-radius: 5px;
   padding: 1rem;
+
+  min-height: 99.66px;
+  max-height: 99.66px;
   margin: 0.5rem 1rem;
-  background: rgba(69, 94, 209, 0.3);
+  background: ${({ ready }) =>
+    ready === 'true' ? 'rgba(69, 94, 209, 0.3)' : 'rgba(181, 181, 181, 0.3)'};
   transition: all 0.1s ease;
+  * {
+    color: ${({ ready }) => (ready === 'true' ? '#fff' : 'rgba(181, 181, 181, 0.8)')};
+  }
 
   &:hover {
     box-shadow: 0 0 10px 0 #9c9c9c;
-    transform: scale(1.03);
+    transform: ${({ ready }) => (ready === 'true' ? 'scale(1.03)' : 'scale(1.0)')};
   }
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`;
+
+const EmptyCard = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  height: 100%;
+  font-weight: 500;
 `;
 
 const CardTop = styled.div`
