@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components';
 
 import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
 
-import { loginInstance, postLogin } from '@/apis/authApi';
+import { postLogin } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
 import InputAnimation from '@/components/public/inputAnimation';
 import Signup from '@/components/Signup';
@@ -28,16 +28,13 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await postLogin(userAccount);
-      const { token: accessToken } = response.data;
+      const { access_token: accessToken } = response.data;
       if (accessToken) {
         localStorage.setItem(USER_TOKEN_KEY, accessToken);
-        loginInstance.defaults.headers.common.token = accessToken;
+        socket.io.opts.extraHeaders = {
+          Authorization: 'Bearer ' + accessToken,
+        };
         socket.connect();
-        socket.on('connect', () => {
-          socket.io.opts.extraHeaders = {
-            Authorization: accessToken,
-          };
-        });
         navigate(PATH_ROUTE.lobby);
       }
     } catch (error: any) {
