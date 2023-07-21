@@ -46,8 +46,9 @@ const RoomList = () => {
         </HeaderRightBox>
       </HeaderFrame>
       <ContentFrame>
-        {roomList.length > 0 &&
-          roomList.map((info, index) => <RoomCard key={index} roomInfo={info} />)}
+        {Array.from({ length: 8 }).map((_, index) => (
+          <RoomCard key={index} roomInfo={roomList[index]} />
+        ))}
       </ContentFrame>
     </Container>
   );
