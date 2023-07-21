@@ -19,11 +19,9 @@ export const postSignUp = (userAccount: UserAccount | { [k: string]: string }) =
 };
 
 export const postLogin = (userAccount: UserAccount | { [k: string]: string }) => {
-  // return { data: { token: userAccount.email } };
   return loginInstance.post(PATH_API.login, userAccount);
 };
 
 export const postLogout = () => {
   localStorage.removeItem(USER_TOKEN_KEY);
-  // return loginInstance.get(PATH_API.logout);
 };
