@@ -68,19 +68,20 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     async handleCreateRoom(
       @MessageBody() roomCreateDto: RoomCreateDto,
       @ConnectedSocket() socket: ExtendedSocket
-    ) :Promise <{success : boolean, payload : any} > {
+    ) :Promise <{success : boolean, payload : {title : string}} > {
         const room = await this.roomService.createRoom(roomCreateDto, socket.decoded.email, socket.id);
         await room.save(); 
         room.socket_id = socket.id; 
         this.nsp.emit('room-created', "room created!");
-        return {success : true, payload : roomCreateDto.title}
+        return {success : true, payload: {title : roomCreateDto.title}}
     }
 
     // @UseGuards(AuthGuard())  토큰 확인하는 정보를 추가. 
     @SubscribeMessage('join-room')
     async handleJoinRoom( 
         @MessageBody('title') title: string,
-        @ConnectedSocket() socket: ExtendedSocket): Promise<void> {
+        @ConnectedSocket() socket: ExtendedSocket): 
+        Promise <{success : boolean, payload : {title : string}} > {
         this.logger.log(`${socket.id} : 방에 입장 준비 중입니다!`);
         const condition = await this.roomService.checkRoomCondition(title);
         if(!condition){
@@ -102,6 +103,7 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
             await this.roomService.saveRoomAndUser(roomAndUserDto);
             await this.roomService.chageRoomStatus(roomAndUserDto.room_id);
         }
-        this.nsp.emit('enter-room', "enter-room!");  
+        this.nsp.emit('enter-room', "enter-room!");
+        return {success : true, payload: {title : title}}  
       }
 }
