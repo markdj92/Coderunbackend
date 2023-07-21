@@ -9,9 +9,9 @@ export type userInfo = {
   nickname: string;
   level: string;
   imageSource: string;
-  isLock: string;
-  isUser: string;
-  isHost: string;
+  isLock: boolean;
+  isUser: boolean;
+  isHost: boolean;
 };
 
 export interface RoomInformation {

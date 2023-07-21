@@ -74,16 +74,16 @@ const Room = () => {
   const onCustomRoom = () => {};
 
   const userList: userInfos = {
-    0: { nickname: 'nickname0', level: '1', imageSource: '', isLock: '', isUser: '1', isHost: '' },
-    1: { nickname: 'nickname1', level: '2', imageSource: '', isLock: '1', isUser: '1', isHost: '' },
-    2: { nickname: 'nickname2', level: '3', imageSource: '', isLock: '', isUser: '1', isHost: '' },
-    3: { nickname: '', level: '', imageSource: '', isLock: '', isUser: '', isHost: '' },
-    4: { nickname: '', level: '', imageSource: '', isLock: '', isUser: '', isHost: '' },
-    5: { nickname: '', level: '', imageSource: '', isLock: '', isUser: '', isHost: '' },
-    6: { nickname: '', level: '', imageSource: '', isLock: '', isUser: '', isHost: '' },
-    7: { nickname: '', level: '', imageSource: '', isLock: '', isUser: '', isHost: '' },
-    8: { nickname: '', level: '', imageSource: '', isLock: '1', isUser: '', isHost: '' },
-    9: { nickname: '', level: '', imageSource: '', isLock: '1', isUser: '', isHost: '' },
+    0: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
+    1: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
+    2: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
+    3: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
+    4: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
+    5: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
+    6: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
+    7: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
+    8: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
+    9: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
   };
 
   let ready = 0;
@@ -123,7 +123,7 @@ const Room = () => {
         </div>
         <div className='part2'>
           {Array.from({ length: 10 }).map((_, index) => {
-            return <Badge user={userList[index]} />;
+            return <Badge key={index} user={userList[index]} />;
           })}
         </div>
         <div className='part3'>
