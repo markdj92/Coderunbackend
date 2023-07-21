@@ -3,8 +3,7 @@ import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { Document, SchemaOptions } from "mongoose";
 
 @Schema()
-
-export class User extends Document {
+export class Auth extends Document {
     
     @Prop()
     name:string;
@@ -29,12 +28,9 @@ export class User extends Document {
 
     @Prop()
     online: boolean;
-    
-    @Prop()
-    friend: string[];
 
-    @Prop()
-    friendrequest: string[];
+    @Prop({default : null})
+    nickname : string;
 }
 
-export const UserSchema  = SchemaFactory.createForClass(User);
+export const AuthSchema  = SchemaFactory.createForClass(Auth);

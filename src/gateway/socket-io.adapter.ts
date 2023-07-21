@@ -17,9 +17,6 @@ export class SocketIoAdapter extends IoAdapter {
       socketioJwtAuth.authenticate(
         { secret:  process.env.JWT_SECRET},
         (payload, done) => {
-          // Handle token verification and extraction as needed
-          // ...
-
           done(null, payload); // Pass the payload to the next middleware
         }
       )
