@@ -40,7 +40,6 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
         this.nsp.adapter.on('create-room', (room) => {
         this.logger.log(`"client sokect id : ${room}"이 생성되었습니다.`);
         });
-        this.logger.log('웹소켓 서버 초기화');
     }
 
     async handleConnection(@ConnectedSocket()  socket: ExtendedSocket) {
@@ -53,6 +52,7 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
                 return;
             }
             socket.decoded = decoded;
+            this.logger.log(`"token 인증 되어있습니다!`);
             });
           } else {
             socket.disconnect(); // 연결을 끊음
@@ -62,8 +62,6 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     async handleDisconnect(@ConnectedSocket() socket: ExtendedSocket)  {
         this.logger.log(`${socket.id} sockect disconnected!`);
     }
-
-
 
     @SubscribeMessage('create-room')
     @ApiOperation({ summary: 'Create a new room' })
@@ -81,14 +79,15 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     // @UseGuards(AuthGuard())  토큰 확인하는 정보를 추가. 
     @SubscribeMessage('join-room')
     async handleJoinRoom( 
-        @MessageBody() { title }: { title: string },
+        @MessageBody('title') title: string,
         @ConnectedSocket() socket: ExtendedSocket): Promise<void> {
+        this.logger.log(`${socket.id} : 방에 입장 준비 중입니다!`);
         const condition = await this.roomService.checkRoomCondition(title);
-
         if(!condition){
             socket.emit("Can't join the room!");
         }
         else {
+            console.log(" 방을 찾는 중입니다 ");
             const room_id = await this.roomService.getRoomIdFromTitle(title);
             const socket_id_room= await this.roomService.getSocketId(room_id);
             socket.join(await socket_id_room);
@@ -99,8 +98,8 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
             roomAndUserDto.room_id = room_id;
             roomAndUserDto.user_id = user._id;
             roomAndUserDto.socket_id = socket.id;
-            await this.roomService.saveRoomAndUser(roomAndUserDto);
 
+            await this.roomService.saveRoomAndUser(roomAndUserDto);
             await this.roomService.chageRoomStatus(roomAndUserDto.room_id);
         }
         this.nsp.emit('enter-room', "enter-room!");  

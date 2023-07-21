@@ -1,6 +1,5 @@
 import { AuthDto } from './dto/auth.dto';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Auth, AuthSchema} from './schemas/auth.schema';
@@ -16,8 +15,11 @@ export class AuthService {
   ) {}
 
   async signIn(authDto : AuthDto) {
-    const user = await this.authModel.findOne({email : authDto.email});
-    const isPasswordMatched = await bcrypt.compare(authDto.password, user.password);
+    const user = await this.authModel.findOne({ email: authDto.email });
+  if (!user) {
+    throw new UnauthorizedException('Invalid email or password');
+  }
+const isPasswordMatched = await bcrypt.compare(authDto.password, user.password);
 
     if (!isPasswordMatched) {
         throw new UnauthorizedException('Invalid email or password');
@@ -34,6 +36,7 @@ export class AuthService {
     if (isUserExist) {
         throw new UnauthorizedException('Duplicate email');
     }
+
     const hashedPassword = await bcrypt.hash(authDto.password, 10);
     const user = await this.authModel.create({
         email : authDto.email,

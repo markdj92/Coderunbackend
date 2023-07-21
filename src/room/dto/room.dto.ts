@@ -76,6 +76,4 @@ export class RoomAndUserDto {
     @IsNotEmpty()
     @ApiProperty()
     socket_id: string;
-
-    roomAndUserDto: Promise<import("mongoose").Schema.Types.ObjectId>;
   }

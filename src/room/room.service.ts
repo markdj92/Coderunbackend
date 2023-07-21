@@ -23,10 +23,10 @@ export class RoomService {
         }
         if(room.status == "PRIVATE"){
             const hashedPassword = await bcrypt.hash(room.password, 10);
-            newRoom = new this.roomModel({...room, password : hashedPassword});
+            newRoom = new this.roomModel({...room, password : hashedPassword, socket_id : socket_id});
         }
         else{
-            newRoom = new this.roomModel({...room});
+            newRoom = new this.roomModel({...room, socket_id : socket_id});
         }
         const user = await this.userService.userInfoFromEmail(email);
 
@@ -56,13 +56,15 @@ export class RoomService {
         return room._id;
     }
     async getSocketId(room_id : ObjectId) : Promise<string> {
-        const roominfo = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
+        const roominfo = await this.roomModel.findOne({_id : room_id}).exec();
         const socket_id = roominfo.socket_id;
         return socket_id;
     }
 
     async checkRoomCondition(title_name : string) : Promise<boolean> {
+        console.log(title_name);
         const room = await this.roomModel.findOne({title : title_name}).exec();
+        console.log(room);
         if (room && room.member_count < room.max_members && room.ready === true){
             return true;
         }
