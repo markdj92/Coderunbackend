@@ -9,6 +9,9 @@ export type User = any;
 
 @Injectable()
 export class UsersService {
+    validateUser(payload: any) {
+        throw new Error('Method not implemented.');
+    }
     constructor(
     @InjectModel(Auth.name) private readonly authModel: Model<Auth>,
       ) {}

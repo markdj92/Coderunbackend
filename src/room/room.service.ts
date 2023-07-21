@@ -48,8 +48,6 @@ export class RoomService {
     async getRoomList(req) : Promise<Room[]> {
         const rooms = await this.roomModel.find().exec();
         const result = rooms.filter(room => room.ready === true);
-        const userid = req._id;
-        console.log(userid);
         return result;
     }
     

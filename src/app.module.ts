@@ -12,13 +12,12 @@ import { UsersModule } from './users/users.module';
       envFilePath : '.env',
       isGlobal: true,
     }),
-    GatewayModule,
     MongooseModule.forRoot(process.env.MONGODB_ID),
-    PassportModule,
-    UsersModule,
+    GatewayModule,
     RoomModule,
     AuthModule,
     UsersModule,
+    PassportModule
   ],
   controllers: [],
   providers: []

@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
+  usersService: any;
   constructor(
     @InjectModel(Auth.name) private readonly authModel: Model<Auth>,
     private jwtService: JwtService
@@ -44,4 +45,12 @@ export class AuthService {
       };
     }
 
+    async validateUser(payload: { email: string }): Promise<any> {
+      const user = await this.authModel.findOne({ email: payload.email });
+      if (user) {
+        const { password, ...result } = user.toObject();
+        return result;
+      }
+      return null;
+    }
 }
