@@ -15,7 +15,7 @@ export class RoomService {
 
     ) {}
     
-    async createRoom(room : RoomCreateDto, user_id: ObjectId, socket_id: string) : Promise<Room> {
+    async createRoom(room :RoomCreateDto, email : string, socket_id: string) : Promise<Room> {
         let newRoom;
         const found = await this.roomModel.findOne({title : room.title});
         if(found){
@@ -28,9 +28,11 @@ export class RoomService {
         else{
             newRoom = new this.roomModel({...room});
         }
+        const user = await this.userService.userInfoFromEmail(email);
+
         const roomAndUserDto = new RoomAndUserDto();
         roomAndUserDto.room_id = newRoom._id;
-        roomAndUserDto.user_id = user_id;
+        roomAndUserDto.user_id = user._id;
         roomAndUserDto.socket_id = socket_id;
 
         await this.saveRoomAndUser(roomAndUserDto);
