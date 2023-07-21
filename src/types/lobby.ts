@@ -1,4 +1,4 @@
-export interface CreateRoomResponse {
+export interface RoomResponse {
   success: boolean;
-  payload: string;
+  payload: { [key: string]: any };
 }

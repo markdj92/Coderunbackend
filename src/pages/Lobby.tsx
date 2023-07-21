@@ -7,31 +7,14 @@ import { PATH_ROUTE } from '@/constants';
 import { postLogout } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
 import RoomList from '@/components/Lobby/RoomList';
-import { CreateRoomResponse } from '@/types/lobby';
+import { RoomResponse } from '@/types/lobby';
 
 const Lobby = () => {
-  // const [rooms, setRooms] = useState<string[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // const roomListHandler = (rooms: string[]) => {
-    //   setRooms(rooms);
-    // };
-    // const createRoomHandler = (newRoom: string) => {
-    //   setRooms((prevRooms) => [...prevRooms, newRoom]);
-    // };
-    // const deleteRoomHandler = (roomName: string) => {
-    //   setRooms((prevRooms) => prevRooms.filter((room) => room !== roomName));
-    // };
-
-    // socket.emit('room-list', roomListHandler);
-    // socket.on('create-room', createRoomHandler);
-    // socket.on('delete-room', deleteRoomHandler);
-
     return () => {
-      // socket.off('room-list', roomListHandler);
-      // socket.off('create-room', createRoomHandler);
-      // socket.off('delete-room', deleteRoomHandler);
+      socket.off('room');
     };
   }, []);
 
@@ -39,18 +22,17 @@ const Lobby = () => {
     const roomName = prompt('방 이름을 입력해 주세요.');
     if (!roomName) return alert('방 이름은 반드시 입력해야 합니다.');
 
-    const message = JSON.stringify({
+    const message = {
       title: roomName,
       max_members: 8,
       status: 'PUBLIC',
       level: 1,
       mode: 'STUDY',
-    });
+    };
 
-    socket.emit('create-room', message, (response: CreateRoomResponse) => {
+    socket.emit('create-room', message, (response: RoomResponse) => {
       if (!response.success) return alert(response.payload);
-
-      navigate(`/room/${response.payload}`);
+      navigate(`/room/${response.payload.title}`);
     });
   }, [navigate]);
 

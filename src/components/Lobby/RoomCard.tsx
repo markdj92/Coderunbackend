@@ -1,14 +1,33 @@
+import { useCallback } from 'react';
 import { BsFillBookFill } from 'react-icons/bs';
 import { FaKey } from 'react-icons/fa';
 import { RiTeamFill } from 'react-icons/ri';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+import { socket } from '@/apis/socketApi';
+import { RoomResponse } from '@/types/lobby';
 import { RoomInformation } from '@/types/room';
 
 const RoomCard = ({ roomInfo }: { roomInfo: RoomInformation }) => {
+  const navigate = useNavigate();
+
+  const onClickRoom = useCallback(
+    (roomName: string) => {
+      socket.emit('join-room', { title: roomName }, (response: RoomResponse) => {
+        if (!response.success) return alert(response.payload);
+        navigate(`/room/${response.payload.title}`);
+      });
+    },
+    [navigate],
+  );
+
   return (
     <Container>
-      <CardFrame ready={roomInfo.ready ? 'true' : 'false'}>
+      <CardFrame
+        onClick={() => onClickRoom(roomInfo.title)}
+        ready={roomInfo.ready ? 'true' : 'false'}
+      >
         {roomInfo.title ? (
           <>
             <CardTop>

@@ -5,7 +5,7 @@ import { userInfo } from '@/types/room';
 const Badge = ({ user }: { user: userInfo }) => {
   return (
     <Container>
-      <UserCard isUser={user.isUser} isLock={user.isLock}>
+      <UserCard isuser={user.isUser ? 'true' : 'false'} islock={user.isLock ? 'true' : 'false'}>
         {user.isUser && <button>x</button>}
         <UserImg>
           {user.isUser && user.isLock && <p className='ready'>READY</p>}
@@ -48,16 +48,16 @@ const Container = styled.div`
   }
 `;
 
-const UserCard = styled.div<{ isUser: string; isLock: string }>`
+const UserCard = styled.div<{ isuser: string; islock: string }>`
   float: left;
   width: 80%;
   min-width: 20rem;
   height: 60%;
   min-height: 5rem;
   background-color: ${(props) =>
-    !props.isLock
+    props.islock !== 'true'
       ? 'rgba(255,255,255,0.4)'
-      : props.isUser
+      : props.isuser === 'true'
       ? 'rgba(100,100,100,0.4)'
       : 'rgba(0,0,0,0.4)'};
   padding: 1rem;
