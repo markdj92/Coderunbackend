@@ -1,18 +1,13 @@
-export interface IChat {
-  username: string;
-  message: string;
-}
-
 export type userInfos = { [key: number]: userInfo };
 
-export type userInfo = {
-  nickname: string;
-  level: string;
-  imageSource: string;
-  isLock: boolean;
-  isUser: boolean;
-  isHost: boolean;
-};
+export type userInfo =
+  | {
+      nickname: string;
+      ready_status: string;
+      level: string;
+    }
+  | 'EMPTY'
+  | 'LOCK';
 
 export interface RoomInformation {
   title: string;
@@ -26,4 +21,10 @@ export interface RoomInformation {
   create_time: string;
   socket_id: string;
   master: string;
+}
+
+export interface RoomStatus {
+  title: string;
+  member_count: number;
+  user_info: userInfo[];
 }

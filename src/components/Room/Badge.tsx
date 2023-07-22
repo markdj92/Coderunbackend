@@ -3,33 +3,36 @@ import styled from 'styled-components';
 import { userInfo } from '@/types/room';
 
 const Badge = ({ user }: { user: userInfo }) => {
+  if (user === undefined || user === 'LOCK' || user === 'EMPTY')
+    return (
+      <Container>
+        <UserCard isuser='false' islock={user === 'LOCK' || user === undefined ? 'true' : 'false'}>
+          {user === 'LOCK' || user === undefined ? (
+            <div id='userinfo'>
+              <p className='noneuser'>lock</p>
+            </div>
+          ) : (
+            <div id='userinfo'>
+              <p className='noneuser' style={{ color: '#3f3d4d' }}>
+                empty
+              </p>
+            </div>
+          )}
+        </UserCard>
+      </Container>
+    );
   return (
     <Container>
-      <UserCard isuser={user.isUser ? 'true' : 'false'} islock={user.isLock ? 'true' : 'false'}>
-        {user.isUser && <button>x</button>}
+      <UserCard isuser={'true'} islock={user.ready_status ? 'true' : 'false'}>
+        <button>x</button>
         <UserImg>
-          {user.isUser && user.isLock && <p className='ready'>READY</p>}
-          <img
-            id='profile-image'
-            src={user.imageSource ? user.imageSource : '/images/anonymous.jpg'}
-          />
+          {user.ready_status && <p className='ready'>READY</p>}
+          <img id='profile-image' src={'/images/anonymous.jpg'} />
         </UserImg>
-        {user.isUser ? (
-          <div id='userinfo'>
-            <p className='nickname'>{user.nickname}</p>
-            <p className='level'>LV {user.level}</p>
-          </div>
-        ) : user.isLock ? (
-          <div id='userinfo'>
-            <p className='noneuser'>lock</p>
-          </div>
-        ) : (
-          <div id='userinfo'>
-            <p className='noneuser' style={{ color: '#3f3d4d' }}>
-              empty
-            </p>
-          </div>
-        )}
+        <div id='userinfo'>
+          <p className='nickname'>{user.nickname}</p>
+          <p className='level'>LV {user.level}</p>
+        </div>
       </UserCard>
     </Container>
   );
