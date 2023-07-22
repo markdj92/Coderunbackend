@@ -14,3 +14,10 @@ export class AuthDto {
   password: string;
 }
 
+export class CheckDto {
+  @IsEmail()
+  @IsNotEmpty()
+  @ApiProperty()
+  email: string;
+}
+

@@ -56,4 +56,14 @@ const isPasswordMatched = await bcrypt.compare(authDto.password, user.password);
       }
       return null;
     }
+
+    async checkDuplicateEmail(email: string) {
+      const isUserExist = await this.authModel.exists({ email: email });
+      if (isUserExist) {
+        throw new UnauthorizedException("Duplicate email");
+      }
+      return {
+        succes: true,
+      };
+    }
 }
