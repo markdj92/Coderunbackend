@@ -28,7 +28,7 @@ export class AuthController {
 
   @Public()
   @HttpCode(HttpStatus.OK)
-  @Post("signupcheck")
+  @Post("checkemail")
   signUpcheck(@Body() checkDto: CheckDto) {
     return this.authService.checkDuplicateEmail(checkDto.email);
   }
