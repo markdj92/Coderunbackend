@@ -17,7 +17,7 @@ export class AuthDto {
 export class CheckDto {
   @IsEmail()
   @IsNotEmpty()
-  @ApiProperty({ description: "중복된 이메일체크" })
+  @ApiProperty()
   email: string;
 }
 
