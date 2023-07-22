@@ -14,3 +14,10 @@ export class AuthDto {
   password: string;
 }
 
+export class CheckDto {
+  @IsEmail()
+  @IsNotEmpty()
+  @ApiProperty({ description: "중복된 이메일체크" })
+  email: string;
+}
+
