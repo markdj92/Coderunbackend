@@ -1,20 +1,17 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { socket } from '@/apis/socketApi';
 import Header from '@/components/Lobby/Header';
 import RoomList from '@/components/Lobby/RoomList';
+import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomResponse } from '@/types/lobby';
 
 const Lobby = () => {
-  const navigate = useNavigate();
+  useSocketConnect();
 
-  useEffect(() => {
-    return () => {
-      socket.off('room');
-    };
-  }, []);
+  const navigate = useNavigate();
 
   const onCreateRoom = useCallback(() => {
     const roomName = prompt('방 이름을 입력해 주세요.');
