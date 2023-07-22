@@ -22,7 +22,8 @@ import { jwtSocketIoMiddleware } from './jwt-socket-io.middleware';
 
 
 interface ExtendedSocket extends Socket {
-    decoded: {email :string};
+    decoded : {email :string},
+    user_id : ObjectId
 }
 
 @ApiTags('Room')
@@ -79,12 +80,12 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
         return {success : true,  payload: { roomInfo : roomAndUserInfo}}
     }
 
-    // @UseGuards(AuthGuard())  토큰 확인하는 정보를 추가. 
     @SubscribeMessage('join-room')
     async handleJoinRoom( 
         @MessageBody('title') title: string,
         @ConnectedSocket() socket: ExtendedSocket): 
         Promise <{success : boolean, payload : {roomInfo : RoomStatusChangeDto}} > {
+
         this.logger.log(`${socket.id} : 방에 입장 준비 중입니다!`);
         const condition = await this.roomService.checkRoomCondition(title);
         let roomAndUserInfo: RoomStatusChangeDto;
@@ -98,12 +99,33 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
             this.logger.log(`${socket.id} : Room enter!`);
 
             const user_id = await this.userService.userInfoFromEmail(socket.decoded.email);
+            socket.user_id = user_id;
+
             await this.roomService.changeRoomStatusForJoin(room_id, user_id);
             
             roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
-            this.nsp.to(title).emit('room-state-changed', roomAndUserInfo);
+            this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
         }
+        this.logger.log(`${socket.id} : 방에 입장 완료하였습니다!`);
         this.nsp.emit('enter-room', "enter-room!");
         return {success : true, payload: { roomInfo : roomAndUserInfo}}  
       }
+
+    @SubscribeMessage('leave-room')
+    async handleLeaveRoom(
+        @MessageBody('title') title : string,
+        @ConnectedSocket() socket: ExtendedSocket): 
+        Promise <{success : boolean} > {
+        
+        const room_id = await this.roomService.getRoomIdFromTitle(title);
+        await this.roomService.changeRoomStatusForLeave(room_id,socket.user_id);
+
+        socket.leave(await title);
+  
+        let roomAndUserInfo: RoomStatusChangeDto;
+        roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
+
+        this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
+        return {success : true}  
+        }
 }
