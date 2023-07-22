@@ -22,36 +22,39 @@ const RoomCard = ({ roomInfo }: { roomInfo: RoomInformation }) => {
     [navigate],
   );
 
+  if (!roomInfo)
+    return (
+      <Container>
+        <CardFrame>
+          <EmptyCard>empty</EmptyCard>
+        </CardFrame>
+      </Container>
+    );
+
   return (
     <Container>
       <CardFrame
         onClick={() => onClickRoom(roomInfo.title)}
         ready={roomInfo.ready ? 'true' : 'false'}
       >
-        {roomInfo.title ? (
-          <>
-            <CardTop>
-              <RoomTitle>{roomInfo.title}</RoomTitle>
-              <RoomLimit>
-                {roomInfo.member_count + ''} / {roomInfo.max_members + ''}
-              </RoomLimit>
-            </CardTop>
-            <RoomInfo>
-              {roomInfo.master} / Level {roomInfo.level + ''} / {roomInfo.mode}
-            </RoomInfo>
-            <CardBottom>
-              {roomInfo.status === 'PRIVATE' ? (
-                <FaKey size={'1.5rem'} style={{ fill: '#ece800' }} />
-              ) : roomInfo.mode === 'COOPERATIVE' ? (
-                <RiTeamFill size={'1.5rem'} />
-              ) : (
-                <BsFillBookFill size={'1.5rem'} />
-              )}
-            </CardBottom>
-          </>
-        ) : (
-          <EmptyCard>empty</EmptyCard>
-        )}
+        <CardTop>
+          <RoomTitle>{roomInfo.title}</RoomTitle>
+          <RoomLimit>
+            {roomInfo.member_count + ''} / {roomInfo.max_members + ''}
+          </RoomLimit>
+        </CardTop>
+        <RoomInfo>
+          {roomInfo.master} / Level {roomInfo.level + ''} / {roomInfo.mode}
+        </RoomInfo>
+        <CardBottom>
+          {roomInfo.status === 'PRIVATE' ? (
+            <FaKey size={'1.5rem'} style={{ fill: '#ece800' }} />
+          ) : roomInfo.mode === 'COOPERATIVE' ? (
+            <RiTeamFill size={'1.5rem'} />
+          ) : (
+            <BsFillBookFill size={'1.5rem'} />
+          )}
+        </CardBottom>
       </CardFrame>
     </Container>
   );
@@ -62,7 +65,7 @@ const Container = styled.div`
   height: 25%;
 `;
 
-const CardFrame = styled.div<{ ready: string }>`
+const CardFrame = styled.div<{ ready?: string }>`
   border: 2px solid #fff;
   border-radius: 5px;
   padding: 1rem;

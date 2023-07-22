@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ImExit } from 'react-icons/im';
 import { LuSettings2 } from 'react-icons/lu';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -8,127 +8,71 @@ import styled from 'styled-components';
 
 import { socket } from '@/apis/socketApi';
 import Badge from '@/components/Room/Badge';
-import { IChat, userInfos } from '@/types/room';
+import { RoomStatus, userInfo } from '@/types/room';
 
 const Room = () => {
-  const [chats, setChats] = useState<IChat[]>([]);
-  const [message, setMessage] = useState<string>('');
-  const chatContainerEl = useRef<HTMLDivElement>(null);
+  const { roomName } = useParams<string>();
 
-  const { roomName } = useParams<'roomName'>();
+  const [title, setTitle] = useState<string | undefined>(roomName);
+  const [people, setPeople] = useState<number>(0);
+  const [maxPeople, setMaxPeople] = useState<number>(0);
+  const [userInfos, setUserInfos] = useState<userInfo[]>([]);
+
   const navigate = useNavigate();
 
-  // 채팅이 길어지면(chats.length) 스크롤이 생성되므로, 스크롤의 위치를 최근 메시지에 위치시키기 위함
   useEffect(() => {
-    if (!chatContainerEl.current) return;
+    const roomHandler = (response: RoomStatus) => {
+      const { title, member_count, user_info } = response;
+      setTitle(title);
+      setPeople(member_count);
+      setMaxPeople(
+        user_info.reduce((count: number, user: userInfo) => {
+          if (user !== 'LOCK') return count + 1;
+          return count;
+        }, 0),
+      );
+      setUserInfos(user_info);
+    };
 
-    const chatContainer = chatContainerEl.current;
-    const { scrollHeight, clientHeight } = chatContainer;
-
-    if (scrollHeight > clientHeight) {
-      chatContainer.scrollTop = scrollHeight - clientHeight;
-    }
-  }, [chats.length]);
-
-  // message event listener
-  useEffect(() => {
-    const messageHandler = (chat: IChat) => setChats((prevChats) => [...prevChats, chat]);
-
-    socket.on('message', messageHandler);
-
+    socket.on('room-status-changed', roomHandler);
     return () => {
-      socket.off('message', messageHandler);
+      socket.off('room-status-changed', roomHandler);
     };
   }, []);
 
-  const inputChangeHandler = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setMessage(e.target.value);
-  }, []);
-
-  const onSendMessage = useCallback(
-    (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (!message) return alert('메시지를 입력해 주세요.');
-
-      socket.emit('message', { roomName, message }, (chat: IChat) => {
-        setChats((prevChats) => [...prevChats, chat]);
-        setMessage('');
-      });
-    },
-    [message, roomName],
-  );
-
-  // const onLeaveRoom = useCallback(() => {
-  //   socket.emit('leave-room', roomName, () => {
-  //     navigate(PATH_ROUTE.lobby);
-  //   });
-  // }, [navigate, roomName]);
-
-  const onLeaveRoom = () => {
+  const handleLeaveRoom = () => {
     const answer = confirm('정말 나가시겠습니까?');
     if (answer) {
-      navigate('/lobby');
+      onLeaveRoom();
     }
   };
+
+  const onLeaveRoom = useCallback(() => {
+    // socket.emit('leave-room', roomName, () => {
+    //   navigate('/lobby');
+    // });
+    navigate('/lobby');
+  }, [navigate, roomName]);
 
   const onCustomRoom = () => {};
 
-  const userList: userInfos = {
-    0: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
-    1: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
-    2: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
-    3: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
-    4: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
-    5: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
-    6: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
-    7: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
-    8: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
-    9: { nickname: '', level: '', imageSource: '', isLock: false, isUser: false, isHost: false },
-  };
-
-  let ready = 0;
-  let people = 10;
-  for (let i = 0; i < 10; i++) {
-    if (userList[i].isLock && userList[i].isUser) {
-      ready += 1;
-    }
-    if (userList[i].isLock && !userList[i].isUser) {
-      people -= 1;
-    }
-  }
   return (
     <MainContainer>
       <MainFrame>
         <div className='part1'>
           <div>
             <HeaderLogo onClick={() => navigate('/lobby')}>CODE LEARN</HeaderLogo>
-            <RoomName>{roomName}</RoomName>
-          </div>
-          <div>
-            <div ref={chatContainerEl} style={{ height: '300px', overflowY: 'scroll' }}>
-              {chats.map((chat, index) => (
-                <div key={index}>
-                  <span>{chat.username}</span>
-                  <span>{chat.message}</span>
-                </div>
-              ))}
-            </div>
-            <form onSubmit={onSendMessage}>
-              <Sending>
-                <input type='text' value={message} onChange={inputChangeHandler} />
-                <button type='submit'>전송</button>
-              </Sending>
-            </form>
+            <RoomName>{title}</RoomName>
           </div>
         </div>
         <div className='part2'>
           {Array.from({ length: 10 }).map((_, index) => {
-            return <Badge key={index} user={userList[index]} />;
+            return <Badge key={index} user={userInfos[index]} />;
           })}
         </div>
         <div className='part3'>
           <RoomButtons>
-            <button onClick={onLeaveRoom}>
+            <button onClick={handleLeaveRoom}>
               <ImExit size={'2rem'} />
             </button>
             <button onClick={onCustomRoom}>
@@ -136,8 +80,8 @@ const Room = () => {
             </button>
           </RoomButtons>
           <People>
-            <label className='countReady'>{ready}</label>
-            <label className='countPeople'>/ {people}</label>
+            <label className='countReady'>{people}</label>
+            <label className='countPeople'>/ {maxPeople}</label>
           </People>
           <Ready>시작</Ready>
         </div>
@@ -161,21 +105,6 @@ const HeaderLogo = styled.div`
   padding: 2rem;
   font-weight: 500;
   cursor: pointer;
-`;
-
-const Sending = styled.div`
-  justify-content: space-between;
-  display: flex;
-  flex-wrap: wrap;
-  input {
-    width: 80%;
-    height: 30px;
-    margin: 20px 20px 20px 20px;
-  }
-  button {
-    padding-right: 10px;
-    font-weight: bold;
-  }
 `;
 
 const RoomName = styled.div`
