@@ -4,13 +4,14 @@ import { LuSettings2 } from 'react-icons/lu';
 import { useNavigate, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 
-// import { PATH_ROUTE } from '@/constants';
-
 import { socket } from '@/apis/socketApi';
 import Badge from '@/components/Room/Badge';
+import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomStatus, userInfo } from '@/types/room';
 
 const Room = () => {
+  useSocketConnect();
+
   const { roomName } = useParams<string>();
 
   const [title, setTitle] = useState<string | undefined>(roomName);
