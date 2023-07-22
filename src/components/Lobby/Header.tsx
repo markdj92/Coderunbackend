@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { PATH_ROUTE } from '@/constants';
 
 import { postLogout } from '@/apis/authApi';
+import { socket } from '@/apis/socketApi';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const Header = () => {
     if (confirm('정말 떠나실건가요?'))
       try {
         await postLogout();
+        socket.disconnect();
         navigate(PATH_ROUTE.login);
         alert('로그아웃 되었습니다.');
       } catch (error) {
