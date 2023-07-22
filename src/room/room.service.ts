@@ -92,16 +92,15 @@ export class RoomService {
         }
     }
 
-    async changeRoomStatusForJoin(room_id : ObjectId, user_id : ObjectId) : Promise<void> {
-        console.log("join", user_id);
-        const room = await this.roomModel.findById(room_id);
-        room.member_count += 1;
-
-        if(room.member_count === room.max_members){
-            room.ready = false;
+    async memberCountDown(room_id : ObjectId) : Promise<{success : boolean}> {
+        const room = await this.roomModel.findOneAndUpdate({_id :room_id}, { $inc: { member_count: -1 }},  { new: true } );
+        if(room.member_count === 0 ){
+            await this.roomAndUserModel.deleteOne({_id :room_id});
         }
-        // 방에 들어가려는 유저의 정보를 찾음
-        const user = await this.authModel.findOne({_id : user_id}).exec();
+        return {success : true};
+    }
+
+    async changeRoomStatusForJoin(room_id : ObjectId, user_id : ObjectId) : Promise<void> {
 
         // 해당 방에 대한 정보를 얻음
         const roomAndUserInfo = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
@@ -121,10 +120,7 @@ export class RoomService {
                 [`ready_status.${empty_index}`]:  false
             }  },
         )
-
         await this.memberCountUp(room_id);
-        
-
     }
 
     async getRoomInfo(room_id : ObjectId) : Promise<RoomStatusChangeDto> {
@@ -164,5 +160,29 @@ export class RoomService {
         roomStatusChangeDto.user_info = userInfo;
 
         return roomStatusChangeDto;
+    }
+
+    async changeRoomStatusForLeave (room_id : ObjectId, user_id : ObjectId) : Promise<void> {
+        // 디비에 해당 유저를 empty 로 바꾸고
+        // 방 인원수도 바꿔줌.
+         // 해당 방에 대한 정보를 얻음
+         const roomAndUserInfo = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
+
+         if (!roomAndUserInfo) {
+             // Handle the case where roomanduser is undefined
+             throw new Error(`No RoomAndUser found for room id ${room_id}`);
+         }
+         
+         // 방 정보에서 첫번째로 empty인 부분을 찾음
+         const user_index = roomAndUserInfo.user_info.indexOf(user_id.toString());
+ 
+         await this.roomAndUserModel.updateOne(
+             { room_id: room_id },
+             { $set: { 
+                 [`user_info.${user_index}`]:  "EMPTY",
+                 [`ready_status.${user_index}`]:  false
+             }  },
+         )
+         await this.memberCountDown(room_id);
     }
 }
