@@ -14,7 +14,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
-import { RoomAndUserDto, RoomCreateDto } from 'src/room/dto/room.dto';
+import { RoomAndUserDto, RoomCreateDto, RoomStatusChangeDto } from 'src/room/dto/room.dto';
 import { RoomService } from 'src/room/room.service';
 import { UsersService } from 'src/users/users.service';
 import { jwtSocketIoMiddleware } from './jwt-socket-io.middleware';
@@ -83,9 +83,10 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     async handleJoinRoom( 
         @MessageBody('title') title: string,
         @ConnectedSocket() socket: ExtendedSocket): 
-        Promise <{success : boolean, payload : {title : string}} > {
+        Promise <{success : boolean, payload : {roomInfo : RoomStatusChangeDto}} > {
         this.logger.log(`${socket.id} : 방에 입장 준비 중입니다!`);
         const condition = await this.roomService.checkRoomCondition(title);
+        let roomAndUserInfo: RoomStatusChangeDto;
         if(!condition){
             socket.emit("Can't join the room!");
         }
@@ -98,10 +99,10 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
             const user_id = await this.userService.userInfoFromEmail(socket.decoded.email);
             await this.roomService.changeRoomStatusForJoin(room_id, user_id);
             
-            const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
+            roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
             this.nsp.to(title).emit('room-state-changed', roomAndUserInfo);
         }
         this.nsp.emit('enter-room', "enter-room!");
-        return {success : true, payload: {title : title}}  
+        return {success : true, payload: { roomInfo : roomAndUserInfo}}  
       }
 }
