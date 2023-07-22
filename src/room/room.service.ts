@@ -88,7 +88,7 @@ export class RoomService {
     async memberCountUp(room_id : ObjectId) : Promise<void> {
         const room = await this.roomModel.findOneAndUpdate({_id :room_id}, { $inc: { member_count: 1 }},  { new: true } );
         if(room.member_count === room.max_members){
-            await this.roomModel.updateOne({_id :room_id}, {status : false});
+            await this.roomModel.findOneAndUpdate({_id :room_id}, {status : false});
         }
     }
 
@@ -114,7 +114,7 @@ export class RoomService {
         // 방 정보에서 첫번째로 empty인 부분을 찾음
         const empty_index = roomAndUserInfo.user_info.indexOf("EMPTY");
 
-        await this.roomAndUserModel.updateOne(
+        await this.roomAndUserModel.findOneAndUpdate(
             { room_id: room_id },
             { $set: { 
                 [`user_info.${empty_index}`]:  user_id.toString(),
