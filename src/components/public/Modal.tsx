@@ -15,14 +15,17 @@ const Modal = ({ children, handleHideModal }: ModalProps) => {
 };
 
 const ModalOverlay = styled.div`
-  position: fixed;
-  top: 20vh;
-  left: 5%;
-  width: 90%;
-  background-color: white;
+  letter-spacing: 0.4rem;
+
+  position: absolute;
+  height: 70vh;
+  backdrop-filter: blur(8.5px);
+
+  background-color: rgba(0, 0, 0, 0.5);
   padding: 1rem;
   border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 5px 10px rgba(211, 211, 211, 0.25);
+
   z-index: 30;
   animation: slide-up 300ms ease-out forwards;
 
