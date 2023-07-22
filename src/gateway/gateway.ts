@@ -72,6 +72,8 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
         const room = await this.roomService.createRoom(roomCreateDto, socket.decoded.email, socket.id);
         await room.save(); 
         room.socket_id = socket.id; 
+
+        socket.join(room.title); 
         this.nsp.emit('room-created', "room created!");
         return {success : true, payload: {title : roomCreateDto.title}}
     }
@@ -88,20 +90,16 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
             socket.emit("Can't join the room!");
         }
         else {
-            console.log(" 방을 찾는 중입니다 ");
             const room_id = await this.roomService.getRoomIdFromTitle(title);
-            const socket_id_room= await this.roomService.getSocketId(room_id);
-            socket.join(await socket_id_room);
+            socket.join(await title);
 
-            const user = await this.userService.userInfoFromEmail(socket.decoded.email);
+            this.logger.log(`${socket.id} : Room enter!`);
 
-            const roomAndUserDto = new RoomAndUserDto;
-            roomAndUserDto.room_id = room_id;
-            roomAndUserDto.user_id = user._id;
-            roomAndUserDto.socket_id = socket.id;
-
-            await this.roomService.saveRoomAndUser(roomAndUserDto);
-            await this.roomService.chageRoomStatus(roomAndUserDto.room_id);
+            const user_id = await this.userService.userInfoFromEmail(socket.decoded.email);
+            await this.roomService.changeRoomStatusForJoin(room_id, user_id);
+            
+            const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
+            this.nsp.to(title).emit('room-state-changed', roomAndUserInfo);
         }
         this.nsp.emit('enter-room', "enter-room!");
         return {success : true, payload: {title : title}}  

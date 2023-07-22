@@ -17,7 +17,7 @@ export class UsersService {
 
     async userInfoFromEmail(email : string) : Promise<any>  {
         const user = await this.authModel.findOne({email : email});
-        return user;
+        return user._id;
     }
       
 }
