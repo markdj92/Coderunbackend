@@ -68,14 +68,15 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     async handleCreateRoom(
       @MessageBody() roomCreateDto: RoomCreateDto,
       @ConnectedSocket() socket: ExtendedSocket
-    ) :Promise <{success : boolean, payload : {title : string}} > {
+    ) :Promise <{success : boolean, payload : {roomInfo : RoomStatusChangeDto}} > {
         const room = await this.roomService.createRoom(roomCreateDto, socket.decoded.email, socket.id);
         await room.save(); 
         room.socket_id = socket.id; 
-
         socket.join(room.title); 
+        const room_id = await this.roomService.getRoomIdFromTitle(roomCreateDto.title);
+        const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
         this.nsp.emit('room-created', "room created!");
-        return {success : true, payload: {title : roomCreateDto.title}}
+        return {success : true,  payload: { roomInfo : roomAndUserInfo}}
     }
 
     // @UseGuards(AuthGuard())  토큰 확인하는 정보를 추가. 
