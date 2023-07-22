@@ -2,7 +2,14 @@ import { io } from 'socket.io-client';
 
 import { PATH_API } from '@/constants';
 
+export const attempt = {
+  maxCount: 5,
+  tryCount: 0,
+};
+
 export const socket = io(`http://52.69.242.42:3000${PATH_API.room}`, {
   extraHeaders: {},
   autoConnect: false,
+  reconnection: true,
+  reconnectionAttempts: attempt.maxCount,
 });
