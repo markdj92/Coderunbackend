@@ -8,11 +8,13 @@ export class RoomAndUser extends Document {
   @Prop({ required: true, type: MongooseSchema.Types.ObjectId })
   room_id: MongooseSchema.Types.ObjectId;
 
-  @Prop({ required: true, type: MongooseSchema.Types.ObjectId })
-  user_id: MongooseSchema.Types.ObjectId;
 
-  @Prop()
-  socket_id : string;
+  @Prop({ required: true, type: [String] })
+  user_info: string[] ;
+
+  @Prop({ required: true, type: [Boolean], default : false})
+  ready_status : boolean[];
+
 }
 
 export const RoomAndUserSchema = SchemaFactory.createForClass(RoomAndUser);

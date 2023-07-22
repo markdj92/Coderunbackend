@@ -29,6 +29,9 @@ export class Auth extends Document {
     @Prop()
     online: boolean;
 
+    @Prop({default : 1})
+    level : number;
+
     @Prop({default : null})
     nickname : string;
 }

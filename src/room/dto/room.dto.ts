@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsArray, IsBoolean } from 'class-validator';
 import { IsEnum, IsOptional, Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator";
 
 import { ApiProperty, ApiTags } from '@nestjs/swagger';
@@ -32,6 +32,11 @@ export enum RoomStatus {
 export enum RoomMode {
     STUDY = 'STUDY',
     COOPERATIVE  = 'COOPERATIVE'
+}
+
+export enum EmptyOrLock {
+    EMPTY = "EMPTY",
+    LOCK = "LOCK"
 }
 
 export class RoomCreateDto {
@@ -71,9 +76,42 @@ export class RoomAndUserDto {
   
     @IsNotEmpty()
     @ApiProperty()
-    user_id: ObjectId;
+    user_info: string[] ;
 
     @IsNotEmpty()
     @ApiProperty()
-    socket_id: string;
-  }
+    ready_status: boolean[];
+
+}
+
+export class UserInfoDto {
+
+
+    @ApiProperty()
+    nickname : string;
+  
+    @IsBoolean()
+    @ApiProperty()
+    status : boolean;
+  
+    @IsNumber()
+    @ApiProperty()
+    level : number;
+  
+}
+
+export class RoomStatusChangeDto {
+
+    @IsNotEmpty()
+    @ApiProperty()
+    title : string ;
+
+    @IsNotEmpty()
+    @ApiProperty()
+    member_count: number;
+
+    @IsArray()
+    @ApiProperty()
+    user_info : (UserInfoDto | EmptyOrLock)[]
+
+}
