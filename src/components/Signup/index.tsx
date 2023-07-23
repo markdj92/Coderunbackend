@@ -37,6 +37,7 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
       const response = await postCheckEmail({ email: userAccount.email });
       if (response) {
         alert('사용할 수 있는 이메일입니다.');
+        passwordRef.current?.focus();
       }
     } catch (error) {
       alert('이미 존재하는 이메일입니다.');
