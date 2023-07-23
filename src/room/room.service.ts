@@ -61,7 +61,7 @@ export class RoomService {
 
     async getRoomList(req) : Promise<Room[]> {
         const rooms = await this.roomModel.find().exec();
-        const result = rooms.filter(room => room.ready === true);
+        const result = await rooms.filter(room => room.ready === true);
         return result;
     }
     
@@ -88,7 +88,7 @@ export class RoomService {
     async memberCountUp(room_id : ObjectId) : Promise<void> {
         const room = await this.roomModel.findOneAndUpdate({_id :room_id}, { $inc: { member_count: 1 }},  { new: true } );
         if(room.member_count === room.max_members){
-            await this.roomModel.findOneAndUpdate({_id :room_id}, {status : false});
+            await this.roomModel.findOneAndUpdate({_id :room_id}, {ready : false});
         }
     }
 
@@ -99,6 +99,7 @@ export class RoomService {
         }
         if(room.member_count === 0 ){
             await this.roomAndUserModel.deleteOne({room_id :room_id});
+            await this.roomModel.findOneAndUpdate({_id :room_id}, {ready : false});
         }
         return {success : true};
     }
