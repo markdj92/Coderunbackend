@@ -43,7 +43,7 @@ export class RoomService {
             else return EmptyOrLock.LOCK;
         })
 
-        console.log("create room dunction : ", infoArray);
+        console.log("create and after room status : ", infoArray);
 
         roomAndUserDto.user_info = infoArray;
         roomAndUserDto.ready_status = []; // 배열 초기화
@@ -182,10 +182,10 @@ export class RoomService {
             throw new Error('user_id is undefined');
         }
 
-         const user_index = roomAndUserInfo.user_info.indexOf(user_id.toString());
- 
-         await this.roomAndUserModel.updateOne(
-             { room_id: room_id },
+        const user_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());
+        console.log("test user index : ", user_index);
+        await this.roomAndUserModel.findOneAndUpdate(
+             { room_id : room_id },
              { $set: { 
                  [`user_info.${user_index}`]:  "EMPTY",
                  [`ready_status.${user_index}`]:  false

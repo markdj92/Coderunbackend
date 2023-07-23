@@ -8,7 +8,6 @@ import {
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -29,7 +28,7 @@ interface ExtendedSocket extends Socket {
 @ApiTags('Room')
 @UseGuards(jwtSocketIoMiddleware)
 @WebSocketGateway({cors : true, namespace: 'room'})
-export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
+export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     constructor(private readonly roomService: RoomService,
         private readonly userService: UsersService, 
     ) {}
@@ -127,7 +126,7 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
         let roomAndUserInfo: RoomStatusChangeDto;
         roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
 
-        this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
+        await this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
         return {success : true}  
         }
 }
