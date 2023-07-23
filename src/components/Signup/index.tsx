@@ -61,10 +61,7 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
                 inputValue={userAccount.email}
                 isValid={validateState.email}
               />
-              <EmailButton
-                isvalid={validateState.email}
-                onClick={validateState.email ? handleCheckEmail : () => {}}
-              >
+              <EmailButton isvalid={validateState.email} onClick={handleCheckEmail}>
                 중복확인
               </EmailButton>
             </EmailBox>
@@ -157,6 +154,7 @@ const EmailBox = styled.div`
 const EmailButton = styled.div<{ isvalid: boolean }>`
   ${({ isvalid }) => {
     return css`
+      pointer-events: ${!isvalid && 'none'};
       letter-spacing: 0.2rem;
       margin-bottom: 0.5rem;
       cursor: pointer;
@@ -164,7 +162,7 @@ const EmailButton = styled.div<{ isvalid: boolean }>`
 
       width: 10rem;
       transition: all 0.5s ease;
-      color: ${isvalid ? '#fff' : '#bebebe'};
+      color: ${isvalid ? '#fff' : '#6a6d94'};
       &:hover {
         text-shadow: ${isvalid
           ? '0 0 5px #bebebe,0 0 10px #bebebe,0 0 15px #bebebe,0 0 20px #bebebe,0 0 35px #bebebe'
