@@ -10,7 +10,7 @@ interface InputAnimationProps {
   inputName: string;
   inputValue: string;
   inputAvailable?: boolean;
-  handleChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleChange: (e: { target: { name: string; value: string } }) => void;
   warningMessage?: string;
   isValid: boolean;
 }
@@ -29,6 +29,7 @@ const InputAnimation: React.FC<InputAnimationProps> = ({
   const onReset = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     inputValue = '';
+    handleChange({ target: { name: inputName, value: inputValue } });
     if (Ref && Ref.current) Ref.current.value = '';
   };
 

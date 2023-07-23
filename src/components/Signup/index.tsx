@@ -10,7 +10,16 @@ import { postSignUp, postCheckEmail } from '@/apis/authApi';
 import { useAuthForm } from '@/hooks/useAuthForm';
 
 const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
-  const { emailRef, passwordRef, userAccount, validateState, handleAccountChange } = useAuthForm();
+  const {
+    emailRef,
+    passwordRef,
+    rePasswordRef,
+    userAccount,
+    validateState,
+    handleAccountChange,
+    isDuplicate,
+    setIsDuplicate,
+  } = useAuthForm();
   const [confirmPassword, setconfirmPassword] = useState('');
 
   const handleKeyPress = (e: KeyboardEvent) => {
@@ -33,10 +42,12 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
     }
   };
   const handleCheckEmail = async () => {
+    if (!validateState.email) return;
     try {
       const response = await postCheckEmail({ email: userAccount.email });
       if (response) {
         alert('사용할 수 있는 이메일입니다.');
+        setIsDuplicate(true);
         passwordRef.current?.focus();
       }
     } catch (error) {
@@ -44,9 +55,10 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
       emailRef.current?.focus();
     }
   };
-  const handleChangedConfirmPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setconfirmPassword(e.currentTarget.value);
+  const handleChangedConfirmPassword = (e: { target: { name: string; value: string } }) => {
+    setconfirmPassword(e.target.value);
   };
+
   return (
     <Modal handleHideModal={() => {}}>
       <CloseButton onClick={handleShowSignup}>x</CloseButton>
@@ -62,13 +74,19 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
                 inputValue={userAccount.email}
                 isValid={validateState.email}
               />
-              <EmailButton isvalid={validateState.email} onClick={handleCheckEmail}>
+              <EmailButton
+                isvalid={validateState.email ? 'true' : 'false'}
+                onClick={handleCheckEmail}
+              >
                 중복확인
               </EmailButton>
             </EmailBox>
-            {userAccount.email && !validateUserInfo.checkEmail(userAccount.email) && (
-              <Alert>주소형식을 확인해주세요</Alert>
-            )}
+            <Alert>
+              {userAccount.email &&
+                !validateUserInfo.checkEmail(userAccount.email) &&
+                '주소형식을 확인해주세요'}
+              {userAccount.email && validateState.email && !isDuplicate && '중복 확인을 해주세요'}
+            </Alert>
           </InputSet>
           <InputSet>
             <InputAnimation
@@ -80,9 +98,11 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
               inputValue={userAccount.password}
               isValid={validateState.password}
             />
-            {userAccount.password && !validateUserInfo.checkPassword(userAccount.password) && (
-              <Alert>조건 : 8자 이상 , 영숫자 only</Alert>
-            )}
+            <Alert>
+              {userAccount.password &&
+                !validateUserInfo.checkPassword(userAccount.password) &&
+                '조건 : 8자 이상 , 영숫자 only'}
+            </Alert>
           </InputSet>
           <InputSet>
             <InputAnimation
@@ -90,17 +110,18 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
               type='password'
               inputName='confirm password'
               handleChange={handleChangedConfirmPassword}
+              Ref={rePasswordRef}
               inputValue={confirmPassword}
               isValid={
                 confirmPassword !== '' &&
                 validateUserInfo.checkPasswordDiff(userAccount.password, confirmPassword)
               }
             />
-
-            {confirmPassword &&
-              !validateUserInfo.checkPasswordDiff(userAccount.password, confirmPassword) && (
-                <Alert>비밀번호가 일치하지 않습니다</Alert>
-              )}
+            <Alert>
+              {confirmPassword &&
+                !validateUserInfo.checkPasswordDiff(userAccount.password, confirmPassword) &&
+                '비밀번호가 일치하지 않습니다'}
+            </Alert>
           </InputSet>
         </InputContainer>
         <ButtonContainer>
@@ -109,11 +130,12 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
             isvalid={
               !validateState.email ||
               !validateState.password ||
+              !isDuplicate ||
               !validateUserInfo.checkPasswordDiff(userAccount.password, confirmPassword)
                 ? 'true'
                 : 'false'
             }
-            disabled={!validateState.email || !validateState.password}
+            disabled={!validateState.email || !validateState.password || !isDuplicate}
           >
             가입하기
           </StyledButton>
@@ -142,6 +164,7 @@ const SignupForm = styled.form`
 `;
 const InputSet = styled.div`
   width: 70%;
+  height: 33%;
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -152,20 +175,19 @@ const EmailBox = styled.div`
   justify-content: space-around;
   align-items: flex-end;
 `;
-const EmailButton = styled.div<{ isvalid: boolean }>`
+const EmailButton = styled.div<{ isvalid: string }>`
   ${({ isvalid }) => {
     return css`
-      pointer-events: ${!isvalid && 'none'};
+      cursor: ${isvalid === 'true' ? 'pointer' : 'auto'};
       letter-spacing: 0.2rem;
       margin-bottom: 0.5rem;
-      cursor: pointer;
       text-align: end;
 
       width: 10rem;
       transition: all 0.5s ease;
-      color: ${isvalid ? '#fff' : '#6a6d94'};
+      color: ${isvalid === 'true' ? '#fff' : '#6a6d94'};
       &:hover {
-        text-shadow: ${isvalid
+        text-shadow: ${isvalid === 'true'
           ? '0 0 5px #bebebe,0 0 10px #bebebe,0 0 15px #bebebe,0 0 20px #bebebe,0 0 35px #bebebe'
           : ''};
       }
@@ -175,14 +197,13 @@ const EmailButton = styled.div<{ isvalid: boolean }>`
 const InputContainer = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
   align-items: center;
   height: 40%;
   width: 100%;
-  margin: 3rem 0 3rem 0;
+  margin-top: 2rem;
 `;
 const Alert = styled.label`
-  margin: 5px;
+  height: 5%;
   font-size: small;
 `;
 

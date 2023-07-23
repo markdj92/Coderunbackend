@@ -76,6 +76,7 @@ const HeaderFrame = styled.div`
   background: rgba(255, 255, 255, 0.2);
   box-shadow: 0 0 32px 0 rgba(31, 38, 135, 1);
   backdrop-filter: blur(8.5px);
+  -webkit-backdrop-filter: blur(8.5px);
   min-width: 900px;
 `;
 
@@ -91,6 +92,7 @@ const MainFrame = styled.div`
   background: rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 1);
   backdrop-filter: blur(8.5px);
+  -webkit-backdrop-filter: blur(8.5px);
   min-width: 900px;
 
   overflow: auto;
