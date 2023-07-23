@@ -43,7 +43,7 @@ export class RoomService {
             else return EmptyOrLock.LOCK;
         })
 
-        console.log("create room dunction : ", infoArray);
+        console.log("create and after room status : ", infoArray);
 
         roomAndUserDto.user_info = infoArray;
         roomAndUserDto.ready_status = []; // 배열 초기화
@@ -61,7 +61,7 @@ export class RoomService {
 
     async getRoomList(req) : Promise<Room[]> {
         const rooms = await this.roomModel.find().exec();
-        const result = rooms.filter(room => room.ready === true);
+        const result = await rooms.filter(room => room.ready === true);
         return result;
     }
     
@@ -88,14 +88,18 @@ export class RoomService {
     async memberCountUp(room_id : ObjectId) : Promise<void> {
         const room = await this.roomModel.findOneAndUpdate({_id :room_id}, { $inc: { member_count: 1 }},  { new: true } );
         if(room.member_count === room.max_members){
-            await this.roomModel.findOneAndUpdate({_id :room_id}, {status : false});
+            await this.roomModel.findOneAndUpdate({_id :room_id}, {ready : false});
         }
     }
 
     async memberCountDown(room_id : ObjectId) : Promise<{success : boolean}> {
         const room = await this.roomModel.findOneAndUpdate({_id :room_id}, { $inc: { member_count: -1 }},  { new: true } );
+        if (!room) {
+            throw new Error(`No room found for id ${room_id}`);
+        }
         if(room.member_count === 0 ){
-            await this.roomAndUserModel.deleteOne({_id :room_id});
+            await this.roomAndUserModel.deleteOne({room_id :room_id});
+            await this.roomModel.findOneAndUpdate({_id :room_id}, {ready : false});
         }
         return {success : true};
     }
@@ -123,7 +127,7 @@ export class RoomService {
         await this.memberCountUp(room_id);
     }
 
-    async getRoomInfo(room_id : ObjectId) : Promise<RoomStatusChangeDto> {
+    async getRoomInfo(room_id : ObjectId) : Promise<RoomStatusChangeDto | boolean> {
         // room 의 변경사항이 생겼을 때, 사용할 dto 
         const roomStatusChangeDto = new RoomStatusChangeDto;
 
@@ -132,7 +136,7 @@ export class RoomService {
 
         if (!roomanduser) {
         // Handle the case where roomanduser is undefined
-        throw new Error(`No RoomAndUser found for room id ${room_id}`);
+            return false;
         }
 
         const userInfo = await Promise.all(
@@ -174,10 +178,15 @@ export class RoomService {
          }
          
          // 방 정보에서 첫번째로 empty인 부분을 찾음
-         const user_index = roomAndUserInfo.user_info.indexOf(user_id.toString());
- 
-         await this.roomAndUserModel.updateOne(
-             { room_id: room_id },
+         if (!user_id) {
+            // Handle the case where user_id is undefined
+            throw new Error('user_id is undefined');
+        }
+
+        const user_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());
+        console.log("test user index : ", user_index);
+        await this.roomAndUserModel.findOneAndUpdate(
+             { room_id : room_id },
              { $set: { 
                  [`user_info.${user_index}`]:  "EMPTY",
                  [`ready_status.${user_index}`]:  false

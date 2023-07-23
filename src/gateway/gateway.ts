@@ -8,7 +8,6 @@ import {
   MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
-  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -29,7 +28,7 @@ interface ExtendedSocket extends Socket {
 @ApiTags('Room')
 @UseGuards(jwtSocketIoMiddleware)
 @WebSocketGateway({cors : true, namespace: 'room'})
-export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect{
+export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     constructor(private readonly roomService: RoomService,
         private readonly userService: UsersService, 
     ) {}
@@ -69,10 +68,12 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     async handleCreateRoom(
       @MessageBody() roomCreateDto: RoomCreateDto,
       @ConnectedSocket() socket: ExtendedSocket
-    ) :Promise <{success : boolean, payload : {roomInfo : RoomStatusChangeDto}} > {
+    ) :Promise <{success : boolean, payload : {roomInfo : RoomStatusChangeDto | boolean}} > {
         const room = await this.roomService.createRoom(roomCreateDto, socket.decoded.email, socket.id);
         await room.save(); 
+        const user_id = await this.userService.userInfoFromEmail(socket.decoded.email);
         room.socket_id = socket.id; 
+        socket.user_id = user_id;
         socket.join(room.title); 
         const room_id = await this.roomService.getRoomIdFromTitle(roomCreateDto.title);
         const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
@@ -84,11 +85,11 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     async handleJoinRoom( 
         @MessageBody('title') title: string,
         @ConnectedSocket() socket: ExtendedSocket): 
-        Promise <{success : boolean, payload : {roomInfo : RoomStatusChangeDto}} > {
+        Promise <{success : boolean, payload : {roomInfo : RoomStatusChangeDto | boolean}} > {
 
         this.logger.log(`${socket.id} : 방에 입장 준비 중입니다!`);
         const condition = await this.roomService.checkRoomCondition(title);
-        let roomAndUserInfo: RoomStatusChangeDto;
+        let roomAndUserInfo: RoomStatusChangeDto | boolean;
         if(!condition){
             socket.emit("Can't join the room!");
         }
@@ -118,14 +119,15 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
         Promise <{success : boolean} > {
         
         const room_id = await this.roomService.getRoomIdFromTitle(title);
-        await this.roomService.changeRoomStatusForLeave(room_id,socket.user_id);
+        await this.roomService.changeRoomStatusForLeave(room_id, socket.user_id);
 
         socket.leave(await title);
   
-        let roomAndUserInfo: RoomStatusChangeDto;
-        roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
 
-        this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
+        const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
+        if (roomAndUserInfo !== false) {
+            await this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);   
+        }
         return {success : true}  
         }
 }
