@@ -126,7 +126,7 @@ export class RoomService {
         await this.memberCountUp(room_id);
     }
 
-    async getRoomInfo(room_id : ObjectId) : Promise<RoomStatusChangeDto> {
+    async getRoomInfo(room_id : ObjectId) : Promise<RoomStatusChangeDto | boolean> {
         // room 의 변경사항이 생겼을 때, 사용할 dto 
         const roomStatusChangeDto = new RoomStatusChangeDto;
 
@@ -135,7 +135,7 @@ export class RoomService {
 
         if (!roomanduser) {
         // Handle the case where roomanduser is undefined
-        throw new Error(`No RoomAndUser found for room id ${room_id}`);
+            return false;
         }
 
         const userInfo = await Promise.all(
