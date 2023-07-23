@@ -6,26 +6,41 @@ import { validateUserInfo } from '@/utils';
 import InputAnimation from '../public/inputAnimation';
 import Modal from '../public/Modal';
 
-import { postSignUp } from '@/apis/authApi';
+import { postSignUp, postCheckEmail } from '@/apis/authApi';
 import { useAuthForm } from '@/hooks/useAuthForm';
 
 const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
   const { emailRef, passwordRef, userAccount, validateState, handleAccountChange } = useAuthForm();
   const [confirmPassword, setconfirmPassword] = useState('');
+
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      handleShowSignup();
+    }
+  };
+  window.addEventListener('keyup', (e: KeyboardEvent) => handleKeyPress(e));
+
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      if (userAccount.password !== confirmPassword) {
-        alert('비밀번호가 일치하지 않습니다');
-        return;
-      }
       const response = await postSignUp(userAccount);
-      // console.log(response.data);
       if (response) {
         alert('가입 완료!');
+        handleShowSignup();
       }
     } catch (error) {
       console.error(error);
+    }
+  };
+  const handleCheckEmail = async () => {
+    try {
+      const response = await postCheckEmail({ email: userAccount.email });
+      if (response) {
+        alert('사용할 수 있는 이메일입니다.');
+      }
+    } catch (error) {
+      alert('이미 존재하는 이메일입니다.');
+      emailRef.current?.focus();
     }
   };
   const handleChangedConfirmPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,9 +48,7 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
   };
   return (
     <Modal handleHideModal={() => {}}>
-      <CloseButton style={{ float: 'right' }} onClick={handleShowSignup}>
-        x
-      </CloseButton>
+      <CloseButton onClick={handleShowSignup}>x</CloseButton>
       <SignupForm onSubmit={handleSignup}>
         <Title>SIGNUP</Title>
         <InputContainer>
@@ -48,13 +61,13 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
                 inputValue={userAccount.email}
                 isValid={validateState.email}
               />
-              <EmailButton>중복확인</EmailButton>
+              <EmailButton isvalid={validateState.email} onClick={handleCheckEmail}>
+                중복확인
+              </EmailButton>
             </EmailBox>
-            <Alert>
-              {userAccount.email && !validateUserInfo.checkEmail(userAccount.email)
-                ? '주소형식을 확인해주세요'
-                : ''}
-            </Alert>
+            {userAccount.email && !validateUserInfo.checkEmail(userAccount.email) && (
+              <Alert>주소형식을 확인해주세요</Alert>
+            )}
           </InputSet>
           <InputSet>
             <InputAnimation
@@ -66,11 +79,9 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
               inputValue={userAccount.password}
               isValid={validateState.password}
             />
-            <Alert>
-              {userAccount.password && !validateUserInfo.checkPassword(userAccount.password)
-                ? '조건 : 8자 이상 , 영숫자 only'
-                : ''}
-            </Alert>
+            {userAccount.password && !validateUserInfo.checkPassword(userAccount.password) && (
+              <Alert>조건 : 8자 이상 , 영숫자 only</Alert>
+            )}
           </InputSet>
           <InputSet>
             <InputAnimation
@@ -84,18 +95,23 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
                 validateUserInfo.checkPasswordDiff(userAccount.password, confirmPassword)
               }
             />
-            <Alert>
-              {confirmPassword &&
-              !validateUserInfo.checkPasswordDiff(userAccount.password, confirmPassword)
-                ? '비밀번호가 일치하지 않습니다'
-                : ''}
-            </Alert>
+
+            {confirmPassword &&
+              !validateUserInfo.checkPasswordDiff(userAccount.password, confirmPassword) && (
+                <Alert>비밀번호가 일치하지 않습니다</Alert>
+              )}
           </InputSet>
         </InputContainer>
         <ButtonContainer>
           <StyledButton
             type='submit'
-            isvalid={!validateState.email || !validateState.password ? 'true' : 'false'}
+            isvalid={
+              !validateState.email ||
+              !validateState.password ||
+              !validateUserInfo.checkPasswordDiff(userAccount.password, confirmPassword)
+                ? 'true'
+                : 'false'
+            }
             disabled={!validateState.email || !validateState.password}
           >
             가입하기
@@ -113,12 +129,11 @@ const CloseButton = styled.button`
 const Title = styled.h2`
   letter-spacing: 01rem;
   text-align: center;
-  margin: 3rem 0 1rem 0;
+  margin: 5rem 0 1rem 0;
   font-size: 1.2rem;
 `;
 const SignupForm = styled.form`
   text-transform: uppercase;
-
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -134,34 +149,44 @@ const EmailBox = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-around;
+  align-items: flex-end;
 `;
-const EmailButton = styled.button`
-  letter-spacing: 0.2rem;
+const EmailButton = styled.div<{ isvalid: boolean }>`
+  ${({ isvalid }) => {
+    return css`
+      pointer-events: ${!isvalid && 'none'};
+      letter-spacing: 0.2rem;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      text-align: end;
 
-  cursor: pointer;
-  text-align: end;
-
-  width: 10rem;
-  transition: all 0.5s ease;
-
-  &:hover {
-    transform: scale(1.1);
-  }
+      width: 10rem;
+      transition: all 0.5s ease;
+      color: ${isvalid ? '#fff' : '#6a6d94'};
+      &:hover {
+        text-shadow: ${isvalid
+          ? '0 0 5px #bebebe,0 0 10px #bebebe,0 0 15px #bebebe,0 0 20px #bebebe,0 0 35px #bebebe'
+          : ''};
+      }
+    `;
+  }}
 `;
 const InputContainer = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-  height: 100%;
+  height: 40%;
   width: 100%;
+  margin: 3rem 0 3rem 0;
 `;
 const Alert = styled.label`
-  margin: 1rem;
+  margin: 5px;
+  font-size: small;
 `;
 
 const ButtonContainer = styled.div`
-  margin: 2rem 0 3rem 0;
+  margin: 3rem 0 0 0;
 
   width: 100%;
   display: flex;
