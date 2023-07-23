@@ -15,8 +15,10 @@ const RoomCard = ({ roomInfo }: { roomInfo: RoomInformation }) => {
   const onClickRoom = useCallback(
     (roomName: string) => {
       socket.emit('join-room', { title: roomName }, (response: RoomResponse) => {
-        if (!response.success) return alert(response.payload);
-        navigate(`/room/${response.payload.title}`);
+        if (!response.payload?.roomInfo) return alert('방 입장 실패!');
+        navigate(`/room/${roomName}`, {
+          state: { ...response.payload.roomInfo },
+        });
       });
     },
     [navigate],

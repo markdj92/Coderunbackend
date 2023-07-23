@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ImExit } from 'react-icons/im';
 import { LuSettings2 } from 'react-icons/lu';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { socket } from '@/apis/socketApi';
@@ -11,20 +11,25 @@ import { RoomStatus, userInfo } from '@/types/room';
 
 const Room = () => {
   useSocketConnect();
+  const location = useLocation();
+  const { title, member_count, user_info } = location.state;
 
-  const { roomName } = useParams<string>();
-
-  const [title, setTitle] = useState<string | undefined>(roomName);
-  const [people, setPeople] = useState<number>(0);
-  const [maxPeople, setMaxPeople] = useState<number>(0);
-  const [userInfos, setUserInfos] = useState<userInfo[]>([]);
+  const [roomName, setRoomName] = useState<string | undefined>(title);
+  const [people, setPeople] = useState<number>(member_count);
+  const [maxPeople, setMaxPeople] = useState<number>(
+    user_info.reduce((count: number, user: userInfo) => {
+      if (user !== 'LOCK') return count + 1;
+      return count;
+    }, 0),
+  );
+  const [userInfos, setUserInfos] = useState<userInfo[]>(user_info);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const roomHandler = (response: RoomStatus) => {
       const { title, member_count, user_info } = response;
-      setTitle(title);
+      setRoomName(title);
       setPeople(member_count);
       setMaxPeople(
         user_info.reduce((count: number, user: userInfo) => {
@@ -49,10 +54,9 @@ const Room = () => {
   };
 
   const onLeaveRoom = useCallback(() => {
-    // socket.emit('leave-room', roomName, () => {
-    //   navigate('/lobby');
-    // });
-    navigate('/lobby');
+    socket.emit('leave-room', { title: roomName }, () => {
+      navigate('/lobby');
+    });
   }, [navigate, roomName]);
 
   const onCustomRoom = () => {};
@@ -67,9 +71,10 @@ const Room = () => {
           </div>
         </div>
         <div className='part2'>
-          {Array.from({ length: 10 }).map((_, index) => {
-            return <Badge key={index} user={userInfos[index]} />;
-          })}
+          {userInfos &&
+            Array.from({ length: 10 }).map((_, index) => {
+              return <Badge key={index} user={userInfos[index]} index={index} />;
+            })}
         </div>
         <div className='part3'>
           <RoomButtons>
@@ -175,6 +180,8 @@ const MainFrame = styled.div`
   display: flex;
   justify-content: space-between;
 
+  min-width: 900px;
+
   border: 1px solid #fff;
   border-top: 0px;
   border-radius: 20px;
@@ -184,21 +191,21 @@ const MainFrame = styled.div`
 
   .part1 {
     height: 100%;
-    width: 30%;
+    width: 25%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
   }
   .part2 {
     height: 100%;
-    width: 50%;
+    width: 55%;
     display: flex;
     flex-wrap: wrap;
-    padding: 2rem 0 1rem;
   }
   .part3 {
     height: 100%;
     width: 20%;
+    min-width: 200px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;

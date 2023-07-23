@@ -27,7 +27,9 @@ const Lobby = () => {
 
     socket.emit('create-room', message, (response: RoomResponse) => {
       if (!response.success) return alert(response.payload);
-      navigate(`/room/${response.payload.title}`);
+      navigate(`/room/${roomName}`, {
+        state: { ...response.payload.roomInfo },
+      });
     });
   }, [navigate]);
 
