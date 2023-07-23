@@ -2,37 +2,40 @@ import styled from 'styled-components';
 
 import { userInfo } from '@/types/room';
 
-const Badge = ({ user }: { user: userInfo }) => {
+const Badge = ({ user }: { user: userInfo; index?: number }) => {
+  const handleClickCard = () => {};
+
+  const handleLockCard = () => {};
+
+  if (typeof user !== 'string' && user.nickname === null) user.nickname = 'nowonjoo';
   if (user === undefined || user === 'LOCK' || user === 'EMPTY')
     return (
       <Container>
-        <UserCard isuser='false' islock={user === 'LOCK' || user === undefined ? 'true' : 'false'}>
+        <NonUserCard
+          onClick={handleLockCard}
+          islock={user === 'LOCK' || user === undefined ? 'true' : 'false'}
+        >
           {user === 'LOCK' || user === undefined ? (
-            <div id='userinfo'>
-              <p className='noneuser'>lock</p>
-            </div>
+            <NonTitle>lock</NonTitle>
           ) : (
-            <div id='userinfo'>
-              <p className='noneuser' style={{ color: '#3f3d4d' }}>
-                empty
-              </p>
-            </div>
+            <NonTitle style={{ color: '#3f3d4d' }}>empty</NonTitle>
           )}
-        </UserCard>
+        </NonUserCard>
       </Container>
     );
   return (
     <Container>
-      <UserCard isuser={'true'} islock={user.ready_status ? 'true' : 'false'}>
-        <button>x</button>
-        <UserImg>
-          {user.ready_status && <p className='ready'>READY</p>}
-          <img id='profile-image' src={'/images/anonymous.jpg'} />
-        </UserImg>
-        <div id='userinfo'>
+      <UserImg>
+        {user.ready_status && <p className='ready'>READY</p>}
+        <img id='profile-image' src={'/images/anonymous.jpg'} />
+      </UserImg>
+      <UserCard islock={user.ready_status ? 'true' : 'false'} onClick={handleClickCard}>
+        <DropButton>x</DropButton>
+
+        <InfoFrame>
           <p className='nickname'>{user.nickname}</p>
           <p className='level'>LV {user.level}</p>
-        </div>
+        </InfoFrame>
       </UserCard>
     </Container>
   );
@@ -41,70 +44,84 @@ const Badge = ({ user }: { user: userInfo }) => {
 const Container = styled.div`
   width: 50%;
   height: 20%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: relative;
   transition: all 0.1s ease;
-
   &:hover {
     transform: scale(1.03);
   }
 `;
 
-const UserCard = styled.div<{ isuser: string; islock: string }>`
-  float: left;
-  width: 80%;
-  min-width: 20rem;
-  height: 60%;
-  min-height: 5rem;
-  background-color: ${(props) =>
-    props.islock !== 'true'
-      ? 'rgba(255,255,255,0.4)'
-      : props.isuser === 'true'
-      ? 'rgba(100,100,100,0.4)'
-      : 'rgba(0,0,0,0.4)'};
-  padding: 1rem;
-  border-radius: 20px;
+const NonUserCard = styled.div<{ islock: string }>`
   border: 1px solid white;
-  border-top: 0px;
+  border-radius: 20px;
+  margin: 1.5em;
+  min-height: 99.66px;
+  max-height: 99.66px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: ${(props) =>
+    props.islock !== 'true' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'};
+`;
+
+const NonTitle = styled.div`
+  text-transform: uppercase;
+  font-weight: bolder;
+  font-style: italic;
+  font-size: 2em;
+`;
+
+const UserCard = styled.div<{ islock: string }>`
+  position: relative;
+  overflow: hidden;
+  border: 1px solid white;
+  border-radius: 20px;
+  margin: 1.5em;
+  min-height: 99.66px;
+  max-height: 99.66px;
+  background-color: ${(props) =>
+    props.islock !== 'true' ? 'rgba(255,255,255,0.4)' : 'rgba(100,100,100,0.4)'};
+
   box-shadow: 0 2px 8px rgba(31, 38, 135, 1);
-  margin: 2.3em;
-  button {
-    float: right;
+`;
+
+const InfoFrame = styled.div`
+  transform: translate(35%, 0%);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: absolute;
+  top: 1.4rem;
+  left: 1.2rem;
+  p {
+    padding: 0.2rem;
   }
-  & > #userinfo {
-    transform: translate(35%, 0%);
-    text-align: left;
-    width: fit-content;
-  }
-  div > .noneuser {
-    text-align: center;
-    padding-top: 10px;
-    text-transform: uppercase;
-    font-weight: bolder;
-    font-style: italic;
-    font-size: xx-large;
-    width: 5em;
-  }
-  div > .nickname {
+  .nickname {
     text-shadow: #3f3d4d 2px 0 3px;
-    position: relative;
     text-transform: uppercase;
     font-weight: bolder;
-    font-size: 30px;
-    width: fit-content;
+    font-size: 1.5em;
+    white-space: nowrap;
   }
-  div > .level {
-    position: relative;
-    width: fit-content;
-  }
+`;
+
+const DropButton = styled.button`
+  position: absolute;
+  top: 0;
+  right: 0.5rem;
+  font-size: 1.3rem;
+  padding: 0.5rem;
 `;
 
 const UserImg = styled.div`
   transform: translate(-40%, -40%);
   position: absolute;
-  width: 5em;
-  height: 5em;
+  width: 6em;
+  height: 6em;
+  top: 2.7em;
+  left: 2.3em;
+  z-index: 1;
   img {
     border: 1px solid white;
     width: 100%;
