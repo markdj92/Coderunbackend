@@ -115,3 +115,4 @@ export class RoomStatusChangeDto {
     user_info : (UserInfoDto | EmptyOrLock)[]
 
 }
+

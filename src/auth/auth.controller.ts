@@ -1,9 +1,11 @@
 
-import { Body, Controller, Post, HttpCode, HttpStatus, Request , UseGuards} from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, Request , UseGuards, Put, Param} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto, CheckDto } from './dto/auth.dto';
+import { AuthDto, CheckDto, SetNicknameDto } from './dto/auth.dto';
 import { AuthGuard } from './auth.guard';
 import { Public } from 'src/shared/decorators/public.decorator';
+
+
 
 
 @Controller('auth')
@@ -31,5 +33,13 @@ export class AuthController {
   @Post("checkemail")
   signUpcheck(@Body() checkDto: CheckDto) {
     return this.authService.checkDuplicateEmail(checkDto.email);
+  }
+
+  
+  @UseGuards(AuthGuard)
+  @Put('nickname')
+  updateNickname(@Request() req, @Body('nickname') nickname: string) {
+    const email = req.user.email;
+    return this.authService.updateNicknameByEmail(email, nickname);
   }
 }
