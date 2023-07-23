@@ -20,6 +20,7 @@ const ModalOverlay = styled.div`
   position: absolute;
   height: 70vh;
   backdrop-filter: blur(8.5px);
+  -webkit-backdrop-filter: blur(8.5px);
 
   background-color: rgba(0, 0, 0, 0.5);
   padding: 1rem;
