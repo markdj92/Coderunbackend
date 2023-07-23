@@ -10,7 +10,8 @@ import { postSignUp, postCheckEmail } from '@/apis/authApi';
 import { useAuthForm } from '@/hooks/useAuthForm';
 
 const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
-  const { emailRef, passwordRef, userAccount, validateState, handleAccountChange } = useAuthForm();
+  const { emailRef, passwordRef, rePasswordRef, userAccount, validateState, handleAccountChange } =
+    useAuthForm();
   const [confirmPassword, setconfirmPassword] = useState('');
 
   const handleKeyPress = (e: KeyboardEvent) => {
@@ -94,6 +95,7 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
               type='password'
               inputName='confirm password'
               handleChange={handleChangedConfirmPassword}
+              Ref={rePasswordRef}
               inputValue={confirmPassword}
               isValid={
                 confirmPassword !== '' &&
