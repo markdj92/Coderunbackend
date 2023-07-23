@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 import { validateUserInfo } from '@/utils';
 
@@ -14,6 +14,7 @@ export const useAuthForm = () => {
     password: false,
     errorMessage: '',
   });
+  const [isDuplicate, setIsDuplicate] = useState(false);
 
   const isValidAccount = () => {
     const email = emailRef.current?.value || '';
@@ -34,11 +35,12 @@ export const useAuthForm = () => {
     return isValid;
   };
 
-  const handleAccountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAccountChange = (e: { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
     if (name === 'email') {
       if (isValidEmail()) setValidateState({ ...validateState, email: true });
       else setValidateState({ ...validateState, email: false });
+      setIsDuplicate(false);
     }
     if (name === 'password') {
       if (isValidPassword()) setValidateState({ ...validateState, password: true });
@@ -57,5 +59,7 @@ export const useAuthForm = () => {
     setValidateState,
     handleAccountChange,
     isValidAccount,
+    isDuplicate,
+    setIsDuplicate,
   };
 };
