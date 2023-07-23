@@ -33,6 +33,7 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
     }
   };
   const handleCheckEmail = async () => {
+    if (!validateState.email) return;
     try {
       const response = await postCheckEmail({ email: userAccount.email });
       if (response) {
@@ -62,7 +63,10 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
                 inputValue={userAccount.email}
                 isValid={validateState.email}
               />
-              <EmailButton isvalid={validateState.email} onClick={handleCheckEmail}>
+              <EmailButton
+                isvalid={validateState.email ? 'true' : 'false'}
+                onClick={handleCheckEmail}
+              >
                 중복확인
               </EmailButton>
             </EmailBox>
@@ -152,20 +156,19 @@ const EmailBox = styled.div`
   justify-content: space-around;
   align-items: flex-end;
 `;
-const EmailButton = styled.div<{ isvalid: boolean }>`
+const EmailButton = styled.div<{ isvalid: string }>`
   ${({ isvalid }) => {
     return css`
-      pointer-events: ${!isvalid && 'none'};
+      cursor: ${isvalid === 'true' ? 'pointer' : 'auto'};
       letter-spacing: 0.2rem;
       margin-bottom: 0.5rem;
-      cursor: pointer;
       text-align: end;
 
       width: 10rem;
       transition: all 0.5s ease;
-      color: ${isvalid ? '#fff' : '#6a6d94'};
+      color: ${isvalid === 'true' ? '#fff' : '#6a6d94'};
       &:hover {
-        text-shadow: ${isvalid
+        text-shadow: ${isvalid === 'true'
           ? '0 0 5px #bebebe,0 0 10px #bebebe,0 0 15px #bebebe,0 0 20px #bebebe,0 0 35px #bebebe'
           : ''};
       }
