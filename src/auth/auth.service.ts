@@ -1,5 +1,5 @@
 import { AuthDto } from './dto/auth.dto';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Auth, AuthSchema} from './schemas/auth.schema';
@@ -19,14 +19,16 @@ export class AuthService {
   if (!user) {
     throw new UnauthorizedException('Invalid email or password');
   }
-const isPasswordMatched = await bcrypt.compare(authDto.password, user.password);
+    const isPasswordMatched = await bcrypt.compare(authDto.password, user.password);
 
     if (!isPasswordMatched) {
         throw new UnauthorizedException('Invalid email or password');
     }
+    
     const payload = { email: user.email };
     return {
       access_token: await this.jwtService.signAsync(payload),
+      nickname: user.nickname,
     };
   }
 
@@ -66,4 +68,17 @@ const isPasswordMatched = await bcrypt.compare(authDto.password, user.password);
         succes: true,
       };
     }
+
+    async updateNicknameByEmail(email: string, nickname: string) {
+      const existingUser = await this.authModel.findOne({ nickname: nickname })
+      if (existingUser) {
+        throw new BadRequestException('해당 닉네임은 이미 존재하는 닉네임입니다.');
+      }
+      
+      const user = await this.authModel.findOne({ email: email });
+      user.nickname = nickname;
+      await user.save();
+      return { message: 'success'};
+    }
+   
 }
