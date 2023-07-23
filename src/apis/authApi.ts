@@ -25,6 +25,20 @@ export const postLogin = (userAccount: UserAccount | { [k: string]: string }) =>
   return loginInstance.post(PATH_API.login, userAccount);
 };
 
+export const setInitName = (nickname: string, accessToken: string) => {
+  return loginInstance.put(
+    PATH_API.nickname,
+    {
+      nickname,
+    },
+    {
+      headers: {
+        [USER_TOKEN_KEY]: 'Bearer ' + accessToken,
+      },
+    },
+  );
+};
+
 export const postLogout = () => {
   localStorage.removeItem(USER_TOKEN_KEY);
 };

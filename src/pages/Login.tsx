@@ -4,7 +4,7 @@ import styled, { css } from 'styled-components';
 
 import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
 
-import { postLogin } from '@/apis/authApi';
+import { postLogin, setInitName } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
 import InputAnimation from '@/components/public/inputAnimation';
 import Signup from '@/components/Signup';
@@ -24,18 +24,31 @@ const Login = () => {
 
   const navigate = useNavigate();
 
+  const checkNickname = async (accessToken: string) => {
+    let nickname: string | null = '';
+    while (!nickname) {
+      nickname = prompt('닉네임을 설정해 주세요.');
+      if (nickname) {
+        await setInitName(nickname, accessToken);
+      }
+    }
+    return nickname;
+  };
+
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const response = await postLogin(userAccount);
-      const { access_token: accessToken } = response.data;
+      const { access_token: accessToken, nickname: nickname } = response.data;
       if (accessToken) {
+        let name = nickname;
+        if (!name) name = await checkNickname(accessToken);
         localStorage.setItem(USER_TOKEN_KEY, accessToken);
         socket.io.opts.extraHeaders = {
           Authorization: 'Bearer ' + accessToken,
         };
         socket.connect();
-        navigate(PATH_ROUTE.lobby);
+        if (name) navigate(PATH_ROUTE.lobby, { state: { name } });
       }
     } catch (error: any) {
       if (error.response.data)
