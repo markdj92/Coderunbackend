@@ -93,7 +93,7 @@ const InfoFrame = styled.div`
   overflow: hidden;
   position: absolute;
   top: 1.4rem;
-  left: 1.2rem;
+  left: 3.2rem;
   p {
     padding: 0.2rem;
   }
