@@ -6,7 +6,7 @@ import { validateUserInfo } from '@/utils';
 import InputAnimation from '../public/inputAnimation';
 import Modal from '../public/Modal';
 
-import { postSignUp } from '@/apis/authApi';
+import { postSignUp, postCheckEmail } from '@/apis/authApi';
 import { useAuthForm } from '@/hooks/useAuthForm';
 
 const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
@@ -23,10 +23,6 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      if (userAccount.password !== confirmPassword) {
-        alert('비밀번호가 일치하지 않습니다');
-        return;
-      }
       const response = await postSignUp(userAccount);
       if (response) {
         alert('가입 완료!');
@@ -36,14 +32,23 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
       console.error(error);
     }
   };
+  const handleCheckEmail = async () => {
+    try {
+      const response = await postCheckEmail({ email: userAccount.email });
+      if (response) {
+        alert('사용할 수 있는 이메일입니다.');
+      }
+    } catch (error) {
+      alert('이미 존재하는 이메일입니다.');
+      emailRef.current?.focus();
+    }
+  };
   const handleChangedConfirmPassword = (e: React.ChangeEvent<HTMLInputElement>) => {
     setconfirmPassword(e.currentTarget.value);
   };
   return (
     <Modal handleHideModal={() => {}}>
-      <CloseButton style={{ float: 'right' }} onClick={handleShowSignup}>
-        x
-      </CloseButton>
+      <CloseButton onClick={handleShowSignup}>x</CloseButton>
       <SignupForm onSubmit={handleSignup}>
         <Title>SIGNUP</Title>
         <InputContainer>
@@ -56,7 +61,12 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
                 inputValue={userAccount.email}
                 isValid={validateState.email}
               />
-              <EmailButton>중복확인</EmailButton>
+              <EmailButton
+                isvalid={validateState.email}
+                onClick={validateState.email ? handleCheckEmail : () => {}}
+              >
+                중복확인
+              </EmailButton>
             </EmailBox>
             {userAccount.email && !validateUserInfo.checkEmail(userAccount.email) && (
               <Alert>주소형식을 확인해주세요</Alert>
@@ -142,19 +152,26 @@ const EmailBox = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-around;
+  align-items: flex-end;
 `;
-const EmailButton = styled.button`
-  letter-spacing: 0.2rem;
+const EmailButton = styled.div<{ isvalid: boolean }>`
+  ${({ isvalid }) => {
+    return css`
+      letter-spacing: 0.2rem;
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      text-align: end;
 
-  cursor: pointer;
-  text-align: end;
-
-  width: 10rem;
-  transition: all 0.5s ease;
-
-  &:hover {
-    transform: scale(1.1);
-  }
+      width: 10rem;
+      transition: all 0.5s ease;
+      color: ${isvalid ? '#fff' : '#bebebe'};
+      &:hover {
+        text-shadow: ${isvalid
+          ? '0 0 5px #bebebe,0 0 10px #bebebe,0 0 15px #bebebe,0 0 20px #bebebe,0 0 35px #bebebe'
+          : ''};
+      }
+    `;
+  }}
 `;
 const InputContainer = styled.div`
   display: flex;
