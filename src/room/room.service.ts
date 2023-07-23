@@ -94,8 +94,11 @@ export class RoomService {
 
     async memberCountDown(room_id : ObjectId) : Promise<{success : boolean}> {
         const room = await this.roomModel.findOneAndUpdate({_id :room_id}, { $inc: { member_count: -1 }},  { new: true } );
+        if (!room) {
+            throw new Error(`No room found for id ${room_id}`);
+        }
         if(room.member_count === 0 ){
-            await this.roomAndUserModel.deleteOne({_id :room_id});
+            await this.roomAndUserModel.deleteOne({room_id :room_id});
         }
         return {success : true};
     }
@@ -174,6 +177,11 @@ export class RoomService {
          }
          
          // 방 정보에서 첫번째로 empty인 부분을 찾음
+         if (!user_id) {
+            // Handle the case where user_id is undefined
+            throw new Error('user_id is undefined');
+        }
+
          const user_index = roomAndUserInfo.user_info.indexOf(user_id.toString());
  
          await this.roomAndUserModel.updateOne(

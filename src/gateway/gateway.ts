@@ -72,7 +72,9 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
     ) :Promise <{success : boolean, payload : {roomInfo : RoomStatusChangeDto}} > {
         const room = await this.roomService.createRoom(roomCreateDto, socket.decoded.email, socket.id);
         await room.save(); 
+        const user_id = await this.userService.userInfoFromEmail(socket.decoded.email);
         room.socket_id = socket.id; 
+        socket.user_id = user_id;
         socket.join(room.title); 
         const room_id = await this.roomService.getRoomIdFromTitle(roomCreateDto.title);
         const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
@@ -118,7 +120,7 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
         Promise <{success : boolean} > {
         
         const room_id = await this.roomService.getRoomIdFromTitle(title);
-        await this.roomService.changeRoomStatusForLeave(room_id,socket.user_id);
+        await this.roomService.changeRoomStatusForLeave(room_id, socket.user_id);
 
         socket.leave(await title);
   
