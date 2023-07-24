@@ -26,6 +26,9 @@ export class AuthService {
     }
     
     const payload = { email: user.email };
+    user.online = true;
+    await user.save();
+
     return {
       access_token: await this.jwtService.signAsync(payload),
       nickname: user.nickname,
@@ -49,6 +52,19 @@ export class AuthService {
        success: true
       };
     }
+
+    async signOut(email : string) {
+      const user = await this.authModel.findOne({ email: email });
+      try{
+        user.online = false;
+        await user.save();
+      }catch {
+        return { success: false } ;
+      }
+      return {
+         success: true
+        };
+      }
 
     async validateUser(payload: { email: string }): Promise<any> {
       const user = await this.authModel.findOne({ email: payload.email });

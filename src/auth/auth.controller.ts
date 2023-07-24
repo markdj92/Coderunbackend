@@ -30,12 +30,20 @@ export class AuthController {
 
   @Public()
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard('jwt'))
+  @Post('signout')
+  signOut(@Request() req)  {
+    const email = req.user.email;
+    return this.authService.signOut(email);
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
   @Post("checkemail")
   signUpcheck(@Body() checkDto: CheckDto) {
     return this.authService.checkDuplicateEmail(checkDto.email);
   }
 
-  
   @UseGuards(AuthGuard('jwt'))
   @Put('nickname')
   updateNickname(@Request() req, @Body('nickname') nickname: string) {
