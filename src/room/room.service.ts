@@ -1,3 +1,4 @@
+import { IsEmail } from 'class-validator';
 import { RoomAndUser } from './schemas/roomanduser.schema';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { RoomCreateDto, RoomAndUserDto, EmptyOrLock, UserInfoDto, RoomStatusChangeDto } from './dto/room.dto';
@@ -200,6 +201,17 @@ export class RoomService {
          )
          await this.memberCountDown(room_id);
     }
+
+    async checkWrongDisconnection (email : string) : Promise<boolean> {
+
+        const user = await this.authModel.findOne({email : email});
+        if(await user.online === true){
+            return false;
+        }else {
+            return true;
+        }
+    }
+
     async changeOwner(room_id : ObjectId,user_id : ObjectId, index : number) : Promise<boolean> {
         const roomAndUserInfo = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
         const current_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());

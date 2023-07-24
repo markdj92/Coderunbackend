@@ -17,7 +17,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('login')
   signIn(@Body() signInDto: AuthDto) {
-    // login 할 때, email, password를 전달함
     return this.authService.signIn(signInDto);
   }
 
@@ -32,12 +31,21 @@ export class AuthController {
   @Public()
   @ApiOperation({ summary: 'email 체크'})
   @HttpCode(HttpStatus.OK)
+  @UseGuards(AuthGuard('jwt'))
+  @Post('signout')
+  signOut(@Request() req)  {
+    const email = req.user.email;
+    return this.authService.signOut(email);
+  }
+
+  @Public()
+  @ApiOperation({ summary: 'email 체크'})
+  @HttpCode(HttpStatus.OK)
   @Post("checkemail")
   signUpcheck(@Body() checkDto: CheckDto) {
     return this.authService.checkDuplicateEmail(checkDto.email);
   }
 
-  
   @UseGuards(AuthGuard('jwt'))
   @ApiOperation({ summary: '닉네임설정'})
   @Put('nickname')
