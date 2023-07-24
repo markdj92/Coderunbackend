@@ -141,13 +141,11 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
     @SubscribeMessage('change-owner')
     async handleChangeOwner(
-        @MessageBody('index') userIndex : number,
+        @MessageBody('title') title : string,  @MessageBody('index') userIndex : number,
         @ConnectedSocket() socket: ExtendedSocket): 
             Promise <{success : boolean, payload : {owner : number}} > {
         
-        const changeResult = await this.roomService.changeOwner(socket.room_id, socket.user_id, userIndex);
-        const title = await this.roomService.getTitleFromRoomId(socket.room_id);
-        
+        await this.roomService.changeOwner(socket.room_id, socket.user_id, userIndex);
         const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
         if (roomAndUserInfo !== false) {
             await this.nsp.to(await title).emit('room-status-changed', roomAndUserInfo);   
