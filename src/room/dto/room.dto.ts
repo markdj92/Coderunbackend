@@ -82,6 +82,10 @@ export class RoomAndUserDto {
     @ApiProperty()
     ready_status: boolean[];
 
+    @IsNotEmpty()
+    @ApiProperty()
+    owner : boolean[];
+
 }
 
 export class UserInfoDto {
@@ -97,7 +101,6 @@ export class UserInfoDto {
     @IsNumber()
     @ApiProperty()
     level : number;
-  
 }
 
 export class RoomStatusChangeDto {
