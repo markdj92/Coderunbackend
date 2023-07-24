@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { AuthDto, CheckDto, SetNicknameDto } from './dto/auth.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { Public } from 'src/shared/decorators/public.decorator';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 
 @ApiTags('Auth')
@@ -13,6 +13,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
+  @ApiOperation({ summary: '로그인'})
   @HttpCode(HttpStatus.OK)
   @Post('login')
   signIn(@Body() signInDto: AuthDto) {
@@ -21,6 +22,7 @@ export class AuthController {
   }
 
   @Public()
+  @ApiOperation({ summary: '회원가입'})
   @HttpCode(HttpStatus.OK)
   @Post('signup')
   signUp(@Body() signUpDto: AuthDto) {
@@ -28,6 +30,7 @@ export class AuthController {
   }
 
   @Public()
+  @ApiOperation({ summary: 'email 체크'})
   @HttpCode(HttpStatus.OK)
   @Post("checkemail")
   signUpcheck(@Body() checkDto: CheckDto) {
@@ -36,6 +39,7 @@ export class AuthController {
 
   
   @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: '닉네임설정'})
   @Put('nickname')
   updateNickname(@Request() req, @Body('nickname') nickname: string) {
     const email = req.user.email;
