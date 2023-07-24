@@ -39,7 +39,7 @@ export class RoomService {
         const max_member_number = room.max_members;
 
         const infoArray = Array.from({length : 10}, (_,index) => {
-            if (index === 0) return user._id.toString();;
+            if (index === 0) return user._id.toString();
             if (index < max_member_number) return EmptyOrLock.EMPTY;
             else return EmptyOrLock.LOCK;
         })
@@ -47,9 +47,18 @@ export class RoomService {
         console.log("create and after room status : ", infoArray);
 
         roomAndUserDto.user_info = infoArray;
-        roomAndUserDto.ready_status = []; // 배열 초기화
-        roomAndUserDto.ready_status[0] = false;
 
+        const readyStatusArray = Array.from({length : 10}, (_,index) => {
+            if (index < 10) return false;
+        })
+
+        const ownerArray = Array.from({length : 10}, (_,index) => {
+            if (index === 0) return true;
+            if (index < 10) return false;
+        })
+
+        roomAndUserDto.ready_status = readyStatusArray;
+        roomAndUserDto.owner = ownerArray;
         await this.saveRoomAndUser(roomAndUserDto);
 
         return newRoom.save();
@@ -77,9 +86,7 @@ export class RoomService {
     }
 
     async checkRoomCondition(title_name : string) : Promise<boolean> {
-        console.log(title_name);
         const room = await this.roomModel.findOne({title : title_name}).exec();
-        console.log(room);
         if (room && room.member_count < room.max_members && room.ready === true){
             return true;
         }
@@ -142,7 +149,6 @@ export class RoomService {
 
         const userInfo = await Promise.all(
             roomanduser.user_info.map(async (userID, index) => {
-                console.log("userID : ", userID);
 
               if (userID === "EMPTY" || userID === "LOCK") {
                 return userID as EmptyOrLock;
@@ -154,6 +160,7 @@ export class RoomService {
                 userInfoDto.nickname = user.nickname;
                 userInfoDto.level = user.level;
                 userInfoDto.status = roomanduser.ready_status[index];
+                userInfoDto.owner = roomanduser.owner[index];
 
                 return userInfoDto;
               }
@@ -185,7 +192,6 @@ export class RoomService {
         }
 
         const user_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());
-        console.log("test user index : ", user_index);
         await this.roomAndUserModel.findOneAndUpdate(
              { room_id : room_id },
              { $set: { 
@@ -206,5 +212,26 @@ export class RoomService {
         }
     }
 
-    async 
+    async changeOwner(room_id : ObjectId,user_id : ObjectId, index : number) : Promise<boolean> {
+        const roomAndUserInfo = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
+        const current_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());
+
+        if (current_index === -1) {
+            throw new Error(`User with id ${user_id} not found in room ${room_id}`);
+        }
+        
+        await this.roomAndUserModel.findOneAndUpdate(
+            { room_id : room_id }, 
+            { $set : {
+                [`owner.${current_index}`] : false }
+            }
+        )
+        const result = await this.roomAndUserModel.findOneAndUpdate(
+            { room_id : room_id }, 
+            { $set : {
+                [`owner.${index}`] : true }
+            }
+        )
+        return true;
+    }
 }
