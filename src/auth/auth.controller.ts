@@ -16,8 +16,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('login')
   signIn(@Body() signInDto: AuthDto) {
-    console.log(signInDto);
-    // login 할 때, email, password를 전달함
     return this.authService.signIn(signInDto);
   }
 
