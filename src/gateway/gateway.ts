@@ -125,19 +125,31 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     @SubscribeMessage('leave-room')
     async handleLeaveRoom(
         @MessageBody('title') title : string,
-        @ConnectedSocket() socket: ExtendedSocket): 
-        Promise <{success : boolean} > {
+        @ConnectedSocket() socket: ExtendedSocket): Promise <{success : boolean} > {
         
         const room_id = await this.roomService.getRoomIdFromTitle(title);
         await this.roomService.changeRoomStatusForLeave(room_id, socket.user_id);
 
         socket.leave(await title);
   
-
         const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
         if (roomAndUserInfo !== false) {
             await this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);   
         }
         return {success : true}  
+    }
+
+    @SubscribeMessage('change-owner')
+    async handleChangeOwner(
+        @MessageBody('title') title : string,  @MessageBody('index') userIndex : number,
+        @ConnectedSocket() socket: ExtendedSocket): 
+            Promise <{success : boolean, payload : {owner : number}} > {
+        
+        await this.roomService.changeOwner(socket.room_id, socket.user_id, userIndex);
+        const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
+        if (roomAndUserInfo !== false) {
+            await this.nsp.to(await title).emit('room-status-changed', roomAndUserInfo);   
         }
+        return {success : true, payload : {owner : userIndex}}  
+    }
 }
