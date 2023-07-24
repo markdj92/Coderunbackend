@@ -24,7 +24,7 @@ interface ExtendedSocket extends Socket {
     nickname : String
 }
 
-@ApiTags('Room')
+
 @UseGuards(jwtSocketIoMiddleware)
 @WebSocketGateway({cors : true, namespace: 'codingtest'})
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
@@ -56,7 +56,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
             const userInfo = await this.userService.getUserInfo(socket.decoded.email);
             socket.nickname = userInfo.nickname;
 
-            // 개인마다 방을 만듬
+            // 개인마다 방을 만듬 ,  추후 해쉬해서 join 하는거 추가.
             socket.join(userInfo.nickname);
             });
           } else {
@@ -70,13 +70,13 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
     @SubscribeMessage('join-user')
     async handleJoinUser(
-      @MessageBody() currentUserNickName : string , joinUserNickName : string,
+      @MessageBody() joinUserNickName : string,
       @ConnectedSocket() socket: ExtendedSocket
-    ) :Promise <{success : boolean, payload : any} > {
+    ) :Promise <{success : boolean, payload : {nickname : string}} > {
         
-        // 조인. 
-        return 
+        // 추후 해쉬해서 join 하는거 추가.
+        socket.join(joinUserNickName);
+        return {success : true, payload : {nickname : joinUserNickName}}
     }
 
-   
 }

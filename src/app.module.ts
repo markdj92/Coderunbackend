@@ -6,6 +6,9 @@ import { ConfigModule } from "@nestjs/config";
 import { PassportModule } from '@nestjs/passport';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { CodingTestService } from './codingtest/codingtest.service';
+import { CodingtestModule } from './codingtest/codingtest.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -19,10 +22,11 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     UsersModule,
     PassportModule,
-    
+    CodingtestModule,
+    HttpModule
   ],
   controllers: [],
-  providers: []
+  providers: [CodingTestService]
 })
 
 export class AppModule {}

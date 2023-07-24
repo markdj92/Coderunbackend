@@ -1,4 +1,3 @@
-
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
@@ -9,6 +8,7 @@ import { RoomController } from './room.controller';
 import { RoomService } from './room.service';
 import { Room, RoomSchemas } from './schemas/room.schema'; 
 import { RoomAndUser, RoomAndUserSchema } from './schemas/roomanduser.schema';
+import { CodingtestModule } from 'src/codingtest/codingtest.module';
 
 @Module({
   imports: [  
@@ -20,6 +20,7 @@ import { RoomAndUser, RoomAndUserSchema } from './schemas/roomanduser.schema';
       { name: 'Auth', schema: AuthSchema },
     ]),
     UsersModule, // UserModule 추가
+    CodingtestModule, // CodingtestModule 추가
   ],
   controllers: [RoomController],
   providers: [RoomService],
