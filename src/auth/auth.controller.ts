@@ -29,7 +29,7 @@ export class AuthController {
   }
 
   @Public()
-  @ApiOperation({ summary: 'email 체크'})
+  @ApiOperation({ summary: '로그아웃'})
   @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('jwt'))
   @Post('signout')
