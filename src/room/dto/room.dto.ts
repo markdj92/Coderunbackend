@@ -93,6 +93,10 @@ export class UserInfoDto {
     @IsNumber()
     @ApiProperty()
     level : number;
+
+    @IsNotEmpty()
+    @ApiProperty()
+    owner : boolean;
 }
 
 export class RoomStatusChangeDto {

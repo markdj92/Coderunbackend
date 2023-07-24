@@ -46,15 +46,18 @@ export class RoomService {
         console.log("create and after room status : ", infoArray);
 
         roomAndUserDto.user_info = infoArray;
-        roomAndUserDto.ready_status = []; // 배열 초기화
-        roomAndUserDto.ready_status[0] = false;
 
-        const onwer_array = Array.from({length : 10}, (_,index) => {
+        const readyStatusArray = Array.from({length : 10}, (_,index) => {
+            if (index < 10) return false;
+        })
+
+        const ownerArray = Array.from({length : 10}, (_,index) => {
             if (index === 0) return true;
             if (index < 10) return false;
         })
-        roomAndUserDto.owner = onwer_array;
 
+        roomAndUserDto.ready_status = readyStatusArray;
+        roomAndUserDto.owner = ownerArray;
         await this.saveRoomAndUser(roomAndUserDto);
 
         return newRoom.save();
@@ -156,6 +159,7 @@ export class RoomService {
                 userInfoDto.nickname = user.nickname;
                 userInfoDto.level = user.level;
                 userInfoDto.status = roomanduser.ready_status[index];
+                userInfoDto.owner = roomanduser.owner[index];
 
                 return userInfoDto;
               }
@@ -195,5 +199,27 @@ export class RoomService {
              }  },
          )
          await this.memberCountDown(room_id);
+    }
+    async changeOwner(room_id : ObjectId,user_id : ObjectId, index : number) : Promise<boolean> {
+        const roomAndUserInfo = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
+        const current_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());
+
+        if (current_index === -1) {
+            throw new Error(`User with id ${user_id} not found in room ${room_id}`);
+        }
+        
+        await this.roomAndUserModel.findOneAndUpdate(
+            { room_id : room_id }, 
+            { $set : {
+                [`owner.${current_index}`] : false }
+            }
+        )
+        const result = await this.roomAndUserModel.findOneAndUpdate(
+            { room_id : room_id }, 
+            { $set : {
+                [`owner.${index}`] : true }
+            }
+        )
+        return true;
     }
 }
