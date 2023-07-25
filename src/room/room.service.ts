@@ -69,7 +69,7 @@ export class RoomService {
         await newInfoForRoom.save();
     }
 
-    async getRoomList(req) : Promise<Room[]> {
+    async getRoomList() : Promise<Room[]> {
         const rooms = await this.roomModel.find().exec();
         const result = await rooms.filter(room => room.ready === true);
         return result;
@@ -250,4 +250,10 @@ export class RoomService {
         return { nickname: user.nickname, status: roomAndUser.ready_status[userIndex] };
     }
 
+    async getResult(title : string){
+        const room_id = await this.getRoomIdFromTitle(title);
+        const roomAndUser = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
+
+        
+    }
 }

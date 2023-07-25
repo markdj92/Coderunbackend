@@ -31,11 +31,16 @@ export class RoomController {
         type: Room, // 스키마 클래스 지정
     })
 
-   
-    
     @UseGuards(AuthGuard('jwt'))
     @Get('/')
     getRoomList(@Req() req){
-        return this.roomService.getRoomList(req);
+        return this.roomService.getRoomList();
     }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Get('result')
+    getResult(@Req() req, @Body('title') title : string){
+        return this.roomService.getResult(title);
+    }
+
 }
