@@ -26,9 +26,9 @@ const Login = () => {
   const navigate = useNavigate();
 
   const checkNickname = async (accessToken: string) => {
-    let nickname: string | null = '';
-    nickname = prompt('닉네임을 설정해 주세요.');
-    if (nickname) {
+    let nickname: string | null = prompt('닉네임을 설정해 주세요.');
+    if (nickname?.trim()) {
+      nickname = nickname.replace(/(\s*)/g, '');
       await setInitName(nickname, accessToken);
       return nickname;
     } else return null;
