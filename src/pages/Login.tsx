@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 
@@ -26,13 +27,11 @@ const Login = () => {
 
   const checkNickname = async (accessToken: string) => {
     let nickname: string | null = '';
-    while (!nickname) {
-      nickname = prompt('닉네임을 설정해 주세요.');
-      if (nickname) {
-        await setInitName(nickname, accessToken);
-      }
-    }
-    return nickname;
+    nickname = prompt('닉네임을 설정해 주세요.');
+    if (nickname) {
+      await setInitName(nickname, accessToken);
+      return nickname;
+    } else return null;
   };
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -43,12 +42,16 @@ const Login = () => {
       if (accessToken) {
         let name = nickname;
         if (!name) name = await checkNickname(accessToken);
-        localStorage.setItem(USER_TOKEN_KEY, accessToken);
-        socket.io.opts.extraHeaders = {
-          Authorization: 'Bearer ' + accessToken,
-        };
-        socket.connect();
-        if (name) navigate(PATH_ROUTE.lobby, { state: { name } });
+        if (name) {
+          localStorage.setItem(USER_TOKEN_KEY, accessToken);
+          socket.io.opts.extraHeaders = {
+            Authorization: 'Bearer ' + accessToken,
+          };
+          socket.connect();
+          navigate(PATH_ROUTE.lobby, { state: { name } });
+        } else {
+          alert('닉네임이 있어야 입장이 가능합니다.');
+        }
       }
     } catch (error: any) {
       if (error.response.data)
@@ -60,6 +63,10 @@ const Login = () => {
   const handleShowSignup = () => {
     setShownSignup(!isShownSignup);
   };
+
+  useEffect(() => {
+    socket.disconnect();
+  }, []);
 
   return (
     <MainFrame>
