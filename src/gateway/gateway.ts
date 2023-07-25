@@ -64,13 +64,14 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         const check = await this.roomService.checkWrongDisconnection(socket.decoded.email);
         if (!check) {
             const result = await this.roomService.changeRoomStatusForLeave(socket.room_id, socket.user_id);
-            console.log(result);
-            const title = await this.roomService.getTitleFromRoomId(socket.room_id);
-            socket.leave(await title);
-            const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
-            if (roomAndUserInfo !== false) {
-                await this.nsp.to(await title).emit('room-status-changed', roomAndUserInfo);   
-            }
+            if(result === "Success"){
+                const title = await this.roomService.getTitleFromRoomId(socket.room_id);
+                socket.leave(await title);
+                const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
+                if (roomAndUserInfo !== false) {
+                    await this.nsp.to(await title).emit('room-status-changed', roomAndUserInfo);   
+                }
+            }  
         }
         this.logger.log(`${socket.id} sockect disconnected!`);
     }

@@ -82,7 +82,10 @@ export class RoomService {
 
     async getTitleFromRoomId(roomID : ObjectId) : Promise<string> {
         const roomInfo = await this.roomModel.findOne({_id: roomID}).exec();
-        return roomInfo.title;
+        if(!!roomInfo) {
+            return roomInfo.title;
+        }
+        return null;
     }
 
     async checkRoomCondition(title_name : string) : Promise<boolean> {
