@@ -15,11 +15,8 @@ export class UsersService {
     @InjectModel(Auth.name) private readonly authModel: Model<Auth>,
       ) {}
 
-      async userInfoFromEmail(email : string) : Promise<any>  {
+    async userInfoFromEmail(email : string) : Promise<any>  {
         const user = await this.authModel.findOne({email : email});
-        if (!user) {
-            console.log(`User not found with email: ${email}`);
-        }
         return user._id;
     }
       
