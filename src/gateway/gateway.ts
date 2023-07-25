@@ -1,3 +1,4 @@
+import { RoomAndUser } from './../room/schemas/roomanduser.schema';
 import { ObjectId } from 'mongoose';
 import { Logger, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -166,10 +167,11 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         const userStatus = await this.roomService.setUserStatusToReady(room_id, user_id);
         const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
 
+        
         if (roomAndUserInfo instanceof RoomStatusChangeDto) {
             roomAndUserInfo.user_info
-            roomAndUserInfo.currentStatus = userStatus.status;
-            await this.nsp.to(title).emit('status-changed', roomAndUserInfo);
+            userStatus.status;
+            await this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
             return { success: true, payload: { nickname: userStatus.nickname, status : userStatus.status }};
         } else {
             return { success: false, payload: { nickname: userStatus.nickname, status : userStatus.status }};
@@ -178,5 +180,6 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         console.error('Error handling ready user', error);
         return { success: false, payload: { nickname: undefined, status : undefined }};
     }
-}
+  }
+
 }
