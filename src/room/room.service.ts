@@ -174,7 +174,7 @@ export class RoomService {
         return roomStatusChangeDto;
     }
 
-    async changeRoomStatusForLeave (room_id : ObjectId, user_id : ObjectId) : Promise<void> {
+    async changeRoomStatusForLeave (room_id : ObjectId, user_id : ObjectId) : Promise<string> {
         // 디비에 해당 유저를 empty 로 바꾸고
         // 방 인원수도 바꿔줌.
          // 해당 방에 대한 정보를 얻음
@@ -182,13 +182,13 @@ export class RoomService {
 
          if (!roomAndUserInfo) {
              // Handle the case where roomanduser is undefined
-             throw new Error(`No RoomAndUser found for room id ${room_id}`);
+             return `No RoomAndUser found for room id ${room_id}`;
          }
          
          // 방 정보에서 첫번째로 empty인 부분을 찾음
          if (!user_id) {
             // Handle the case where user_id is undefined
-            throw new Error('user_id is undefined');
+            return 'user_id is undefined';
         }
 
         const user_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());
@@ -200,6 +200,7 @@ export class RoomService {
              }  },
          )
          await this.memberCountDown(room_id);
+         return 'Success';
     }
 
     async checkWrongDisconnection (email : string) : Promise<boolean> {

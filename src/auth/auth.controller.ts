@@ -14,7 +14,6 @@ export class AuthController {
 
   @Public()
   @ApiOperation({ summary: '로그인'})
-  @HttpCode(HttpStatus.OK)
   @Post('login')
   signIn(@Body() signInDto: AuthDto) {
     return this.authService.signIn(signInDto);
@@ -22,25 +21,21 @@ export class AuthController {
 
   @Public()
   @ApiOperation({ summary: '회원가입'})
-  @HttpCode(HttpStatus.OK)
   @Post('signup')
   signUp(@Body() signUpDto: AuthDto) {
     return this.authService.signUp(signUpDto);
   }
 
-  @Public()
-  @ApiOperation({ summary: '로그아웃'})
-  @HttpCode(HttpStatus.OK)
   @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: '로그아웃'})
   @Post('signout')
-  signOut(@Request() req)  {
+  async signOut(@Request() req)  {
     const email = req.user.email;
-    return this.authService.signOut(email);
+    return await this.authService.signOut(email);
   }
 
   @Public()
   @ApiOperation({ summary: 'email 체크'})
-  @HttpCode(HttpStatus.OK)
   @Post("checkemail")
   signUpcheck(@Body() checkDto: CheckDto) {
     return this.authService.checkDuplicateEmail(checkDto.email);

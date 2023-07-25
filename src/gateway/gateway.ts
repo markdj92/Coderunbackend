@@ -61,11 +61,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     }
 
     async handleDisconnect(@ConnectedSocket() socket: ExtendedSocket)  {
-  
         const check = await this.roomService.checkWrongDisconnection(socket.decoded.email);
-        console.log(check);
         if (!check) {
-            await this.roomService.changeRoomStatusForLeave(socket.room_id, socket.user_id);
+            const result = await this.roomService.changeRoomStatusForLeave(socket.room_id, socket.user_id);
+            console.log(result);
             const title = await this.roomService.getTitleFromRoomId(socket.room_id);
             socket.leave(await title);
             const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
