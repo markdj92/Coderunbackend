@@ -1,15 +1,12 @@
 import { redirect } from 'react-router-dom';
 
-import { USER_TOKEN_KEY } from '@/constants';
 import { PATH_ROUTE } from '@/constants';
-
-// import { roomInstance } from '@/apis/roomApi';
+import { getUserToken } from '@/utils';
 
 export const lobbyLoader = () => {
-  const userToken = localStorage.getItem(USER_TOKEN_KEY);
+  const userToken = getUserToken();
   if (!userToken) {
     return redirect(PATH_ROUTE.login);
   }
   return;
-  // return roomInstance.get(PATH_API.root);
 };
