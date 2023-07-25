@@ -2,6 +2,8 @@ import axios from 'axios';
 
 import { USER_TOKEN_KEY, PATH_API } from '@/constants';
 
+import { socket } from './socketApi';
+
 import { UserAccount, UserEmail } from '@/types/auth';
 
 const axiosConfig = {
@@ -40,5 +42,21 @@ export const setInitName = (nickname: string, accessToken: string) => {
 };
 
 export const postLogout = () => {
-  localStorage.removeItem(USER_TOKEN_KEY);
+  const userToken = 'Bearer ' + localStorage.getItem(USER_TOKEN_KEY);
+  loginInstance
+    .post(
+      PATH_API.logout,
+      {},
+      {
+        headers: {
+          [USER_TOKEN_KEY]: userToken,
+        },
+      },
+    )
+    .then(() => {
+      socket.disconnect();
+    })
+    .catch((e) => {
+      console.error(e);
+    });
 };
