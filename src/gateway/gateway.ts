@@ -22,7 +22,8 @@ import { jwtSocketIoMiddleware } from './jwt-socket-io.middleware';
 interface ExtendedSocket extends Socket {
     decoded : {email :string},
     user_id : ObjectId,
-    nickname : String
+    nickname : String,
+    room_id : ObjectId
 }
 @ApiTags('Room')
 @UseGuards(jwtSocketIoMiddleware)
@@ -59,6 +60,17 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     }
 
     async handleDisconnect(@ConnectedSocket() socket: ExtendedSocket)  {
+        const check = await this.roomService.checkWrongDisconnection(socket.decoded.email);
+        if (!check) {
+            const result = await this.roomService.changeRoomStatusForLeave(socket.room_id, socket.user_id);
+            console.log(result);
+            const title = await this.roomService.getTitleFromRoomId(socket.room_id);
+            socket.leave(await title);
+            const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
+            if (roomAndUserInfo !== false) {
+                await this.nsp.to(await title).emit('room-status-changed', roomAndUserInfo);   
+            }
+        }
         this.logger.log(`${socket.id} sockect disconnected!`);
     }
 
@@ -74,6 +86,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         socket.user_id = user_id;
         socket.join(room.title); 
         const room_id = await this.roomService.getRoomIdFromTitle(roomCreateDto.title);
+        socket.room_id = room_id;
         const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
         this.nsp.emit('room-created', "room created!");
         return {success : true,  payload: { roomInfo : roomAndUserInfo}}
@@ -99,7 +112,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
             const user_id = await this.userService.userInfoFromEmail(socket.decoded.email);
             socket.user_id = user_id;
-
+            socket.room_id = room_id;
             await this.roomService.changeRoomStatusForJoin(room_id, user_id);
             
             roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
@@ -113,15 +126,13 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     @SubscribeMessage('leave-room')
     async handleLeaveRoom(
         @MessageBody('title') title : string,
-        @ConnectedSocket() socket: ExtendedSocket): 
-        Promise <{success : boolean} > {
+        @ConnectedSocket() socket: ExtendedSocket): Promise <{success : boolean} > {
         
         const room_id = await this.roomService.getRoomIdFromTitle(title);
         await this.roomService.changeRoomStatusForLeave(room_id, socket.user_id);
 
         socket.leave(await title);
   
-
         const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
         if (roomAndUserInfo !== false) {
             await this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);   
@@ -129,5 +140,17 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         return {success : true}  
     }
 
-
+    @SubscribeMessage('change-owner')
+    async handleChangeOwner(
+        @MessageBody('title') title : string,  @MessageBody('index') userIndex : number,
+        @ConnectedSocket() socket: ExtendedSocket): 
+            Promise <{success : boolean, payload : {owner : number}} > {
+        
+        await this.roomService.changeOwner(socket.room_id, socket.user_id, userIndex);
+        const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
+        if (roomAndUserInfo !== false) {
+            await this.nsp.to(await title).emit('room-status-changed', roomAndUserInfo);   
+        }
+        return {success : true, payload : {owner : userIndex}}  
+    }
 }
