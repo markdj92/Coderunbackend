@@ -196,6 +196,7 @@ const MainFrame = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    word-break: break-word;
   }
   .part2 {
     height: 100%;
