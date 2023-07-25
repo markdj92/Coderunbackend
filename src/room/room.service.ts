@@ -77,6 +77,10 @@ export class RoomService {
     
     async getRoomIdFromTitle(title : string) : Promise<ObjectId> {
         const room = await this.roomModel.findOne({title: title}).exec();
+        if (!room) {
+            console.log(`Room not found with title: ${title}`);
+            return null; 
+        }
         return room._id;
     }
 
@@ -86,12 +90,25 @@ export class RoomService {
     }
 
     async checkRoomCondition(title_name : string) : Promise<boolean> {
-        const room = await this.roomModel.findOne({title : title_name}).exec();
-        if (room && room.member_count < room.max_members && room.ready === true){
-            return true;
-        }
+    const room = await this.roomModel.findOne({title : title_name}).exec();
+    
+    if (!room) {
+        console.log(`No room found with title: ${title_name}`);
         return false;
     }
+    
+    if (room.member_count >= room.max_members) {
+        console.log(`Room ${title_name} is full.`);
+        return false;
+    }
+    
+    if (room.ready !== true) {
+        console.log(`Room ${title_name} is not ready.`);
+        return false;
+    }
+    
+    return true;
+}
 
     async memberCountUp(room_id : ObjectId) : Promise<void> {
         const room = await this.roomModel.findOneAndUpdate({_id :room_id}, { $inc: { member_count: 1 }},  { new: true } );
@@ -113,26 +130,32 @@ export class RoomService {
     }
 
     async changeRoomStatusForJoin(room_id : ObjectId, user_id : ObjectId) : Promise<void> {
-
+        console.log(`Change Room Status for Join called with room_id: ${room_id} and user_id: ${user_id}`);
         // 해당 방에 대한 정보를 얻음
         const roomAndUserInfo = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
-
+        console.log('roomAndUserInfo:', roomAndUserInfo);
+    
         if (!roomAndUserInfo) {
             // Handle the case where roomanduser is undefined
+            console.log(`No RoomAndUser found for room id ${room_id}`);
             throw new Error(`No RoomAndUser found for room id ${room_id}`);
         }
         
         // 방 정보에서 첫번째로 empty인 부분을 찾음
         const empty_index = roomAndUserInfo.user_info.indexOf("EMPTY");
-
-        await this.roomAndUserModel.findOneAndUpdate(
+        console.log(`Empty index in room: ${empty_index}`);
+    
+        const updateResult = await this.roomAndUserModel.findOneAndUpdate(
             { room_id: room_id },
             { $set: { 
                 [`user_info.${empty_index}`]:  user_id.toString(),
                 [`ready_status.${empty_index}`]:  false
             }  },
         )
+        console.log(`Update result: ${updateResult}`);
+        
         await this.memberCountUp(room_id);
+        console.log(`Change Room Status for Join function ended`);
     }
 
     async getRoomInfo(room_id : ObjectId) : Promise<RoomStatusChangeDto | boolean> {
@@ -234,5 +257,31 @@ export class RoomService {
             }
         )
         return true;
+    }
+
+    async setUserStatusToReady(room_id: ObjectId, user_id: ObjectId): Promise<{ nickname: string, status: boolean }> {
+        if (!user_id) {
+            throw new Error('user_id is undefined');
+        }
+    
+        const roomAndUser = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
+        if (!roomAndUser) {
+            console.log(`No RoomAndUser found for room id ${room_id}`);
+            throw new Error(`No RoomAndUser found for room id ${room_id}`);
+        }
+    
+        const userIndex = roomAndUser.user_info.findIndex((uid) => uid === user_id.toString());
+        
+        if (userIndex === -1) {
+            console.log(`User ID ${user_id} not found in the room ${room_id}`);
+            throw new Error(`User ID ${user_id} not found in the room ${room_id}`);
+        }
+    
+        const user = await this.authModel.findOne({ _id: user_id });
+    
+        // Update ready status of the user
+        roomAndUser.ready_status[userIndex] = roomAndUser.ready_status[userIndex] ? false : true;
+        await roomAndUser.save();
+        return { nickname: user.nickname, status: roomAndUser.ready_status[userIndex] };
     }
 }
