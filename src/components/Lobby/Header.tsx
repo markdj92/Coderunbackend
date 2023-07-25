@@ -1,21 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { PATH_ROUTE } from '@/constants';
+import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
 
 import { postLogout } from '@/apis/authApi';
-import { socket } from '@/apis/socketApi';
 
 const Header = () => {
   const navigate = useNavigate();
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     if (confirm('정말 떠나실건가요?'))
       try {
-        await postLogout();
-        socket.disconnect();
-        navigate(PATH_ROUTE.login);
+        postLogout();
+        localStorage.removeItem(USER_TOKEN_KEY);
         alert('로그아웃 되었습니다.');
+        navigate(PATH_ROUTE.login);
       } catch (error) {
         console.error(error);
       }

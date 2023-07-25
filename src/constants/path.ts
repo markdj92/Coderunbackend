@@ -12,7 +12,7 @@ export const PATH_API = Object.freeze({
   auth: '/auth',
   login: '/login',
   signUp: '/signup',
-  logout: '/logout',
+  logout: '/signout',
   nickname: '/nickname',
   checkEmail: '/checkemail',
 });
