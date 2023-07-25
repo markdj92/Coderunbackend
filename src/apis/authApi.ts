@@ -1,13 +1,15 @@
 import axios from 'axios';
 
 import { USER_TOKEN_KEY, PATH_API } from '@/constants';
+import { getUserToken } from '@/utils';
 
 import { socket } from './socketApi';
 
 import { UserAccount, UserEmail } from '@/types/auth';
 
 const axiosConfig = {
-  baseURL: `http://52.69.242.42:3000${PATH_API.auth}`,
+  // baseURL: `http://52.69.242.42:3000${PATH_API.auth}`,
+  baseURL: `http://localhost:3000${PATH_API.auth}`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -42,7 +44,7 @@ export const setInitName = (nickname: string, accessToken: string) => {
 };
 
 export const postLogout = () => {
-  const userToken = 'Bearer ' + localStorage.getItem(USER_TOKEN_KEY);
+  const userToken = getUserToken();
   loginInstance
     .post(
       PATH_API.logout,
@@ -54,9 +56,7 @@ export const postLogout = () => {
       },
     )
     .then(() => {
-      socket.disconnect();
-    })
-    .catch((e) => {
-      console.error(e);
+      socket.io.opts.extraHeaders = {};
+      if (socket.connected) socket.disconnect();
     });
 };

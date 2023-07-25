@@ -6,6 +6,10 @@ const GlobalStyle = createGlobalStyle`
   * {
     box-sizing: border-box;
     color: white;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none
   }
   a {
   color: inherit;

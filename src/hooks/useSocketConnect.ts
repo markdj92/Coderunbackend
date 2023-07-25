@@ -1,15 +1,25 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { PATH_ROUTE } from '@/constants';
+import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
+import { getUserToken } from '@/utils';
 
-import { postLogout } from '@/apis/authApi';
 import { attempt, socket } from '@/apis/socketApi';
 
 const useSocketConnect = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!socket.connected) {
+      const userToken = getUserToken();
+      if (!!userToken) {
+        socket.io.opts.extraHeaders = {
+          Authorization: userToken,
+        };
+        socket.connect();
+        navigate(PATH_ROUTE.lobby);
+      }
+    }
     socket.on('connect', () => {
       attempt.tryCount = 0;
       socket.off('connect_error');
@@ -18,7 +28,7 @@ const useSocketConnect = () => {
       socket.on('connect_error', () => {
         attempt.tryCount += 1;
         if (attempt.tryCount > attempt.maxCount - 1) {
-          postLogout();
+          localStorage.removeItem(USER_TOKEN_KEY);
           navigate(PATH_ROUTE.login);
         }
       });
