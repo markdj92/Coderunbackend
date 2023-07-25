@@ -4,7 +4,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { RoomCreateDto, RoomAndUserDto, EmptyOrLock, UserInfoDto, RoomStatusChangeDto } from './dto/room.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Room } from './schemas/room.schema'
-import mongoose, { Model,ObjectId,ObjectIdSchemaDefinition,Types } from 'mongoose';
+import mongoose, { Model,Mongoose,ObjectId,ObjectIdSchemaDefinition,Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
 import { Auth } from 'src/auth/schemas/auth.schema';
@@ -238,4 +238,16 @@ export class RoomService {
         )
         return true;
     }
+
+
+    async setUserStatusToReady(room_id: ObjectId, user_id: ObjectId): Promise<{ nickname: string, status: boolean }> {
+        const roomAndUser = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
+        const userIndex = roomAndUser.user_info.findIndex((uid) => uid === user_id.toString());
+        const user = await this.authModel.findOne({ _id: user_id });
+    
+        roomAndUser.ready_status[userIndex] = roomAndUser.ready_status[userIndex] ? false : true;
+        await roomAndUser.save();
+        return { nickname: user.nickname, status: roomAndUser.ready_status[userIndex] };
+    }
+
 }

@@ -1,3 +1,4 @@
+import { RoomAndUser } from './../room/schemas/roomanduser.schema';
 import { ObjectId } from 'mongoose';
 import { Logger, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -155,4 +156,31 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         }
         return {success : true, payload : {owner : userIndex}}  
     }
+
+    @SubscribeMessage('ready')
+    async handleReadyUser(
+    @MessageBody('title') title: string,
+    @ConnectedSocket() socket: ExtendedSocket
+    ): Promise<{ success: boolean; payload:{ nickname?: string, status?: boolean;}}> {
+    try {
+        const room_id = await this.roomService.getRoomIdFromTitle(title);
+        const user_id = await this.userService.userInfoFromEmail(socket.decoded.email);
+        const userStatus = await this.roomService.setUserStatusToReady(room_id, user_id);
+        const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
+
+        
+        if (roomAndUserInfo instanceof RoomStatusChangeDto) {
+            roomAndUserInfo.user_info
+            userStatus.status;
+            await this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
+            return { success: true, payload: { nickname: userStatus.nickname, status : userStatus.status }};
+        } else {
+            return { success: false, payload: { nickname: userStatus.nickname, status : userStatus.status }};
+        }
+    } catch (error) {
+        console.error('Error handling ready user', error);
+        return { success: false, payload: { nickname: undefined, status : undefined }};
+    }
+  }
+
 }
