@@ -24,6 +24,17 @@ export class Problem extends Document {
     contents: string;
 
     @Prop()
+    @IsString()
+    @IsNotEmpty()
+    input_contents: string;
+    
+    
+    @Prop()
+    @IsString()
+    @IsNotEmpty()
+    output_contents: string;
+
+    @Prop()
     @IsArray()
     ex_input: number[];
 
