@@ -11,8 +11,7 @@ import { UsersService } from 'src/users/users.service';
 @Controller('room')
 export class RoomController {
     constructor(private roomService: RoomService,
-        private readonly userService: UsersService,
-        private codingTestService: CodingTestService,) {}
+        private readonly userService: UsersService) {}
     
     @ApiOperation({ summary: '입장 가능한 방 보여주기'})
     @ApiResponse({
@@ -26,14 +25,5 @@ export class RoomController {
     getRoomList(@Req() req){
         return this.roomService.getRoomList();
     }
-
-    @UseGuards(AuthGuard('jwt'))
-    @Post('/execute')
-    async executeCode(@Body() codePayload: { script: string, language: string, versionIndex: number }) {
-        const result = await this.codingTestService.executeCode(codePayload.script, codePayload.language, codePayload.versionIndex);
-        console.log(result);
-        return result;
-      }
-
 
 }

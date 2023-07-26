@@ -10,6 +10,7 @@ import { CodingTestService } from './codingtest/codingtest.service';
 import { CodingtestModule } from './codingtest/codingtest.module';
 import { HttpModule } from '@nestjs/axios';
 
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -23,10 +24,11 @@ import { HttpModule } from '@nestjs/axios';
     UsersModule,
     PassportModule,
     CodingtestModule,
-    HttpModule
+    HttpModule,
+    RoomModule
   ],
   controllers: [],
-  providers: [CodingTestService]
+  providers: []
 })
 
 export class AppModule {}

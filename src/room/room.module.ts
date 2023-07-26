@@ -8,8 +8,6 @@ import { RoomController } from './room.controller';
 import { RoomService } from './room.service';
 import { Room, RoomSchemas } from './schemas/room.schema'; 
 import { RoomAndUser, RoomAndUserSchema } from './schemas/roomanduser.schema';
-import { CodingtestModule } from 'src/codingtest/codingtest.module';
-
 @Module({
   imports: [  
     PassportModule.register({ defaultStrategy: 'jwt' }),
@@ -20,7 +18,6 @@ import { CodingtestModule } from 'src/codingtest/codingtest.module';
       { name: 'Auth', schema: AuthSchema },
     ]),
     UsersModule, // UserModule 추가
-    CodingtestModule, // CodingtestModule 추가
   ],
   controllers: [RoomController],
   providers: [RoomService],
