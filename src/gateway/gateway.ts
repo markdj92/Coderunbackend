@@ -40,7 +40,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     @WebSocketServer() nsp: Namespace;
     afterInit(server: any) {
         this.nsp.adapter.on('create-room', (room) => {
-        this.logger.log(`"client sokect id : ${room}"이 생성되었습니다.`);
+        this.logger.log(`"${room}" 이 생성되었습니다.`);
         });
     }
 
@@ -108,16 +108,19 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
             socket.emit("Can't join the room!");
         }
         else {
+            console.log("1");
             const room_id = await this.roomService.getRoomIdFromTitle(title);
             socket.join(await title);
-
-            this.logger.log(`${socket.id} : Room enter!`);
-
+            
+            console.log("2");
             const user_id = await this.userService.userInfoFromEmail(socket.decoded.email);
             socket.user_id = user_id;
             socket.room_id = room_id;
+
+            console.log("3");
             await this.roomService.changeRoomStatusForJoin(room_id, user_id);
             
+            console.log("4");
             roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
             this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
         }
@@ -183,4 +186,29 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     }
   }
 
+    @SubscribeMessage('reviewList')
+    async handleReviewShow(
+    @MessageBody('title') title: string,
+    @ConnectedSocket() socket: ExtendedSocket
+    ): Promise<{success : boolean, payload : {roomInfo : RoomStatusChangeDto | boolean}} >{
+        
+        const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
+        await this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
+
+       return {success : true, payload: { roomInfo : roomAndUserInfo}}  
+    }
+
+    @SubscribeMessage('reviewUser')
+    async handleReviewUser(
+    @MessageBody('title') title : string,  @MessageBody('index') index : number,
+    @ConnectedSocket() socket: ExtendedSocket
+    ): Promise<{success : boolean, payload : {roomInfo : RoomStatusChangeDto | boolean}} >{
+
+        await this.roomService.getResult(socket.room_id, index);
+
+        const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
+        await this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
+
+       return {success : true, payload: { roomInfo : roomAndUserInfo}}  
+    }
 }

@@ -37,10 +37,4 @@ export class RoomController {
         return this.roomService.getRoomList();
     }
 
-    @UseGuards(AuthGuard('jwt'))
-    @Get('result')
-    getResult(@Req() req, @Body('title') title : string){
-        return this.roomService.getResult(title);
-    }
-
 }

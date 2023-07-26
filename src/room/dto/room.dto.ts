@@ -78,6 +78,13 @@ export class RoomAndUserDto {
     @ApiProperty()
     owner : boolean[];
 
+    @IsNotEmpty()
+    @ApiProperty()
+    solved : boolean[];
+
+    @IsNotEmpty()
+    @ApiProperty()
+    review : boolean[];
 }
 
 export class UserInfoDto {
@@ -96,6 +103,14 @@ export class UserInfoDto {
     @IsNotEmpty()
     @ApiProperty()
     owner : boolean;
+
+    @IsNotEmpty()
+    @ApiProperty()
+    solved : boolean;
+
+    @IsNotEmpty()
+    @ApiProperty()
+    review : boolean;
 }
 
 export class RoomStatusChangeDto {
