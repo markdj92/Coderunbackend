@@ -108,19 +108,15 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
             socket.emit("Can't join the room!");
         }
         else {
-            console.log("1");
             const room_id = await this.roomService.getRoomIdFromTitle(title);
             socket.join(await title);
             
-            console.log("2");
             const user_id = await this.userService.userInfoFromEmail(socket.decoded.email);
             socket.user_id = user_id;
             socket.room_id = room_id;
 
-            console.log("3");
             await this.roomService.changeRoomStatusForJoin(room_id, user_id);
             
-            console.log("4");
             roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
             this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
         }
