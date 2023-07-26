@@ -1,6 +1,12 @@
 import styled from 'styled-components';
 
-const QuizInputOutputTable = ({ inputData, outputData }) => {
+const QuizInputOutputTable = ({
+  inputData,
+  outputData,
+}: {
+  inputData: string[];
+  outputData: string[];
+}) => {
   return (
     <>
       <Title>입출력 예</Title>

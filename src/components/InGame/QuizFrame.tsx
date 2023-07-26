@@ -3,7 +3,9 @@ import styled from 'styled-components';
 import QuizContext from './QuizContext';
 import QuizInputOutputTable from './QuizInputOutputTable';
 
-const QuizFrame = ({ quizInfo }) => {
+import { QuizInfo } from '@/types/inGame';
+
+const QuizFrame = ({ quizInfo }: { quizInfo: QuizInfo }) => {
   if (quizInfo === null) return <></>;
   return (
     <Container>
