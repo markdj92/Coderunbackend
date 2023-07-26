@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CodingTestService } from './codingtest.service';
+import { CompileResultDto } from './dto/compileresult.dto';
 
 @Controller('codingtest')
 export class CodingtestController {
@@ -15,6 +16,9 @@ export class CodingtestController {
         const problem = await this.codingTestService.getProblemInput(codePayload.problemNumber);
         for (const index of problem.input) {
             result = await this.codingTestService.executeCode(codePayload.script, codePayload.language, codePayload.versionIndex, index);
+            if (!(result instanceof CompileResultDto)) {
+                return { success: false, payload: { result : result } };
+            }
             const resultOutput = result.output.replace(/\n/g, '');
             userOutputResult.push(resultOutput);
         }

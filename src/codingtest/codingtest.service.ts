@@ -26,23 +26,28 @@ export class CodingTestService {
     let numbers: number[] = s.split(',').map(Number);
     stdin = numbers.join(' ');
 
-    const response = this.httpService.post('https://api.jdoodle.com/v1/execute', {
-      script,
-      language,
-      stdin,
-      versionIndex,
-      clientId: process.env.JDOODLE_CLIENT_ID,
-      clientSecret: process.env.JDOODLE_CLIENT_SECRET,
-    });
-    const responseContent = await firstValueFrom(response);
+    try {
+      const response = this.httpService.post('https://api.jdoodle.com/v1/execute', {
+        script,
+        language,
+        stdin,
+        versionIndex,
+        clientId: process.env.JDOODLE_CLIENT_ID,
+        clientSecret: process.env.JDOODLE_CLIENT_SECRET,
+      });
 
-    const compileResult = new CompileResultDto;
-    compileResult.output = responseContent.data.output;
-    compileResult.memory = responseContent.data.memory;
-    compileResult.statuscode = responseContent.data.statuscode;
-    compileResult.cputime = responseContent.data.cputime;
-  
-    return compileResult;
+      const responseContent = await firstValueFrom(response);
+
+      const compileResult = new CompileResultDto;
+      compileResult.output = responseContent.data.output;
+      compileResult.memory = responseContent.data.memory;
+      compileResult.statuscode = responseContent.data.statuscode;
+      compileResult.cputime = responseContent.data.cputime;
+      return compileResult;
+
+    } catch {
+      return {success : false, payload :{result :  'An error occurred while executing the code.'}};
+    }
   }
 
   async getProblem(title : string) {
