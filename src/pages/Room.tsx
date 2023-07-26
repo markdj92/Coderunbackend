@@ -61,6 +61,10 @@ const Room = () => {
 
   const onCustomRoom = () => {};
 
+  const onGameRoom = useCallback(() => {
+    navigate('/game', { state: { title: roomName } });
+  }, [navigate]);
+
   return (
     <MainContainer>
       <MainFrame>
@@ -89,7 +93,7 @@ const Room = () => {
             <label className='countReady'>{people}</label>
             <label className='countPeople'>/ {maxPeople}</label>
           </People>
-          <Ready>시작</Ready>
+          <Ready onClick={onGameRoom}>시작</Ready>
         </div>
       </MainFrame>
     </MainContainer>

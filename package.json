@@ -14,7 +14,13 @@
     "test": "jest"
   },
   "dependencies": {
+    "@codemirror/collab": "^6.0.0",
+    "@codemirror/language": "^6.8.0",
     "@types/styled-components": "^5.1.26",
+    "@uiw/codemirror-extensions-basic-setup": "^4.21.8",
+    "@uiw/codemirror-extensions-langs": "^4.21.8",
+    "@uiw/codemirror-themes": "^4.21.8",
+    "@uiw/react-codemirror": "^4.21.8",
     "axios": "^1.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

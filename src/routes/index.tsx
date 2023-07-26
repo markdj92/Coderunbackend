@@ -5,6 +5,8 @@ import { PATH_ROUTE } from '@/constants';
 
 import { rootLoader, authLoader } from './loaders';
 
+import InGame from '@/pages/InGame';
+
 const Root = lazy(() => import('@/pages/Root'));
 const Lobby = lazy(() => import('@/pages/Lobby'));
 const Login = lazy(() => import('@/pages/Login'));
@@ -34,6 +36,11 @@ const routes: RouteObject[] = [
       {
         path: PATH_ROUTE.room + '/:roomName',
         element: <Room />,
+        errorElement: <Error />,
+      },
+      {
+        path: PATH_ROUTE.game,
+        element: <InGame />,
         errorElement: <Error />,
       },
     ],
