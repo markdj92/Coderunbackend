@@ -25,7 +25,9 @@ export class CodingTestService {
     let s: string = stdin;
     let numbers: number[] = s.split(',').map(Number);
     stdin = numbers.join(' ');
-
+    if (script == null) {
+      return {success : false, payload :{result :  'The script is empty!'}}
+    }
     try {
       const response = this.httpService.post('https://api.jdoodle.com/v1/execute', {
         script,
