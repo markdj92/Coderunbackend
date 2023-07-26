@@ -88,7 +88,7 @@ export class AuthService {
     async updateNicknameByEmail(email: string, nickname: string) {
       const trimmedNickname = nickname.trim();
       if (trimmedNickname.includes(' ')) {
-        throw new HttpException('닉네임에는 공배이 포함될 수 없습니다.', HttpStatus.BAD_REQUEST);
+        throw new HttpException('닉네임에는 공백이 포함될 수 없습니다.', HttpStatus.BAD_REQUEST);
       }
       
       const existingUser = await this.authModel.findOne({ nickname: nickname })
