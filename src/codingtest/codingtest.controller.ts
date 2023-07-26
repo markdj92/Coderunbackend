@@ -11,10 +11,10 @@ export class CodingtestController {
     @Post('/execute')
     async executeCode(@Req() req, @Body() codePayload: { script: string, language: string, versionIndex: number, problemNumber : number, title : string }) {
         const userOutputResult = []; // 여기에 사용자가 제출한 코드로 아웃풋값 넣을 곳
-
+        let result; 
         const problem = await this.codingTestService.getProblemInput(codePayload.problemNumber);
         for (const index of problem.input) {
-            let result = await this.codingTestService.executeCode(codePayload.script, codePayload.language, codePayload.versionIndex, index);
+            result = await this.codingTestService.executeCode(codePayload.script, codePayload.language, codePayload.versionIndex, index);
             const resultOutput = result.output.replace(/\n/g, '');
             userOutputResult.push(resultOutput);
         }
@@ -23,9 +23,9 @@ export class CodingtestController {
             userOutputResult.every((value, index) => value == problem.output[index])) {
             await this.codingTestService.saveSolvedInfo(req.user.email, codePayload.title);
 
-            return { success: true, payload: { result : problem } };
+            return { success: true, payload: { result : result } };
         } else {
-            return { success: false, payload: { result : problem } };
+            return { success: false, payload: { result : result } };
         }   
     }
 
