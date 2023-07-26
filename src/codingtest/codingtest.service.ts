@@ -22,12 +22,12 @@ export class CodingTestService {
   ) { }
 
   async executeCode(script: string, language: string, versionIndex: number, stdin: string) {
-    let s: string = stdin;
-    let numbers: number[] = s.split(',').map(Number);
-    stdin = numbers.join(' ');
     if (script == null) {
       return {success : false, payload :{result :  'The script is empty!'}}
     }
+    let s: string = stdin;
+    let numbers: number[] = s.split(',').map(Number);
+    stdin = numbers.join(' ');
     try {
       const response = this.httpService.post('https://api.jdoodle.com/v1/execute', {
         script,

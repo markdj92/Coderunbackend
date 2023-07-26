@@ -17,7 +17,7 @@ export class CodingtestController {
         for (const index of problem.input) {
             result = await this.codingTestService.executeCode(codePayload.script, codePayload.language, codePayload.versionIndex, index);
             if (!(result instanceof CompileResultDto)) {
-                return { success: false, payload: { result : result } };
+                return result;
             }
             const resultOutput = result.output.replace(/\n/g, '');
             userOutputResult.push(resultOutput);
