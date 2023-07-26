@@ -16,6 +16,13 @@ export class RoomAndUser extends Document {
 
   @Prop({ required: true, type: [Boolean], default : false})
   owner : boolean[];
+
+  @Prop({ required: true, type: [Boolean], default : false})
+  solved : boolean[];
+
+  @Prop({ required: true, type: [Boolean], default : false})
+  review : boolean[];
+  
 }
 
 export const RoomAndUserSchema = SchemaFactory.createForClass(RoomAndUser);

@@ -44,11 +44,9 @@ export class RoomService {
             else return EmptyOrLock.LOCK;
         })
 
-        console.log("create and after room status : ", infoArray);
-
         roomAndUserDto.user_info = infoArray;
 
-        const readyStatusArray = Array.from({length : 10}, (_,index) => {
+        const AllFalseStatusArray = Array.from({length : 10}, (_,index) => {
             if (index < 10) return false;
         })
 
@@ -57,8 +55,10 @@ export class RoomService {
             if (index < 10) return false;
         })
 
-        roomAndUserDto.ready_status = readyStatusArray;
+        roomAndUserDto.ready_status = AllFalseStatusArray;
         roomAndUserDto.owner = ownerArray;
+        roomAndUserDto.solved = AllFalseStatusArray; 
+        roomAndUserDto.review = AllFalseStatusArray;
         await this.saveRoomAndUser(roomAndUserDto);
 
         return newRoom.save();
@@ -69,7 +69,7 @@ export class RoomService {
         await newInfoForRoom.save();
     }
 
-    async getRoomList(req) : Promise<Room[]> {
+    async getRoomList() : Promise<Room[]> {
         const rooms = await this.roomModel.find().exec();
         const result = await rooms.filter(room => room.ready === true);
         return result;
@@ -164,7 +164,8 @@ export class RoomService {
                 userInfoDto.level = user.level;
                 userInfoDto.status = roomanduser.ready_status[index];
                 userInfoDto.owner = roomanduser.owner[index];
-
+                userInfoDto.solved = roomanduser.solved[index];
+                userInfoDto.review = roomanduser.review[index];
                 return userInfoDto;
               }
             })
@@ -250,4 +251,17 @@ export class RoomService {
         return { nickname: user.nickname, status: roomAndUser.ready_status[userIndex] };
     }
 
+    async getResult(room_id: ObjectId, index : number) {
+        
+        const roomInfo = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
+        console.log(roomInfo);
+        
+        roomInfo.review[index] = true;
+        try {
+            await roomInfo.save();
+        } catch {
+            return false;
+        }
+        return true;
+    }   
 }
