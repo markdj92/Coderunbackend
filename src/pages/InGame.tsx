@@ -12,14 +12,14 @@ import GameNavbar from '@/components/InGame/GameNavbar';
 import QuizFrame from '@/components/InGame/QuizFrame';
 import QuizHeader from '@/components/InGame/QuizHeader';
 import RunFrame from '@/components/InGame/RunFrame';
-import { ExecuteResult } from '@/types/inGame';
+import { ExecuteResult, QuizInfo } from '@/types/inGame';
 
 const InGame = () => {
   const location = useLocation();
   const { title }: { title: string } = location.state;
 
   const [quizNumber, setQuizNumber] = useState<number>(1);
-  const [quizInfo, setQuizInfo] = useState(null);
+  const [quizInfo, setQuizInfo] = useState<QuizInfo>(null);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [runResult, setRunResult] = useState<ExecuteResult>({
     memory: '0',
