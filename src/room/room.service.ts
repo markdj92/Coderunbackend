@@ -4,7 +4,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { RoomCreateDto, RoomAndUserDto, EmptyOrLock, UserInfoDto, RoomStatusChangeDto } from './dto/room.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Room } from './schemas/room.schema'
-import mongoose, { Model,ObjectId,ObjectIdSchemaDefinition,Types } from 'mongoose';
+import mongoose, { Model,Mongoose,ObjectId,ObjectIdSchemaDefinition,Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
 import { Auth } from 'src/auth/schemas/auth.schema';
@@ -44,11 +44,9 @@ export class RoomService {
             else return EmptyOrLock.LOCK;
         })
 
-        console.log("create and after room status : ", infoArray);
-
         roomAndUserDto.user_info = infoArray;
 
-        const readyStatusArray = Array.from({length : 10}, (_,index) => {
+        const AllFalseStatusArray = Array.from({length : 10}, (_,index) => {
             if (index < 10) return false;
         })
 
@@ -57,8 +55,10 @@ export class RoomService {
             if (index < 10) return false;
         })
 
-        roomAndUserDto.ready_status = readyStatusArray;
+        roomAndUserDto.ready_status = AllFalseStatusArray;
         roomAndUserDto.owner = ownerArray;
+        roomAndUserDto.solved = AllFalseStatusArray; 
+        roomAndUserDto.review = AllFalseStatusArray;
         await this.saveRoomAndUser(roomAndUserDto);
 
         return newRoom.save();
@@ -69,7 +69,7 @@ export class RoomService {
         await newInfoForRoom.save();
     }
 
-    async getRoomList(req) : Promise<Room[]> {
+    async getRoomList() : Promise<Room[]> {
         const rooms = await this.roomModel.find().exec();
         const result = await rooms.filter(room => room.ready === true);
         return result;
@@ -82,7 +82,10 @@ export class RoomService {
 
     async getTitleFromRoomId(roomID : ObjectId) : Promise<string> {
         const roomInfo = await this.roomModel.findOne({_id: roomID}).exec();
-        return roomInfo.title;
+        if(!!roomInfo) {
+            return roomInfo.title;
+        }
+        return null;
     }
 
     async checkRoomCondition(title_name : string) : Promise<boolean> {
@@ -161,7 +164,8 @@ export class RoomService {
                 userInfoDto.level = user.level;
                 userInfoDto.status = roomanduser.ready_status[index];
                 userInfoDto.owner = roomanduser.owner[index];
-
+                userInfoDto.solved = roomanduser.solved[index];
+                userInfoDto.review = roomanduser.review[index];
                 return userInfoDto;
               }
             })
@@ -235,4 +239,29 @@ export class RoomService {
         )
         return true;
     }
+
+
+    async setUserStatusToReady(room_id: ObjectId, user_id: ObjectId): Promise<{ nickname: string, status: boolean }> {
+        const roomAndUser = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
+        const userIndex = roomAndUser.user_info.findIndex((uid) => uid === user_id.toString());
+        const user = await this.authModel.findOne({ _id: user_id });
+    
+        roomAndUser.ready_status[userIndex] = roomAndUser.ready_status[userIndex] ? false : true;
+        await roomAndUser.save();
+        return { nickname: user.nickname, status: roomAndUser.ready_status[userIndex] };
+    }
+
+    async getResult(room_id: ObjectId, index : number) {
+        
+        const roomInfo = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
+        console.log(roomInfo);
+        
+        roomInfo.review[index] = true;
+        try {
+            await roomInfo.save();
+        } catch {
+            return false;
+        }
+        return true;
+    }   
 }

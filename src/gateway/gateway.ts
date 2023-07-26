@@ -1,3 +1,4 @@
+import { RoomAndUser } from './../room/schemas/roomanduser.schema';
 import { ObjectId } from 'mongoose';
 import { Logger, UseGuards } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -38,7 +39,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     @WebSocketServer() nsp: Namespace;
     afterInit(server: any) {
         this.nsp.adapter.on('create-room', (room) => {
-        this.logger.log(`"client sokect id : ${room}"이 생성되었습니다.`);
+        this.logger.log(`"${room}" 이 생성되었습니다.`);
         });
     }
 
@@ -63,13 +64,14 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         const check = await this.roomService.checkWrongDisconnection(socket.decoded.email);
         if (!check) {
             const result = await this.roomService.changeRoomStatusForLeave(socket.room_id, socket.user_id);
-            console.log(result);
-            const title = await this.roomService.getTitleFromRoomId(socket.room_id);
-            socket.leave(await title);
-            const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
-            if (roomAndUserInfo !== false) {
-                await this.nsp.to(await title).emit('room-status-changed', roomAndUserInfo);   
-            }
+            if(result === "Success"){
+                const title = await this.roomService.getTitleFromRoomId(socket.room_id);
+                socket.leave(await title);
+                const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
+                if (roomAndUserInfo !== false) {
+                    await this.nsp.to(await title).emit('room-status-changed', roomAndUserInfo);   
+                }
+            }  
         }
         this.logger.log(`${socket.id} sockect disconnected!`);
     }
@@ -107,12 +109,11 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         else {
             const room_id = await this.roomService.getRoomIdFromTitle(title);
             socket.join(await title);
-
-            this.logger.log(`${socket.id} : Room enter!`);
-
+            
             const user_id = await this.userService.userInfoFromEmail(socket.decoded.email);
             socket.user_id = user_id;
             socket.room_id = room_id;
+
             await this.roomService.changeRoomStatusForJoin(room_id, user_id);
             
             roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
@@ -152,5 +153,57 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
             await this.nsp.to(await title).emit('room-status-changed', roomAndUserInfo);   
         }
         return {success : true, payload : {owner : userIndex}}  
+    }
+
+    @SubscribeMessage('ready')
+    async handleReadyUser(
+    @MessageBody('title') title: string,
+    @ConnectedSocket() socket: ExtendedSocket
+    ): Promise<{ success: boolean; payload:{ nickname?: string, status?: boolean;}}> {
+    try {
+        const room_id = await this.roomService.getRoomIdFromTitle(title);
+        const user_id = await this.userService.userInfoFromEmail(socket.decoded.email);
+        const userStatus = await this.roomService.setUserStatusToReady(room_id, user_id);
+        const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
+
+        
+        if (roomAndUserInfo instanceof RoomStatusChangeDto) {
+            roomAndUserInfo.user_info
+            userStatus.status;
+            await this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
+            return { success: true, payload: { nickname: userStatus.nickname, status : userStatus.status }};
+        } else {
+            return { success: false, payload: { nickname: userStatus.nickname, status : userStatus.status }};
+        }
+    } catch (error) {
+        console.error('Error handling ready user', error);
+        return { success: false, payload: { nickname: undefined, status : undefined }};
+    }
+  }
+
+    @SubscribeMessage('reviewList')
+    async handleReviewShow(
+    @MessageBody('title') title: string,
+    @ConnectedSocket() socket: ExtendedSocket
+    ): Promise<{success : boolean, payload : {roomInfo : RoomStatusChangeDto | boolean}} >{
+        
+        const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
+        await this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
+
+       return {success : true, payload: { roomInfo : roomAndUserInfo}}  
+    }
+
+    @SubscribeMessage('reviewUser')
+    async handleReviewUser(
+    @MessageBody('title') title : string,  @MessageBody('index') index : number,
+    @ConnectedSocket() socket: ExtendedSocket
+    ): Promise<{success : boolean, payload : {roomInfo : RoomStatusChangeDto | boolean}} >{
+
+        await this.roomService.getResult(socket.room_id, index);
+
+        const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
+        await this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
+
+       return {success : true, payload: { roomInfo : roomAndUserInfo}}  
     }
 }
