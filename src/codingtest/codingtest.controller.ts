@@ -29,7 +29,7 @@ export class CodingtestController {
         }   
     }
 
-    @Get('/')
+    @Post('/')
     async getProblem(@Body('title') title: string) {
         return await this.codingTestService.getProblem(title);
     }
