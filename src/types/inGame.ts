@@ -11,3 +11,16 @@ export interface ExecuteData {
   language: string;
   versionIndex: string;
 }
+
+export type QuizInfo = {
+  contents: string;
+  ex_input: string[];
+  ex_output: string[];
+  input: string[];
+  input_contents: string;
+  level: number;
+  number: number;
+  output: string[];
+  output_contents: string;
+  title: string;
+} | null;
