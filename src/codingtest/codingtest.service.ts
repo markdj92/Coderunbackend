@@ -1,3 +1,4 @@
+import { RoomService } from 'src/room/room.service';
 
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
@@ -5,24 +6,68 @@ import { firstValueFrom } from 'rxjs';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Problem } from './schemas/codingtest.schema';
+import { Room } from 'src/room/schemas/room.schema';
+import { CompileResultDto } from './dto/compileresult.dto';
+import { RoomAndUser } from 'src/room/schemas/roomanduser.schema';
+import { Auth } from 'src/auth/schemas/auth.schema';
 
 @Injectable()
 export class CodingTestService {
   constructor(private httpService: HttpService,
+    private roomService: RoomService,
+    @InjectModel(Auth.name) private readonly authModel: Model<Auth>,
     @InjectModel(Problem.name) private readonly problemModel: Model<Problem>,
+    @InjectModel(Room.name) private readonly roomModel: Model<Room>,
+    @InjectModel(RoomAndUser.name) private readonly roomAndUserModel: Model<RoomAndUser>,
   ) { }
 
-  async executeCode(script: string, language: string, versionIndex: number) {
+  async executeCode(script: string, language: string, versionIndex: number, stdin: string) {
+    let s: string = stdin;
+    let numbers: number[] = s.split(',').map(Number);
+    stdin = numbers.join(' ');
+
     const response = this.httpService.post('https://api.jdoodle.com/v1/execute', {
       script,
       language,
+      stdin,
       versionIndex,
       clientId: process.env.JDOODLE_CLIENT_ID,
       clientSecret: process.env.JDOODLE_CLIENT_SECRET,
     });
-
     const responseContent = await firstValueFrom(response);
-    return responseContent.data;
+
+    const compileResult = new CompileResultDto;
+    compileResult.output = responseContent.data.output;
+    compileResult.memory = responseContent.data.memory;
+    compileResult.statuscode = responseContent.data.statuscode;
+    compileResult.cputime = responseContent.data.cputime;
+  
+    return compileResult;
+  }
+
+  async getProblem(title : string) {
+    const found = await this.roomModel.findOne({ title: title });
+    const count = await this.problemModel.countDocuments({ level : found.level }); 
+    const random = Math.floor(Math.random() * count);  
+    const document = await this.problemModel.findOne({ level: found.level }).skip(random).exec(); 
+    return document;
+  }
+
+  async getProblemInput(index : number) {
+    const problem = await this.problemModel.findOne({ number: index });
+    const input = problem.input;
+    const output = problem.output;
+    return { input, output };
+  }
+
+  async saveSolvedInfo(email: string, title : string) {
+    const userInfo = await this.authModel.findOne({ email: email }).exec();
+    const roomInfo = await this.roomModel.findOne({ title: title }).exec();
+    const activeRoom = await this.roomAndUserModel.findOne({ room_id: roomInfo._id });
+    const user_index = activeRoom.user_info.indexOf(userInfo._id.toString());
+
+    activeRoom.solved[user_index] = true;
+    await activeRoom.save();
   }
 
   // for testing about saving data with json struct
@@ -38,17 +83,9 @@ export class CodingTestService {
       "ex_input": "1 2",
       "ex_output": "3",
       "input":
-      [
-        [1, 2],
-        [4, 5],
-        [234,9]
-      ],
+      [ '1,2', '4,5', '234,9'],
       "output": 
-      [
-        [3],
-        [9],
-        [243]
-      ]
+      [ '3', '9', '243' ]
     }
      try {
        const problem = await this.problemModel.create(js);

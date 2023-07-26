@@ -36,19 +36,19 @@ export class Problem extends Document {
 
     @Prop()
     @IsArray()
-    ex_input: number[];
+    ex_input: string[];
 
     @Prop()
     @IsArray()
-    ex_output: number[];
+    ex_output: string[];
 
     @Prop()
     @IsArray()
-    input: number[];
+    input: string[];
 
     @Prop()
     @IsArray()
-    output: number[];
+    output: string[];
 }
 export const ProblemSchema = SchemaFactory.createForClass(Problem);
 
