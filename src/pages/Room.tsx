@@ -85,7 +85,11 @@ const Room = () => {
     setUserInfos(user_info);
 
     socket.on('room-status-changed', roomHandler);
+    socket.on('start', (response) => {
+      navigate('/game', { state: { nickname: nickname, title: response.title } });
+    });
     return () => {
+      socket.off('start');
       socket.off('room-status-changed', roomHandler);
     };
   }, []);
@@ -109,10 +113,9 @@ const Room = () => {
     socket.emit('ready', { title: roomName });
   };
 
-  const onGameRoom = useCallback(() => {
+  const onGameRoom = () => {
     socket.emit('start', { title: roomName });
-    navigate('/game', { state: { title: roomName } });
-  }, [navigate]);
+  };
 
   return (
     <MainContainer>
