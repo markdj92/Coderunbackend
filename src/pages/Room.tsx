@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
+import { BsFillMicFill, BsFillMicMuteFill } from 'react-icons/bs';
 import { ImExit } from 'react-icons/im';
 import { LuSettings2 } from 'react-icons/lu';
+import { PiSpeakerSimpleHighFill, PiSpeakerSimpleSlashFill } from 'react-icons/pi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -15,6 +17,8 @@ const Room = () => {
   const { title, member_count, user_info, nickname } = location.state;
 
   const [ableStart, setAbleStart] = useState<boolean>(false);
+  const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
+  const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
   const [roomName, setRoomName] = useState<string | undefined>(title);
   const [people, setPeople] = useState<number>(member_count);
   const [myIndex, setMyIndex] = useState<number>(0);
@@ -28,6 +32,14 @@ const Room = () => {
   const [userInfos, setUserInfos] = useState<userInfo[]>(user_info);
 
   const navigate = useNavigate();
+
+  const handleSpeaker = () => {
+    setIsSpeaker(!isSpeaker);
+  };
+
+  const handleMicrophone = () => {
+    setIsMicrophone(!isMicrophone);
+  };
 
   useEffect(() => {
     const roomHandler = (response: RoomStatus) => {
@@ -106,10 +118,21 @@ const Room = () => {
     <MainContainer>
       <MainFrame>
         <div className='part1'>
-          <div>
-            <HeaderLogo onClick={() => navigate('/lobby')}>CODE LEARN</HeaderLogo>
-            <RoomName>{title}</RoomName>
-          </div>
+          <HeaderLogo onClick={() => navigate('/lobby')}>CODE LEARN</HeaderLogo>
+          <RoomName>{title}</RoomName>
+
+          <OptionSection>
+            <button onClick={handleSpeaker}>
+              {isSpeaker ? (
+                <PiSpeakerSimpleHighFill size={'2rem'} />
+              ) : (
+                <PiSpeakerSimpleSlashFill size={'2rem'} />
+              )}
+            </button>
+            <button onClick={handleMicrophone}>
+              {isMicrophone ? <BsFillMicFill size={'2rem'} /> : <BsFillMicMuteFill size={'2rem'} />}
+            </button>
+          </OptionSection>
         </div>
         <div className='part2'>
           {userInfos &&
@@ -181,12 +204,28 @@ const RoomName = styled.div`
   font-style: italic;
   width: fit-content;
 `;
-
+const OptionSection = styled.div`
+  height: 100%;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  box-shadow: inset -0.0625rem 0 #172334;
+  button {
+    transition: all 0.3s ease;
+    padding: 1rem;
+    width: fit-content;
+    &:hover {
+      filter: drop-shadow(0 0 10px #e0e0e0);
+    }
+  }
+`;
 const RoomButtons = styled.div`
   display: flex;
   flex-direction: column;
   padding: 3rem 0 0 4rem;
   button {
+    transition: all 0.3s ease;
     margin: 2rem;
     width: fit-content;
     &:hover {
