@@ -10,7 +10,7 @@ import Arrows from './Arrows';
 import { getRoomList } from '@/apis/roomApi';
 import { RoomInformation } from '@/types/room';
 
-const RoomList = () => {
+const RoomList = ({ nickname }: { nickname: string }) => {
   const [roomList, setRoomList] = useState<RoomInformation[]>([]);
   const [page, setPage] = useState<number>(1);
   const [totalPage, setTotalPage] = useState<number>(1);
@@ -47,7 +47,7 @@ const RoomList = () => {
       </HeaderFrame>
       <ContentFrame>
         {Array.from({ length: 8 }).map((_, index) => (
-          <RoomCard key={index} roomInfo={roomList[index]} />
+          <RoomCard key={index} nickname={nickname} roomInfo={roomList[index]} />
         ))}
       </ContentFrame>
     </Container>

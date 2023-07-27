@@ -1,5 +1,7 @@
 import { useNavigate, useRouteError, isRouteErrorResponse } from 'react-router-dom';
 
+import { USER_NICKNAME_KEY, USER_TOKEN_KEY } from '@/constants';
+
 const ErrorPage = () => {
   const navigate = useNavigate();
   const error = useRouteError();
@@ -16,7 +18,15 @@ const ErrorPage = () => {
             <i>{error.data.message}</i>
           </p>
         )}
-        <button onClick={() => navigate('/')}>메인페이지로 가기</button>
+        <button
+          onClick={() => {
+            localStorage.removeItem(USER_TOKEN_KEY);
+            localStorage.removeItem(USER_NICKNAME_KEY);
+            navigate('/login');
+          }}
+        >
+          메인페이지로 가기
+        </button>
       </div>
     );
   } else if (error instanceof Error) {

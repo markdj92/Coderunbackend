@@ -1,8 +1,18 @@
+import { FaCrown } from 'react-icons/fa';
 import styled from 'styled-components';
 
 import { userInfo } from '@/types/room';
 
-const Badge = ({ user }: { user: userInfo; index?: number }) => {
+const Badge = ({
+  user,
+  isOwner,
+  isMine,
+}: {
+  user: userInfo;
+  isOwner: boolean;
+  isMine: boolean;
+  index?: number;
+}) => {
   const handleClickCard = () => {};
 
   const handleLockCard = () => {};
@@ -26,14 +36,20 @@ const Badge = ({ user }: { user: userInfo; index?: number }) => {
   return (
     <Container>
       <UserImg>
-        {user.ready_status && <p className='ready'>READY</p>}
+        {user.status && <p className='ready'>READY</p>}
         <img id='profile-image' src={'/images/anonymous.jpg'} />
       </UserImg>
-      <UserCard islock={user.ready_status ? 'true' : 'false'} onClick={handleClickCard}>
+      <UserCard
+        ismine={isMine ? 'true' : 'false'}
+        islock={user.status ? 'true' : 'false'}
+        onClick={handleClickCard}
+      >
         <DropButton>x</DropButton>
 
         <InfoFrame>
-          <p className='nickname'>{user.nickname}</p>
+          <p className='nickname'>
+            {user.nickname} {isOwner && <FaCrown size={'1.5rem'} />}
+          </p>
           <p className='level'>LV {user.level}</p>
         </InfoFrame>
       </UserCard>
@@ -72,10 +88,10 @@ const NonTitle = styled.div`
   font-size: 2em;
 `;
 
-const UserCard = styled.div<{ islock: string }>`
+const UserCard = styled.div<{ islock: string; ismine: string }>`
   position: relative;
   overflow: hidden;
-  border: 1px solid white;
+  border: ${(props) => (props.ismine === 'true' ? '1px solid blue' : '1px solid white')};
   border-radius: 20px;
   margin: 1.5em;
   min-height: 99.66px;

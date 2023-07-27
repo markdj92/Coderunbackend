@@ -2,9 +2,11 @@ export type userInfos = { [key: number]: userInfo };
 
 export type userInfo =
   | {
+      level: number;
       nickname: string;
-      ready_status: string;
-      level: string;
+      owner: boolean;
+      solved: boolean;
+      status: boolean;
     }
   | 'EMPTY'
   | 'LOCK';

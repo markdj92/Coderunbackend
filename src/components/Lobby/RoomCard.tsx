@@ -9,7 +9,7 @@ import { socket } from '@/apis/socketApi';
 import { RoomResponse } from '@/types/lobby';
 import { RoomInformation } from '@/types/room';
 
-const RoomCard = ({ roomInfo }: { roomInfo: RoomInformation }) => {
+const RoomCard = ({ nickname, roomInfo }: { nickname: string; roomInfo: RoomInformation }) => {
   const navigate = useNavigate();
 
   const onClickRoom = useCallback(
@@ -17,7 +17,7 @@ const RoomCard = ({ roomInfo }: { roomInfo: RoomInformation }) => {
       socket.emit('join-room', { title: roomName }, (response: RoomResponse) => {
         if (!response.payload?.roomInfo) return alert('방 입장 실패!');
         navigate(`/room/${roomName}`, {
-          state: { ...response.payload.roomInfo },
+          state: { ...response.payload.roomInfo, nickname },
         });
       });
     },
