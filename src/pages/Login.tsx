@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { css } from 'styled-components';
 
-import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
+import { PATH_ROUTE, USER_NICKNAME_KEY, USER_TOKEN_KEY } from '@/constants';
 
 import { postLogin, setInitName } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
@@ -38,17 +38,18 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await postLogin(userAccount);
-      const { access_token: accessToken, nickname: nickname } = response.data;
+      const { access_token: accessToken, nickname: name } = response.data;
       if (accessToken) {
-        let name = nickname;
-        if (!name) name = await checkNickname(accessToken);
-        if (name) {
+        let nickname = name;
+        if (!nickname) nickname = await checkNickname(accessToken);
+        if (nickname) {
           localStorage.setItem(USER_TOKEN_KEY, accessToken);
+          localStorage.setItem(USER_NICKNAME_KEY, name);
           socket.io.opts.extraHeaders = {
             Authorization: 'Bearer ' + accessToken,
           };
           socket.connect();
-          navigate(PATH_ROUTE.lobby, { state: { name } });
+          navigate(PATH_ROUTE.lobby, { state: { nickname } });
         } else {
           alert('닉네임이 있어야 입장이 가능합니다.');
         }

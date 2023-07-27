@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
-import { getUserToken } from '@/utils';
+import { PATH_ROUTE, USER_NICKNAME_KEY, USER_TOKEN_KEY } from '@/constants';
+import { getNickname, getUserToken } from '@/utils';
 
 import { attempt, socket } from '@/apis/socketApi';
 
@@ -12,12 +12,13 @@ const useSocketConnect = () => {
   useEffect(() => {
     if (!socket.connected) {
       const userToken = getUserToken();
-      if (!!userToken) {
+      const nickname = getNickname();
+      if (!!userToken && !!nickname) {
         socket.io.opts.extraHeaders = {
           Authorization: userToken,
         };
         socket.connect();
-        navigate(PATH_ROUTE.lobby);
+        navigate(PATH_ROUTE.lobby, { state: { nickname } });
       }
     }
     socket.on('connect', () => {
@@ -29,6 +30,7 @@ const useSocketConnect = () => {
         attempt.tryCount += 1;
         if (attempt.tryCount > attempt.maxCount - 1) {
           localStorage.removeItem(USER_TOKEN_KEY);
+          localStorage.removeItem(USER_NICKNAME_KEY);
           navigate(PATH_ROUTE.login);
         }
       });

@@ -12,7 +12,7 @@ import { RoomStatus, userInfo } from '@/types/room';
 const Room = () => {
   useSocketConnect();
   const location = useLocation();
-  const { title, member_count, user_info } = location.state;
+  const { title, member_count, user_info, nickname } = location.state;
 
   const [roomName, setRoomName] = useState<string | undefined>(title);
   const [people, setPeople] = useState<number>(member_count);
@@ -31,12 +31,9 @@ const Room = () => {
       const { title, member_count, user_info } = response;
       setRoomName(title);
       setPeople(member_count);
-      setMaxPeople(
-        user_info.reduce((count: number, user: userInfo) => {
-          if (user !== 'LOCK') return count + 1;
-          return count;
-        }, 0),
-      );
+      let countLock = 0;
+
+      setMaxPeople(countLock);
       setUserInfos(user_info);
     };
 
@@ -55,12 +52,11 @@ const Room = () => {
 
   const onLeaveRoom = useCallback(() => {
     socket.emit('leave-room', { title: roomName }, () => {
-      navigate('/lobby');
+      navigate('/lobby', { state: { nickname } });
     });
   }, [navigate, roomName]);
 
   const onCustomRoom = () => {};
-
   const onGameRoom = useCallback(() => {
     navigate('/game', { state: { title: roomName } });
   }, [navigate]);
@@ -93,6 +89,7 @@ const Room = () => {
             <label className='countReady'>{people}</label>
             <label className='countPeople'>/ {maxPeople}</label>
           </People>
+          {}
           <Ready onClick={onGameRoom}>시작</Ready>
         </div>
       </MainFrame>

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { socket } from '@/apis/socketApi';
@@ -12,6 +12,8 @@ const Lobby = () => {
   useSocketConnect();
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const { nickname } = location.state;
 
   const onCreateRoom = useCallback(() => {
     const roomName = prompt('방 이름을 입력해 주세요.');
@@ -28,7 +30,7 @@ const Lobby = () => {
     socket.emit('create-room', message, (response: RoomResponse) => {
       if (!response.success) return alert(response.payload);
       navigate(`/room/${roomName}`, {
-        state: { ...response.payload.roomInfo },
+        state: { ...response.payload.roomInfo, nickname },
       });
     });
   }, [navigate]);
@@ -45,7 +47,7 @@ const Lobby = () => {
             <button onClick={onCreateRoom}>방 만들기</button>
             <button>빠른 시작</button>
           </TopContentsBox>
-          <RoomList />
+          <RoomList nickname={nickname} />
         </ContentsBox>
         <RightBox></RightBox>
       </MainFrame>
