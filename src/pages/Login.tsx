@@ -20,8 +20,9 @@ const Login = () => {
     passwordRef,
     userAccount,
     validateState,
-    setValidateState,
     handleAccountChange,
+    errorMessage,
+    setErrorMessage,
   } = useAuthForm();
 
   const navigate = useNavigate();
@@ -56,8 +57,9 @@ const Login = () => {
         }
       }
     } catch (error: any) {
-      if (error.response.data)
-        setValidateState({ ...validateState, errorMessage: error.response.data.message });
+      if (error.response.data) {
+        setErrorMessage({ ...errorMessage, email: error.response.data.message });
+      }
       console.error(error.response.data);
     }
   };
@@ -82,25 +84,30 @@ const Login = () => {
           <InputContainer>
             <CustomInput
               setRef={emailRef}
-              inputName='ID'
+              title={'ID'}
+              inputName={'email'}
               handleChange={handleAccountChange}
               inputValue={userAccount.email}
-              isValid={validateState.email}
+              errorMessage={errorMessage.email}
             />
             <CustomInput
               type='password'
+              title={'PW'}
+              inputName={'password'}
               setRef={passwordRef}
-              inputName='PW'
               handleChange={handleAccountChange}
               inputValue={userAccount.password}
-              isValid={validateState.password}
+              errorMessage={errorMessage.password}
             />
           </InputContainer>
-          <CustomButton title={'Log in'} />
+          <CustomButton
+            title={'Log in'}
+            isDisabled={!validateState.email || !validateState.password}
+          />
         </FormFrame>
         <SignInFrame>
           <SignInTitle>코드런이 처음이신가요?</SignInTitle>
-          <CustomButton title={'Sign up'} isBorder={false} onClick={handleShowSignup} />
+          <CustomButton title={'Sign up'} onClick={handleShowSignup} />
         </SignInFrame>
       </LoginContainer>
     </MainFrame>

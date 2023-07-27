@@ -12,8 +12,8 @@ export const useAuthForm = () => {
   const { value: validateState, setValue: setValidateState } = useInput({
     email: false,
     password: false,
-    errorMessage: '',
   });
+  const { value: errorMessage, setValue: setErrorMessage } = useInput({ email: '', password: '' });
   const [isDuplicate, setIsDuplicate] = useState(false);
 
   const isValidAccount = () => {
@@ -46,7 +46,7 @@ export const useAuthForm = () => {
       if (isValidPassword()) setValidateState({ ...validateState, password: true });
       else setValidateState({ ...validateState, password: false });
     }
-    if (validateState.errorMessage) setValidateState({ ...validateState, errorMessage: '' });
+    if (errorMessage[name]) setErrorMessage({ ...errorMessage, [name]: '' });
     setUserAccount({ ...userAccount, [name]: value });
   };
 
@@ -61,5 +61,7 @@ export const useAuthForm = () => {
     isValidAccount,
     isDuplicate,
     setIsDuplicate,
+    errorMessage,
+    setErrorMessage,
   };
 };
