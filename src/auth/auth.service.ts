@@ -15,14 +15,21 @@ export class AuthService {
   ) {}
 
   async signIn(authDto : AuthDto) {
+    
+    const emailRegex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
+    if(!emailRegex.test(authDto.email)) {
+      throw new BadRequestException('유효한 이메일 형식이 아닙니다.');
+    }
+    
     const user = await this.authModel.findOne({ email: authDto.email });
-  if (!user) {
-    throw new UnauthorizedException('Invalid email or password');
-  }
+    if (!user) {
+      throw new UnauthorizedException('등록된 이메일이 아닙니다.');
+    }
+    
     const isPasswordMatched = await bcrypt.compare(authDto.password, user.password);
 
     if (!isPasswordMatched) {
-        throw new UnauthorizedException('Invalid email or password');
+        throw new UnauthorizedException('패스워드가 일치하지 않습니다.');
     }
     
     const payload = { email: user.email };
@@ -39,7 +46,11 @@ export class AuthService {
     const isUserExist = await this.authModel.exists({email: authDto.email});
 
     if (isUserExist) {
-        throw new UnauthorizedException('Duplicate email');
+      throw new UnauthorizedException('Duplicate email');
+    }
+
+    if (authDto.password.length < 8) {
+      throw new BadRequestException('패스워드는 8자리 이상이여야 합니다.')
     }
 
     const hashedPassword = await bcrypt.hash(authDto.password, 10);
@@ -95,8 +106,6 @@ export class AuthService {
       if (existingUser) {
         throw new BadRequestException('해당 닉네임은 이미 존재하는 닉네임입니다.');
       }
-
-      
       
       const user = await this.authModel.findOne({ email: email });
       user.nickname = nickname;
