@@ -58,7 +58,13 @@ const Login = () => {
       }
     } catch (error: any) {
       if (error.response.data) {
-        setErrorMessage({ ...errorMessage, email: error.response.data.message });
+        if (error.response.data.message.includes('이메일')) {
+          setErrorMessage({ ...errorMessage, email: error.response.data.message });
+          emailRef.current?.focus();
+        } else {
+          setErrorMessage({ ...errorMessage, password: error.response.data.message });
+          passwordRef.current?.focus();
+        }
       }
       console.error(error.response.data);
     }

@@ -52,7 +52,7 @@ const CustomInput: React.FC<InputAnimationProps> = ({
           autoComplete='off'
           required
         />
-        {isPassword.current && inputValue && (
+        {errorMessage === '' && isPassword.current && inputValue && (
           <ShowButton>
             {inputType === 'password' ? (
               <AiOutlineLock size={32} onClick={handleShowPassword} />
@@ -87,7 +87,14 @@ const LoginFrame = styled.div<{ isvalid: string }>`
   flex-direction: row;
   align-items: center;
   border-radius: 16px;
-  border: 2.4px solid #8883ff;
+  border: ${(props) => (props.isvalid === 'true' ? '2.4px solid #8883ff' : '2.4px solid #ff5c5c')};
+  * {
+    color: ${(props) => (props.isvalid === 'true' ? '#8883ff' : '#ff5c5c')};
+  }
+  input {
+    color: ${(props) => (props.isvalid === 'true' ? '#fff' : '#ff5c5c')};
+  }
+
   background: ${(props) =>
     props.isvalid === 'true'
       ? 'linear-gradient(90deg, rgba(70, 64, 198, 0.5) 0%, rgba(70, 64, 198, 0) 100%), rgba(70, 64, 198, 0.2)'
@@ -127,7 +134,6 @@ const ResetButton = styled.div`
 `;
 
 const TitleBox = styled.div`
-  color: #8883ff;
   text-align: center;
   font-style: normal;
   font-weight: 800;
