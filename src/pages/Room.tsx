@@ -14,8 +14,11 @@ const Room = () => {
   const location = useLocation();
   const { title, member_count, user_info, nickname } = location.state;
 
+  const [ableStart, setAbleStart] = useState<boolean>(false);
   const [roomName, setRoomName] = useState<string | undefined>(title);
   const [people, setPeople] = useState<number>(member_count);
+  const [myIndex, setMyIndex] = useState<number>(0);
+  const [ownerIndex, setOwnerIndex] = useState<number>(0);
   const [maxPeople, setMaxPeople] = useState<number>(
     user_info.reduce((count: number, user: userInfo) => {
       if (user !== 'LOCK') return count + 1;
@@ -32,10 +35,42 @@ const Room = () => {
       setRoomName(title);
       setPeople(member_count);
       let countLock = 0;
-
+      let countReady = 0;
+      user_info.forEach((user: userInfo, index: number) => {
+        if (user === 'LOCK') return;
+        if (user === 'EMPTY') return (countLock += 1);
+        countLock += 1;
+        if (user.nickname === nickname) {
+          setMyIndex(index);
+        }
+        if (user.owner) {
+          setOwnerIndex(index);
+        }
+        if (user.status) {
+          countReady += 1;
+        }
+      });
+      setAbleStart(countReady === member_count - 1);
       setMaxPeople(countLock);
       setUserInfos(user_info);
     };
+
+    setRoomName(title);
+    setPeople(member_count);
+    let countLock = 0;
+    user_info.forEach((user: userInfo, index: number) => {
+      if (user === 'LOCK') return;
+      if (user === 'EMPTY') return (countLock += 1);
+      countLock += 1;
+      if (user.nickname === nickname) {
+        setMyIndex(index);
+      }
+      if (user.owner) {
+        setOwnerIndex(index);
+      }
+    });
+    setMaxPeople(countLock);
+    setUserInfos(user_info);
 
     socket.on('room-status-changed', roomHandler);
     return () => {
@@ -57,7 +92,13 @@ const Room = () => {
   }, [navigate, roomName]);
 
   const onCustomRoom = () => {};
+
+  const onReady = () => {
+    socket.emit('ready', { title: roomName });
+  };
+
   const onGameRoom = useCallback(() => {
+    socket.emit('start', { title: roomName });
     navigate('/game', { state: { title: roomName } });
   }, [navigate]);
 
@@ -73,7 +114,15 @@ const Room = () => {
         <div className='part2'>
           {userInfos &&
             Array.from({ length: 10 }).map((_, index) => {
-              return <Badge key={index} user={userInfos[index]} index={index} />;
+              return (
+                <Badge
+                  key={index}
+                  isMine={index === myIndex}
+                  isOwner={index === ownerIndex}
+                  user={userInfos[index]}
+                  index={index}
+                />
+              );
             })}
         </div>
         <div className='part3'>
@@ -89,8 +138,15 @@ const Room = () => {
             <label className='countReady'>{people}</label>
             <label className='countPeople'>/ {maxPeople}</label>
           </People>
-          {}
-          <Ready onClick={onGameRoom}>시작</Ready>
+          {myIndex === ownerIndex ? (
+            ableStart ? (
+              <ButtonStart onClick={onGameRoom}>시작</ButtonStart>
+            ) : (
+              <ButtonStartLock>시작</ButtonStartLock>
+            )
+          ) : (
+            <Ready onClick={onReady}>준비</Ready>
+          )}
         </div>
       </MainFrame>
     </MainContainer>
@@ -154,6 +210,43 @@ const People = styled.div`
     font-size: 10rem;
   }
 `;
+
+const ButtonStartLock = styled.button`
+  margin-left: 1rem;
+  transition: all 0.3s ease;
+  font-size: xx-large;
+  font-weight: bolder;
+  width: fit-content;
+  text-align: center;
+  height: 3rem;
+  margin-bottom: 30%;
+  padding: 0 1rem 0;
+  color: #bebebe;
+  border-left: 5px solid #bebebe;
+  cursor: default;
+`;
+
+const ButtonStart = styled.button`
+  margin-left: 1rem;
+  transition: all 0.3s ease;
+  font-size: xx-large;
+  font-weight: bolder;
+  width: fit-content;
+  text-align: center;
+  height: 3rem;
+  margin-bottom: 30%;
+  padding: 0 1rem 0;
+  border-left: 5px solid #fff;
+  &:hover {
+    text-shadow:
+      0 0 5px #bebebe,
+      0 0 10px #bebebe,
+      0 0 15px #bebebe,
+      0 0 20px #bebebe,
+      0 0 35px #bebebe;
+  }
+`;
+
 const Ready = styled.button`
   margin-left: 1rem;
   transition: all 0.3s ease;
