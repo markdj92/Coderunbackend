@@ -1,5 +1,5 @@
 import { AuthDto } from './dto/auth.dto';
-import { Injectable, UnauthorizedException, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException,ConflictException, HttpException, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Auth, AuthSchema} from './schemas/auth.schema';
@@ -43,10 +43,15 @@ export class AuthService {
   }
 
   async signUp(authDto : AuthDto) {
+  
+    const emailRegex = /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/;
+    if(!emailRegex.test(authDto.email)) {
+      throw new BadRequestException('유효한 이메일 형식이 아닙니다.');
+    }
+    
     const isUserExist = await this.authModel.exists({email: authDto.email});
-
     if (isUserExist) {
-      throw new UnauthorizedException('Duplicate email');
+      throw new ConflictException('중복된 이메일입니다.');
     }
 
     if (authDto.password.length < 8) {
@@ -89,7 +94,7 @@ export class AuthService {
     async checkDuplicateEmail(email: string) {
       const isUserExist = await this.authModel.exists({ email: email });
       if (isUserExist) {
-        throw new UnauthorizedException("Duplicate email");
+        throw new UnauthorizedException("중복된 이메일 입니다.");
       }
       return {
         succes: true,

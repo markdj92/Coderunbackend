@@ -3,7 +3,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class AuthDto {
 
-  @IsEmail({}, { message: '유효한 이메일 형식이 아닙니다.'})
   @IsNotEmpty()
   @ApiProperty({description: "유저email", required: true, type: String})
   email: string;
