@@ -1,34 +1,49 @@
+import { useState, useRef } from 'react';
+import { AiOutlineCloseSquare, AiOutlineLock, AiOutlineUnlock } from 'react-icons/ai';
 import styled from 'styled-components';
 
 interface InputAnimationProps {
   type?: string;
   setRef?: React.MutableRefObject<HTMLInputElement | null>;
+  title: string;
   inputName: string;
   inputValue: string;
   inputAvailable?: boolean;
   handleChange: (e: { target: { name: string; value: string } }) => void;
-  warningMessage?: string;
-  isValid: boolean;
+  errorMessage?: string;
 }
 
 const CustomInput: React.FC<InputAnimationProps> = ({
   type = 'text',
   inputName = '',
   inputValue = '',
+  title = '',
   handleChange,
   setRef,
-  warningMessage = '* 아이디를 확인해주세요',
   inputAvailable = false,
-  isValid = false,
+  errorMessage = '',
 }) => {
+  const isPassword = useRef(type === 'password');
+  const [inputType, setInputType] = useState(type);
+
+  const onReset = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    inputValue = '';
+    handleChange({ target: { name: inputName, value: inputValue } });
+    if (setRef && setRef.current) setRef.current.value = '';
+  };
+  const handleShowPassword = () => {
+    setInputType(inputType === 'password' ? 'text' : 'password');
+  };
+
   return (
     <Container>
-      <LoginFrame isvalid={isValid ? 'true' : 'false'}>
+      <LoginFrame isvalid={errorMessage === '' ? 'true' : 'false'}>
         <NameSection>
-          <TitleBox>{inputName}</TitleBox>
+          <TitleBox>{title}</TitleBox>
         </NameSection>
         <InputBox
-          type={type}
+          type={inputType}
           ref={setRef}
           name={inputName}
           onChange={handleChange}
@@ -37,8 +52,25 @@ const CustomInput: React.FC<InputAnimationProps> = ({
           autoComplete='off'
           required
         />
+        {isPassword.current && inputValue && (
+          <ShowButton>
+            {inputType === 'password' ? (
+              <AiOutlineLock size={32} onClick={handleShowPassword} />
+            ) : (
+              <AiOutlineUnlock size={32} onClick={handleShowPassword} />
+            )}
+          </ShowButton>
+        )}
+        {errorMessage && (
+          <ResetButton>
+            <AiOutlineCloseSquare
+              size={32}
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => onReset(e)}
+            />
+          </ResetButton>
+        )}
       </LoginFrame>
-      {warningMessage && <ErrorMsg>{warningMessage}</ErrorMsg>}
+      {errorMessage && <ErrorMsg>{errorMessage}</ErrorMsg>}
     </Container>
   );
 };
@@ -50,13 +82,16 @@ const Container = styled.div`
 `;
 
 const LoginFrame = styled.div<{ isvalid: string }>`
+  position: relative;
   display: flex;
   flex-direction: row;
   align-items: center;
   border-radius: 16px;
   border: 2.4px solid #8883ff;
-  background: linear-gradient(90deg, rgba(70, 64, 198, 0.5) 0%, rgba(70, 64, 198, 0) 100%),
-    rgba(70, 64, 198, 0.2);
+  background: ${(props) =>
+    props.isvalid === 'true'
+      ? 'linear-gradient(90deg, rgba(70, 64, 198, 0.5) 0%, rgba(70, 64, 198, 0) 100%), rgba(70, 64, 198, 0.2)'
+      : 'linear-gradient(90deg, rgba(255, 92, 92, 0.50) 0%, rgba(255, 92, 92, 0.00) 100%), rgba(255, 0, 0, 0.20)'};
   box-shadow:
     0px 4px 12px 0px rgba(18, 17, 39, 0.24),
     0px 4px 2px 0px rgba(21, 18, 73, 0.32) inset;
@@ -71,6 +106,26 @@ const NameSection = styled.div`
   border-right: 2px solid #5b56bd;
 `;
 
+const ShowButton = styled.div`
+  position: absolute;
+  right: 40px;
+  top: 40px;
+  cursor: pointer;
+  * {
+    color: '#8883FF';
+  }
+`;
+
+const ResetButton = styled.div`
+  position: absolute;
+  right: 40px;
+  top: 40px;
+  cursor: pointer;
+  * {
+    color: '#ff5c5c';
+  }
+`;
+
 const TitleBox = styled.div`
   color: #8883ff;
   text-align: center;
@@ -78,7 +133,7 @@ const TitleBox = styled.div`
   font-weight: 800;
   width: 53px;
   font-size: 32px;
-  line-height: 32px; /* 100% */
+  line-height: 32px;
   font-family: 'Noto Sans KR', sans-serif;
 `;
 
