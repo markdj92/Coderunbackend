@@ -2,6 +2,8 @@ import { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+import ErrorPage from './Error';
+
 import { socket } from '@/apis/socketApi';
 import Header from '@/components/Lobby/Header';
 import RoomList from '@/components/Lobby/RoomList';
@@ -13,6 +15,9 @@ const Lobby = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  if (!location.state) {
+    return <ErrorPage />;
+  }
   const { nickname } = location.state;
 
   const onCreateRoom = useCallback(() => {
