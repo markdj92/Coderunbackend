@@ -25,6 +25,7 @@ const CustomInput: React.FC<InputAnimationProps> = ({
 }) => {
   const isPassword = useRef(type === 'password');
   const [inputType, setInputType] = useState(type);
+  const [isFocus, setIsFocus] = useState(false);
 
   const onReset = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -36,9 +37,19 @@ const CustomInput: React.FC<InputAnimationProps> = ({
     setInputType(inputType === 'password' ? 'text' : 'password');
   };
 
+  const onFocused = () => {
+    setIsFocus(true);
+  };
+  const onBlurred = () => {
+    setIsFocus(false);
+  };
+
   return (
     <Container>
-      <LoginFrame isvalid={errorMessage === '' ? 'true' : 'false'}>
+      <LoginFrame
+        isfocus={isFocus ? 'true' : 'false'}
+        isvalid={errorMessage === '' ? 'true' : 'false'}
+      >
         <NameSection>
           <TitleBox>{title}</TitleBox>
         </NameSection>
@@ -49,6 +60,8 @@ const CustomInput: React.FC<InputAnimationProps> = ({
           onChange={handleChange}
           value={inputValue}
           disabled={inputAvailable}
+          onFocus={onFocused}
+          onBlur={onBlurred}
           autoComplete='off'
           required
         />
@@ -81,25 +94,32 @@ const Container = styled.div`
   gap: 12px;
 `;
 
-const LoginFrame = styled.div<{ isvalid: string }>`
+const LoginFrame = styled.div<{ isfocus: string; isvalid: string }>`
   position: relative;
   display: flex;
   flex-direction: row;
   align-items: center;
   border-radius: 16px;
-  border: ${(props) => (props.isvalid === 'true' ? '2.4px solid #8883ff' : '2.4px solid #ff5c5c')};
+  border-style: solid;
+  border-width: 1.5px;
+  border-image: ${(props) =>
+    props.isvalid === 'true'
+      ? 'linear-gradient(to right bottom,#8883FF, transparent) 1 100%'
+      : 'linear-gradient(to bottom left,#ff5cc8, #fff) 1 100%'};
+  border-image-slice: 1;
   * {
     color: ${(props) => (props.isvalid === 'true' ? '#8883ff' : '#ff5c5c')};
   }
   input {
     color: ${(props) => (props.isvalid === 'true' ? '#fff' : '#ff5c5c')};
   }
-
   animation: ${(props) => props.isvalid !== 'true' && 'vibration 0.1s 5'};
 
   background: ${(props) =>
     props.isvalid === 'true'
-      ? 'linear-gradient(90deg, rgba(70, 64, 198, 0.5) 0%, rgba(70, 64, 198, 0) 100%), rgba(70, 64, 198, 0.2)'
+      ? props.isfocus === 'true'
+        ? 'linear-gradient(90deg, rgba(70, 64, 198, 0.50) 0%, rgba(70, 64, 198, 0.00) 100%), rgba(189, 0, 255, 0.20)'
+        : 'linear-gradient(90deg, rgba(70, 64, 198, 0.5) 0%, rgba(70, 64, 198, 0) 100%), rgba(70, 64, 198, 0.2)'
       : 'linear-gradient(90deg, rgba(255, 92, 92, 0.50) 0%, rgba(255, 92, 92, 0.00) 100%), rgba(255, 0, 0, 0.20)'};
   box-shadow:
     0px 4px 12px 0px rgba(18, 17, 39, 0.24),
