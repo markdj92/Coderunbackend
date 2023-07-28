@@ -5,11 +5,9 @@ import {
   collab,
   getSyncedVersion,
 } from '@codemirror/collab';
-import { StateEffect, Text, ChangeSet } from '@codemirror/state';
+import { Text, ChangeSet } from '@codemirror/state';
 import { EditorView, ViewPlugin, ViewUpdate } from '@codemirror/view';
 import { Socket } from 'socket.io-client';
-
-import { cursor, addCursor, removeCursor } from './cursors';
 
 function pushUpdates(
   socket: Socket,
@@ -41,38 +39,10 @@ function pullUpdates(socket: Socket, title: string, version: number): Promise<re
       resolve(JSON.parse(updates));
     });
   }).then((updates: any) =>
-    updates.map((u: any) => {
-      if (u.effects[0]) {
-        const effects: StateEffect<any>[] = [];
-
-        u.effects.forEach((effect: StateEffect<any>) => {
-          if (effect.value?.id && effect.value?.from) {
-            const cursor: cursor = {
-              id: effect.value.id,
-              from: effect.value.from,
-              to: effect.value.to,
-            };
-
-            effects.push(addCursor.of(cursor));
-          } else if (effect.value?.id) {
-            const cursorId = effect.value.id;
-
-            effects.push(removeCursor.of(cursorId));
-          }
-        });
-
-        return {
-          changes: ChangeSet.fromJSON(u.changes),
-          clientID: u.clientID,
-          effects,
-        };
-      }
-
-      return {
-        changes: ChangeSet.fromJSON(u.changes),
-        clientID: u.clientID,
-      };
-    }),
+    updates.map((u: any) => ({
+      changes: ChangeSet.fromJSON(u.changes),
+      clientID: u.clientID,
+    })),
   );
 }
 
@@ -92,7 +62,7 @@ export function getDocument(
   });
 }
 
-export const peerExtension = (socket: Socket, title: string, startVersion: number, id: string) => {
+export const peerExtension = (socket: Socket, title: string, startVersion: number) => {
   const plugin = ViewPlugin.fromClass(
     class {
       private pushing = false;
@@ -132,18 +102,5 @@ export const peerExtension = (socket: Socket, title: string, startVersion: numbe
     },
   );
 
-  return [
-    collab({
-      startVersion,
-      clientID: id,
-      sharedEffects: (tr) => {
-        const effects = tr.effects.filter((e) => {
-          return e.is(addCursor) || e.is(removeCursor);
-        });
-
-        return effects;
-      },
-    }),
-    plugin,
-  ];
+  return [collab({ startVersion }), plugin];
 };

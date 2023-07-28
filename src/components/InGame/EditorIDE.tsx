@@ -62,7 +62,7 @@ const EditorIDE = ({ socket, className, handleEditorCode }: Props) => {
           indentUnit.of('\t'),
           basicSetup(),
           langs.python(),
-          peerExtension(socket, title, version, nickname),
+          peerExtension(socket, title, version),
           cursorExtension(nickname),
         ]}
         value={doc}
