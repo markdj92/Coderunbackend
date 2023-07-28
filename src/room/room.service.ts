@@ -19,8 +19,9 @@ export class RoomService {
     
     async createRoom(room :RoomCreateDto, email : string) : Promise<Room> {
         let newRoom;
-        const found = await this.roomModel.findOne({title : room.title});
-        if(found){
+        const found = await this.roomModel.findOne({ title: room.title });
+        
+        if(found.ready === true){
             throw new BadRequestException('Duplicate room title! please enter new title');
         }
         if(room.status == "PRIVATE"){
