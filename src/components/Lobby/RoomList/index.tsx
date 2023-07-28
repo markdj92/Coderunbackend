@@ -17,15 +17,14 @@ const RoomList = ({ nickname }: { nickname: string }) => {
 
   useEffect(() => {
     handleRefresh();
-  }, [setRoomList, page]);
+  }, [page]);
 
   const handleRefresh = async () => {
     try {
-      const response = await getRoomList();
-      const total = Math.ceil(response.data.length / 8);
-      setTotalPage(total);
-      if (total < page) setPage(total);
-      setRoomList(response.data.slice(page * 8 - 8, page * 8));
+      const response = await getRoomList({ page });
+      if (response.data.rooms.length > 0) setRoomList(response.data.rooms);
+      setTotalPage(response.data.totalPage);
+      setPage(page + 1);
     } catch (error) {
       console.error(error);
     }
