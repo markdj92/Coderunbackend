@@ -13,8 +13,8 @@ const axiosConfig = {
 
 export const roomInstance = axios.create(axiosConfig);
 
-export const getRoomList = () => {
-  return roomInstance.get('');
+export const getRoomList = ({ page }: { page: number }) => {
+  return roomInstance.get(`?page=${page}`);
 };
 
 roomInstance.interceptors.request.use(
