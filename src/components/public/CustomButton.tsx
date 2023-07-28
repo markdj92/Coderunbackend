@@ -22,7 +22,7 @@ const CustomButton = ({ title, isDisabled = false, onClick }: CustomButtonProps)
 
 const DisableContainer = styled.button`
   display: inline-flex;
-  padding: 24px 44px;
+  padding: 23px 43px;
   justify-content: center;
   align-items: center;
   gap: 10px;
@@ -34,7 +34,7 @@ const DisableContainer = styled.button`
 
 const Container = styled.button`
   display: flex;
-  padding: 24px 44px;
+  padding: 23px 43px;
   justify-content: center;
   align-items: center;
   border-radius: 12px;
