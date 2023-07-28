@@ -26,17 +26,6 @@ const EditorIDE = ({ socket, className, handleEditorCode }: Props) => {
   const [doc, setDoc] = useState<string | null>(null);
   // const [mode, setMode] = useState<Mode>('dark');
 
-  // return (
-  //   <CodeMirror
-  //     className={`flex-1 overflow-scroll text-left ${className}`}
-  //     basicSetup={false}
-  //     onChange={(value) => handleEditorCode(value)}
-  //     id='codeEditor'
-  //     theme={'dark'}
-  //     extensions={[indentUnit.of('\t'), basicSetup(), langs.python()]}
-  //   />
-  // );
-
   useEffect(() => {
     const fetchDocument = async () => {
       const { version, doc } = await getDocument(socket, title);
