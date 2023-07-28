@@ -138,6 +138,6 @@ export class Page<T> {
     pageSize: number;
     totalCount: number;
     totalPage: number;
-    data: T;
+    rooms: T;
 }
 

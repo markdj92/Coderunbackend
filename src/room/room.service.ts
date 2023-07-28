@@ -81,7 +81,7 @@ export class RoomService {
             pageSize,
             totalCount,
             totalPage,
-            data: rooms,
+            rooms: rooms,
         };
     }
     
