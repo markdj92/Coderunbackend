@@ -101,7 +101,7 @@ const LoginFrame = styled.div<{ isfocus: string; isvalid: string }>`
   align-items: center;
   border-radius: 16px;
   border-style: solid;
-  border-width: 1.5px;
+  border-width: 2.4px;
   border-image: ${(props) =>
     props.isvalid === 'true'
       ? 'linear-gradient(to right bottom,#8883FF, transparent) 1 100%'
