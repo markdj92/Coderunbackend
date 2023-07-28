@@ -50,7 +50,7 @@ const CustomInput: React.FC<InputAnimationProps> = ({
         isfocus={isFocus ? 'true' : 'false'}
         isvalid={errorMessage === '' ? 'true' : 'false'}
       >
-        <NameSection>
+        <NameSection isvalid={errorMessage === '' ? 'true' : 'false'}>
           <TitleBox>{title}</TitleBox>
         </NameSection>
         <InputBox
@@ -99,6 +99,7 @@ const LoginFrame = styled.div<{ isfocus: string; isvalid: string }>`
   display: flex;
   flex-direction: row;
   align-items: center;
+  transition: all 0.3s ease-in-out;
   border-radius: 16px;
   border-style: solid;
   border-width: 2.4px;
@@ -126,19 +127,20 @@ const LoginFrame = styled.div<{ isfocus: string; isvalid: string }>`
     0px 4px 2px 0px rgba(21, 18, 73, 0.32) inset;
 `;
 
-const NameSection = styled.div`
+const NameSection = styled.div<{ isvalid: string }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 38px 0 38px 44px;
+  margin: 30px 0 30px 44px;
   padding-right: 24px;
-  border-right: 2px solid #5b56bd;
+  border-right: ${(props) =>
+    props.isvalid === 'true' ? '1px solid #8883ff' : '1px solid #ff5c5c'};
 `;
 
 const ShowButton = styled.div`
   position: absolute;
   right: 40px;
-  top: 40px;
+  top: 32px;
   cursor: pointer;
   * {
     color: '#8883FF';
@@ -148,7 +150,7 @@ const ShowButton = styled.div`
 const ResetButton = styled.div`
   position: absolute;
   right: 40px;
-  top: 40px;
+  top: 32px;
   cursor: pointer;
   * {
     color: '#ff5c5c';
@@ -160,7 +162,7 @@ const TitleBox = styled.div`
   font-style: normal;
   font-weight: 800;
   width: 53px;
-  font-size: 32px;
+  font-size: 28px;
   line-height: 32px;
   font-family: 'Noto Sans KR', sans-serif;
 `;
@@ -171,12 +173,12 @@ const InputBox = styled.input`
   justify-content: center;
   align-items: center;
   gap: 24px;
-  font-size: 32px;
+  font-size: 28px;
   background: transparent;
   border: none;
   outline: none;
-  width: 541px;
-  margin: 31px 44px 31px 0;
+  width: 421px;
+  margin: 25px 72px 25px 0;
   padding-left: 24px;
 `;
 
