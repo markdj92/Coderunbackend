@@ -100,8 +100,8 @@ const LoginFrame = styled.div<{ isfocus: string; isvalid: string }>`
   flex-direction: row;
   align-items: center;
   transition: all 0.3s ease-in-out;
-  border: 2px solid #3a359e;
-  border-radius: 20px;
+  border: ${(props) => (props.isvalid === 'true' ? '2.4px solid #8883ff' : '2.4px solid #ff5c5c')};
+  border-radius: 16px;
   * {
     color: ${(props) => (props.isvalid === 'true' ? '#8883ff' : '#ff5c5c')};
   }
