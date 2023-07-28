@@ -92,12 +92,7 @@ export function getDocument(
   });
 }
 
-export const peerExtension = (
-  socket: Socket,
-  title: string,
-  startVersion: number | null,
-  id: string,
-) => {
+export const peerExtension = (socket: Socket, title: string, startVersion: number, id: string) => {
   const plugin = ViewPlugin.fromClass(
     class {
       private pushing = false;
