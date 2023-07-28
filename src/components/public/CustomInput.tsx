@@ -95,6 +95,8 @@ const LoginFrame = styled.div<{ isvalid: string }>`
     color: ${(props) => (props.isvalid === 'true' ? '#fff' : '#ff5c5c')};
   }
 
+  animation: ${(props) => props.isvalid !== 'true' && 'vibration 0.1s 5'};
+
   background: ${(props) =>
     props.isvalid === 'true'
       ? 'linear-gradient(90deg, rgba(70, 64, 198, 0.5) 0%, rgba(70, 64, 198, 0) 100%), rgba(70, 64, 198, 0.2)'
