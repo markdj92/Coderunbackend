@@ -100,14 +100,8 @@ const LoginFrame = styled.div<{ isfocus: string; isvalid: string }>`
   flex-direction: row;
   align-items: center;
   transition: all 0.3s ease-in-out;
-  border-radius: 16px;
-  border-style: solid;
-  border-width: 2.4px;
-  border-image: ${(props) =>
-    props.isvalid === 'true'
-      ? 'linear-gradient(to right bottom,#8883FF, transparent) 1 100%'
-      : 'linear-gradient(to bottom left,#ff5cc8, #fff) 1 100%'};
-  border-image-slice: 1;
+  border: 2px solid #3a359e;
+  border-radius: 20px;
   * {
     color: ${(props) => (props.isvalid === 'true' ? '#8883ff' : '#ff5c5c')};
   }
