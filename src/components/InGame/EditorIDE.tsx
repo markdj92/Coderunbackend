@@ -6,8 +6,8 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { type Socket } from 'socket.io-client';
 
-// import { peerExtension, getDocument } from '@/utils/collab';
-import { getDocument } from '@/utils/collab';
+import { peerExtension, getDocument } from '@/utils/collab';
+// import { getDocument } from '@/utils/collab';
 import { cursorExtension } from '@/utils/cursors';
 
 // type Mode = 'light' | 'dark';
@@ -26,16 +26,16 @@ const EditorIDE = ({ socket, className, handleEditorCode }: Props) => {
   const [doc, setDoc] = useState<string | null>(null);
   // const [mode, setMode] = useState<Mode>('dark');
 
-  return (
-    <CodeMirror
-      className={`flex-1 overflow-scroll text-left ${className}`}
-      basicSetup={false}
-      onChange={(value) => handleEditorCode(value)}
-      id='codeEditor'
-      theme={'dark'}
-      extensions={[indentUnit.of('\t'), basicSetup(), langs.python()]}
-    />
-  );
+  // return (
+  //   <CodeMirror
+  //     className={`flex-1 overflow-scroll text-left ${className}`}
+  //     basicSetup={false}
+  //     onChange={(value) => handleEditorCode(value)}
+  //     id='codeEditor'
+  //     theme={'dark'}
+  //     extensions={[indentUnit.of('\t'), basicSetup(), langs.python()]}
+  //   />
+  // );
 
   useEffect(() => {
     const fetchDocument = async () => {
@@ -73,10 +73,10 @@ const EditorIDE = ({ socket, className, handleEditorCode }: Props) => {
           indentUnit.of('\t'),
           basicSetup(),
           langs.python(),
-          // peerExtension(socket, title, version, nickname),
+          peerExtension(socket, title, version, nickname),
           cursorExtension(nickname),
         ]}
-        // value={doc}
+        value={doc}
       />
     );
   } else {
