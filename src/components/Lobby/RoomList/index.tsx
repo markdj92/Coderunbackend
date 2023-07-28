@@ -24,7 +24,8 @@ const RoomList = ({ nickname }: { nickname: string }) => {
       const response = await getRoomList({ page });
       if (response.data.rooms.length > 0) setRoomList(response.data.rooms);
       setTotalPage(response.data.totalPage);
-      setPage(page + 1);
+      if (page > response.data.totalPage) setPage(response.data.totalPage);
+      else setPage(page);
     } catch (error) {
       console.error(error);
     }
