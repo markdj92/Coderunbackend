@@ -1,7 +1,7 @@
 import { IsEmail } from 'class-validator';
 import { RoomAndUser } from './schemas/roomanduser.schema';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { RoomCreateDto, RoomAndUserDto, EmptyOrLock, UserInfoDto, RoomStatusChangeDto } from './dto/room.dto';
+import { RoomCreateDto, RoomAndUserDto, EmptyOrLock, UserInfoDto, RoomStatusChangeDto, Page } from './dto/room.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Room } from './schemas/room.schema'
 import mongoose, { Model,Mongoose,ObjectId,ObjectIdSchemaDefinition,Types } from 'mongoose';
@@ -70,10 +70,21 @@ export class RoomService {
         await newInfoForRoom.save();
     }
 
-    async getRoomList() : Promise<Room[]> {
-        const rooms = await this.roomModel.find().exec();
-        const result = await rooms.filter(room => room.ready === true);
-        return result;
+    async getRoomList(page: number): Promise<Page<Room[]>> {
+        const pageSize = 8;
+        const totalCount = await this.roomModel.countDocuments({ready: true});
+        const totalPage = Math.ceil(totalCount / pageSize);
+        const rooms = await this.roomModel.find({ready: true})
+            .skip((page - 1) * pageSize)
+            .limit(pageSize)
+            .exec();
+        return {
+            pageSize,
+            totalCount,
+            totalPage,
+            rooms: rooms,
+            
+        };
     }
     
     async getRoomIdFromTitle(title : string) : Promise<ObjectId> {
@@ -142,7 +153,6 @@ export class RoomService {
     async getRoomInfo(room_id : ObjectId) : Promise<RoomStatusChangeDto | boolean> {
         // room 의 변경사항이 생겼을 때, 사용할 dto 
         const roomStatusChangeDto = new RoomStatusChangeDto;
-
         const room = await this.roomModel.findOne({_id : room_id}).exec();
         const roomanduser = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
 

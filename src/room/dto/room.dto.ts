@@ -134,3 +134,10 @@ export class RoomStatusChangeDto {
 
 }
 
+export class Page<T> {
+    pageSize: number;
+    totalCount: number;
+    totalPage: number;
+    rooms: T;
+}
+

@@ -1,7 +1,7 @@
 import { CodingTestService } from './../codingtest/codingtest.service';
 import { ApiOkResponse, ApiOperation, ApiQuery, ApiResponse, ApiTags, getSchemaPath } from '@nestjs/swagger';
 import { RoomService } from './room.service';
-import { Body, Controller, Post, Get, UseGuards, Req } from '@nestjs/common';
+import { Body, Controller, Post, Get, UseGuards, Req, Query } from '@nestjs/common';
 import { RoomCreateDto } from './dto/room.dto';
 import { Room } from './schemas/room.schema';
 import { AuthGuard } from '@nestjs/passport';
@@ -22,8 +22,8 @@ export class RoomController {
 
     @UseGuards(AuthGuard('jwt'))
     @Get('/')
-    getRoomList(@Req() req){
-        return this.roomService.getRoomList();
+    getRoomList(@Req() req, @Query('page') page: number) {
+        return this.roomService.getRoomList(page);
     }
 
 }
