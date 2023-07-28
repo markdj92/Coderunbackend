@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 import { PATH_ROUTE, USER_NICKNAME_KEY, USER_TOKEN_KEY } from '@/constants';
 
 import { postLogin, setInitName } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
-import InputAnimation from '@/components/public/inputAnimation';
+import CustomButton from '@/components/public/CustomButton';
+import CustomInput from '@/components/public/CustomInput';
 import Signup from '@/components/Signup';
 import { useAuthForm } from '@/hooks/useAuthForm';
 
@@ -19,8 +20,9 @@ const Login = () => {
     passwordRef,
     userAccount,
     validateState,
-    setValidateState,
     handleAccountChange,
+    errorMessage,
+    setErrorMessage,
   } = useAuthForm();
 
   const navigate = useNavigate();
@@ -55,8 +57,15 @@ const Login = () => {
         }
       }
     } catch (error: any) {
-      if (error.response.data)
-        setValidateState({ ...validateState, errorMessage: error.response.data.message });
+      if (error.response.data) {
+        if (error.response.data.message.includes('이메일')) {
+          setErrorMessage({ ...errorMessage, email: error.response.data.message });
+          emailRef.current?.focus();
+        } else {
+          setErrorMessage({ ...errorMessage, password: error.response.data.message });
+          passwordRef.current?.focus();
+        }
+      }
       console.error(error.response.data);
     }
   };
@@ -72,53 +81,50 @@ const Login = () => {
   return (
     <MainFrame>
       {isShownSignup && <Signup handleShowSignup={handleShowSignup} />}
-      <LoginContainer onSubmit={handleLogin}>
-        <WelcomeText>CODE LEARN</WelcomeText>
-        <InputContainer>
-          <InputAnimation
-            width='60%'
-            Ref={emailRef}
-            inputName='email'
-            handleChange={handleAccountChange}
-            inputValue={userAccount.email}
-            isValid={validateState.email}
+      <LoginContainer>
+        <TitleFrame>
+          <WelcomeText>Code Run? Code Learn!</WelcomeText>
+          <MainText>SIGN IN</MainText>
+        </TitleFrame>
+        <FormFrame onSubmit={handleLogin}>
+          <InputContainer>
+            <CustomInput
+              setRef={emailRef}
+              title={'ID'}
+              inputName={'email'}
+              handleChange={handleAccountChange}
+              inputValue={userAccount.email}
+              errorMessage={errorMessage.email}
+            />
+            <CustomInput
+              type='password'
+              title={'PW'}
+              inputName={'password'}
+              setRef={passwordRef}
+              handleChange={handleAccountChange}
+              inputValue={userAccount.password}
+              errorMessage={errorMessage.password}
+            />
+          </InputContainer>
+          <CustomButton
+            title={'Log in'}
+            isDisabled={!validateState.email || !validateState.password}
           />
-          <InputAnimation
-            type='password'
-            width='60%'
-            Ref={passwordRef}
-            inputName='password'
-            handleChange={handleAccountChange}
-            inputValue={userAccount.password}
-            isValid={validateState.password}
-          />
-        </InputContainer>
-        {validateState.errorMessage && <ErrorMsg>{validateState.errorMessage}</ErrorMsg>}
-        <ButtonContainer>
-          <StyledButton
-            type='submit'
-            isvalid={!validateState.email || !validateState.password ? 'true' : 'false'}
-            disabled={!validateState.email || !validateState.password}
-          >
-            LOGIN
-          </StyledButton>
-        </ButtonContainer>
-        <LoginWith onClick={handleShowSignup}>SIGNUP</LoginWith>
+        </FormFrame>
+        <SignInFrame>
+          <SignInTitle>코드런이 처음이신가요?</SignInTitle>
+          <CustomButton title={'Sign up'} onClick={handleShowSignup} />
+        </SignInFrame>
       </LoginContainer>
     </MainFrame>
   );
 };
 
-const ErrorMsg = styled.div`
-  color: white;
-  font-size: 0.5rem;
-  margin-top: 1rem;
-`;
-
 const MainFrame = styled.div`
-  font-family: 'Raleway', sans-serif;
-  background-image: url('/background.jpg');
+  background: url('./background.png');
+  mix-blend-mode: screen;
   background-size: cover;
+  font-family: 'Raleway', sans-serif;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -126,26 +132,65 @@ const MainFrame = styled.div`
   width: 100vw;
 `;
 
-const LoginContainer = styled.form`
+const FormFrame = styled.form`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 44px;
+`;
+
+const SignInFrame = styled.div`
+  width: 732px;
+  height: 144px;
+  border-top: 2px solid #3c325f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+`;
+
+const SignInTitle = styled.div`
+  color: #8883ff;
+  text-align: center;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: -0.4px;
+  margin-bottom: 16px;
+`;
+
+const LoginContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  width: 500px;
-  height: 50vh;
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  backdrop-filter: blur(8.5px);
-  -webkit-backdrop-filter: blur(8.5px);
-  border-radius: 10px;
-  color: #ffffff;
-  text-transform: uppercase;
-  letter-spacing: 0.4rem;
+  background: transparent;
+  gap: 64px;
 `;
 
 const WelcomeText = styled.h2`
-  margin: 0rem 0 2rem 0;
-  font-size: 1.2rem;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 20px;
+  letter-spacing: -0.01em;
+  text-align: center;
+`;
+
+const MainText = styled.h1`
+  font-family: 'IBM Plex Sans KR', sans-serif;
+  color: #e2e0ff;
+  font-size: 88px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 80px;
+`;
+
+const TitleFrame = styled.div`
+  gap: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 `;
 
 const InputContainer = styled.div`
@@ -153,60 +198,8 @@ const InputContainer = styled.div`
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-  height: 100px;
   width: 100%;
-`;
-
-const ButtonContainer = styled.div`
-  margin: 1rem 0 1rem 0;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const LoginWith = styled.h5`
-  cursor: pointer;
-  transition: all 0.5s ease;
-
-  &:hover {
-    transform: scale(1.1);
-  }
-`;
-
-const StyledButton = styled.button<{ isvalid: string }>`
-  ${({ isvalid }) => {
-    return css`
-      background: ${isvalid === 'true'
-        ? 'rgba(0, 0, 0, 0.2)'
-        : 'linear-gradient(to right, #14163c 0%, #03217b 79%)'};
-      text-transform: uppercase;
-      letter-spacing: 0.2rem;
-      width: 65%;
-      height: 3rem;
-      border: none;
-      color: ${isvalid === 'true' ? '#333333' : 'white'};
-      border-radius: 2rem;
-      transition: all 0.5s ease;
-      cursor: ${isvalid === 'true' ? 'default' : 'pointer'};
-
-      &:hover {
-        color: ${isvalid === 'true' ? '#333333' : 'white'};
-        transform: ${isvalid === 'true' ? 'none' : 'scale(1.03)'};
-      }
-
-      &:focus {
-        border-width: 10rem;
-        border-color: #4fff00;
-      }
-
-      &:active {
-        position: ${isvalid === 'true' ? 'static' : 'relative'};
-        top: 1px;
-        right: 1px;
-      }
-    `;
-  }}
+  gap: 28px;
 `;
 
 export default Login;

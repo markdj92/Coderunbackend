@@ -4,6 +4,7 @@ import reset from 'styled-reset';
 const GlobalStyle = createGlobalStyle`
   ${reset}
   * {
+    font-family: 'Noto Sans KR', sans-serif;
     box-sizing: border-box;
     color: white;
     -webkit-user-select:none;
@@ -12,14 +13,14 @@ const GlobalStyle = createGlobalStyle`
     user-select:none
   }
   a {
-  color: inherit;
-  text-decoration: none;
+    color: inherit;
+    text-decoration: none;
   }
   li {
-  list-style: none;
+    list-style: none;
   }
   body{
-    background-image: url('/background.jpg');
+    background: #1D1637;
   }
 
   button{
@@ -29,6 +30,15 @@ const GlobalStyle = createGlobalStyle`
     font: inherit;
     cursor: pointer;
     outline: inherit;
+  }
+
+  @keyframes vibration {
+    from {
+      transform: rotate(1deg);
+    }
+    to {
+      transform: rotate(-1deg);
+    }
   }
 `;
 
