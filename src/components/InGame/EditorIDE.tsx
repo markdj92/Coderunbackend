@@ -75,7 +75,7 @@ const EditorIDE = ({ socket, className, handleEditorCode }: Props) => {
           peerExtension(socket, title, version, nickname),
           cursorExtension(nickname),
         ]}
-        value={doc}
+        // value={doc}
       />
     );
   } else {
