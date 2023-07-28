@@ -21,7 +21,7 @@ export class RoomService {
         let newRoom;
         const found = await this.roomModel.findOne({ title: room.title });
         
-        if(found.ready === true){
+        if(found && found.ready === true){
             throw new BadRequestException('Duplicate room title! please enter new title');
         }
         if(room.status == "PRIVATE"){
