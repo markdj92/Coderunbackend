@@ -23,12 +23,17 @@ const RunFrame = ({ isSuccess, runResult }: { isSuccess: boolean; runResult: Exe
     </Container>
   );
 };
-//
+
 const Container = styled.div`
   word-break: keep-all;
   word-wrap: break-word;
   border-top: 1px solid #172334;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 100%;
   height: 30%;
+  overflow: hidden;
   * {
     -webkit-user-select: text;
     -moz-user-select: text;
@@ -47,11 +52,13 @@ const Title = styled.div`
 `;
 
 const ContentBox = styled.div`
+  position: relative;
   padding-left: 1rem;
-  overflow-y: scroll;
+  padding-bottom: 5rem;
+  overflow-y: auto;
+  height: 100%;
   color: #b2c0cc;
   font-weight: 100;
-  height: 100%;
   .red {
     color: #ff6b6b;
   }

@@ -22,7 +22,7 @@ const CustomButton = ({ title, isDisabled = false, onClick }: CustomButtonProps)
 
 const DisableContainer = styled.button`
   display: inline-flex;
-  padding: 24px 44px;
+  padding: 23px 43px;
   justify-content: center;
   align-items: center;
   gap: 10px;
@@ -34,22 +34,16 @@ const DisableContainer = styled.button`
 
 const Container = styled.button`
   display: flex;
-  padding: 24px 44px;
+  padding: 23px 43px;
   justify-content: center;
   align-items: center;
+
+  transition: all ease 0.3s;
   border-radius: 12px;
   border: 1px solid #4640c6;
   background: rgba(70, 64, 198, 0.2);
-
   &:hover {
-    background: linear-gradient(
-        90deg,
-        rgba(70, 64, 198, 0) 0%,
-        rgba(70, 64, 198, 0.4) 31.07%,
-        rgba(70, 64, 198, 0.4) 72.03%,
-        rgba(70, 64, 198, 0.13) 100%
-      ),
-      rgba(112, 0, 255, 0.2);
+    background: rgba(112, 0, 255, 0.2);
     box-shadow: 0px 0px 12px 0px rgba(78, 0, 244, 0.4);
     backdrop-filter: blur(12px);
   }

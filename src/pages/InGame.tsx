@@ -192,14 +192,14 @@ const QuizLeft = styled.div`
 `;
 
 const QuizRight = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  position: relative;
   width: 100%;
 `;
 
 const EditorFrame = styled.div`
-  min-height: 70%;
+  position: absolute;
+  width: 100%;
+  height: 70%;
   overflow-y: scroll;
   .cm-lineNumbers {
     width: 2rem;
