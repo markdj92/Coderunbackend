@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -20,7 +19,7 @@ const Lobby = () => {
   }
   const { nickname } = location.state;
 
-  const onCreateRoom = useCallback(() => {
+  const onCreateRoom = () => {
     const roomName = prompt('방 이름을 입력해 주세요.');
     if (!roomName) return alert('방 이름은 반드시 입력해야 합니다.');
 
@@ -38,7 +37,7 @@ const Lobby = () => {
         state: { ...response.payload.roomInfo, nickname },
       });
     });
-  }, [navigate]);
+  };
 
   return (
     <MainContainer>
