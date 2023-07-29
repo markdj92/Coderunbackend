@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 import { validateUserInfo } from '@/utils';
 
-import InputAnimation from '../public/inputAnimation';
+import CustomButtonSmall from '../public/CustomButtonSmall';
+import CustomInputSmall from '../public/CustomInputSmall';
 import Modal from '../public/Modal';
 
-import { postSignUp, postCheckEmail } from '@/apis/authApi';
+import { postSignUp } from '@/apis/authApi';
 import { useAuthForm } from '@/hooks/useAuthForm';
 
 const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
@@ -17,8 +18,8 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
     userAccount,
     validateState,
     handleAccountChange,
-    isDuplicate,
-    setIsDuplicate,
+    // isDuplicate,
+    // setIsDuplicate,
   } = useAuthForm();
   const [confirmPassword, setconfirmPassword] = useState('');
 
@@ -41,133 +42,143 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
       console.error(error);
     }
   };
-  const handleCheckEmail = async () => {
-    if (!validateState.email) return;
-    try {
-      const response = await postCheckEmail({ email: userAccount.email });
-      if (response) {
-        alert('사용할 수 있는 이메일입니다.');
-        setIsDuplicate(true);
-        passwordRef.current?.focus();
-      }
-    } catch (error) {
-      alert('이미 존재하는 이메일입니다.');
-      emailRef.current?.focus();
-    }
-  };
-  const handleChangedConfirmPassword = (e: { target: { name: string; value: string } }) => {
+  // const handleCheckEmail = async () => {
+  //   if (!validateState.email) return;
+  //   try {
+  //     const response = await postCheckEmail({ email: userAccount.email });
+  //     if (response) {
+  //       alert('사용할 수 있는 이메일입니다.');
+  //       setIsDuplicate(true);
+  //       passwordRef.current?.focus();
+  //     }
+  //   } catch (error) {
+  //     alert('이미 존재하는 이메일입니다.');
+  //     emailRef.current?.focus();
+  //   }
+  // };
+  const handleChanged = (e: { target: { name: string; value: string } }) => {
     setconfirmPassword(e.target.value);
   };
 
   return (
-    <Modal handleHideModal={() => {}}>
-      <CloseButton onClick={handleShowSignup}>x</CloseButton>
+    <Modal handleHideModal={handleShowSignup}>
       <SignupForm onSubmit={handleSignup}>
-        <Title>SIGNUP</Title>
+        <Title>
+          <Logo />
+          <SignupText>
+            <WelcomeText>Welcome to Code Learn</WelcomeText>
+            <SignUpTitle>SIGN UP</SignUpTitle>
+          </SignupText>
+        </Title>
         <InputContainer>
           <InputSet>
             <EmailBox>
-              <InputAnimation
-                inputName='email'
-                Ref={emailRef}
+              <CustomInputSmall
+                setRef={emailRef}
+                title='ID'
+                inputName={'email'}
                 handleChange={handleAccountChange}
                 inputValue={userAccount.email}
                 isValid={validateState.email}
+                warningMessage={
+                  userAccount.email && !validateUserInfo.checkEmail(userAccount.email)
+                    ? '주소형식을 확인해주세요'
+                    : ''
+                }
               />
-              <EmailButton
+              {/* <EmailButton
                 isvalid={validateState.email ? 'true' : 'false'}
                 onClick={handleCheckEmail}
-              >
+                >
                 중복확인
-              </EmailButton>
+              </EmailButton> */}
             </EmailBox>
-            <Alert>
-              {userAccount.email &&
-                !validateUserInfo.checkEmail(userAccount.email) &&
-                '주소형식을 확인해주세요'}
-              {userAccount.email && validateState.email && !isDuplicate && '중복 확인을 해주세요'}
-            </Alert>
           </InputSet>
           <InputSet>
-            <InputAnimation
-              width='100%'
+            <CustomInputSmall
               type='password'
-              inputName='password'
-              Ref={passwordRef}
+              title='PW'
+              inputName={'password'}
+              setRef={passwordRef}
               handleChange={handleAccountChange}
               inputValue={userAccount.password}
               isValid={validateState.password}
-            />
-            <Alert>
-              {userAccount.password &&
-                !validateUserInfo.checkPassword(userAccount.password) &&
-                '조건 : 8자 이상 , 영숫자 only'}
-            </Alert>
-          </InputSet>
-          <InputSet>
-            <InputAnimation
-              width='100%'
-              type='password'
-              inputName='confirm password'
-              handleChange={handleChangedConfirmPassword}
-              Ref={rePasswordRef}
-              inputValue={confirmPassword}
-              isValid={
-                confirmPassword !== '' &&
-                validateUserInfo.checkPasswordDiff(userAccount.password, confirmPassword)
+              warningMessage={
+                userAccount.password && !validateUserInfo.checkPassword(userAccount.password)
+                  ? '조건 : 8자 이상 , 영숫자 only'
+                  : ''
               }
             />
-            <Alert>
-              {confirmPassword &&
-                !validateUserInfo.checkPasswordDiff(userAccount.password, confirmPassword) &&
-                '비밀번호가 일치하지 않습니다'}
-            </Alert>
           </InputSet>
+          <InputSet>
+            <CustomInputSmall
+              type='password'
+              title={'PW Confirm'}
+              inputName={'password'}
+              handleChange={handleChanged}
+              setRef={rePasswordRef}
+              inputValue={confirmPassword}
+              warningMessage={
+                confirmPassword &&
+                !validateUserInfo.checkPasswordDiff(userAccount.password, confirmPassword)
+                  ? '비밀번호가 일치하지 않습니다'
+                  : ''
+              }
+            />
+          </InputSet>
+          <CustomButtonSmall title={'Join'} isBorder={false} />
         </InputContainer>
-        <ButtonContainer>
-          <StyledButton
-            type='submit'
-            isvalid={
-              !validateState.email ||
-              !validateState.password ||
-              !isDuplicate ||
-              !validateUserInfo.checkPasswordDiff(userAccount.password, confirmPassword)
-                ? 'true'
-                : 'false'
-            }
-            disabled={!validateState.email || !validateState.password || !isDuplicate}
-          >
-            가입하기
-          </StyledButton>
-        </ButtonContainer>
       </SignupForm>
     </Modal>
   );
 };
-const CloseButton = styled.button`
-  position: absolute;
-  font-size: 2rem;
-  padding-left: 10px;
+
+const Title = styled.div`
+  width: fit-content;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
 `;
-const Title = styled.h2`
-  letter-spacing: 01rem;
+const Logo = styled.div`
+  width: 74px;
+  height: 74px;
+  background: #1f1e4d;
+`;
+const SignupText = styled.div`
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 24px;
+`;
+const WelcomeText = styled.div`
+  color: #8883ff;
   text-align: center;
-  margin: 5rem 0 1rem 0;
-  font-size: 1.2rem;
+  font-family: 'Noto Sans KR';
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 20px; /* 100% */
+  letter-spacing: -0.32px;
+  margin-bottom: 10px;
+`;
+const SignUpTitle = styled.p`
+  color: #8883ff;
+  text-align: center;
+  font-size: 44px;
+  font-family: 'IBM Plex Sans KR';
+  font-style: normal;
+  font-weight: 700;
+  line-height: 44px; /* 100% */
 `;
 const SignupForm = styled.form`
-  text-transform: uppercase;
-  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  align-items: left;
 `;
 const InputSet = styled.div`
-  width: 70%;
-  height: 33%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
+  margin-top: 20px;
+  width: 100%;
 `;
 const EmailBox = styled.div`
   display: flex;
@@ -175,79 +186,30 @@ const EmailBox = styled.div`
   justify-content: space-around;
   align-items: flex-end;
 `;
-const EmailButton = styled.div<{ isvalid: string }>`
-  ${({ isvalid }) => {
-    return css`
-      cursor: ${isvalid === 'true' ? 'pointer' : 'auto'};
-      letter-spacing: 0.2rem;
-      margin-bottom: 0.5rem;
-      text-align: end;
+// const EmailButton = styled.div<{ isvalid: string }>`
+//   ${({ isvalid }) => {
+//     return css`
+//       cursor: ${isvalid === 'true' ? 'pointer' : 'auto'};
+//       letter-spacing: 0.2rem;
+//       margin-bottom: 0.5rem;
+//       text-align: end;
 
-      width: 10rem;
-      transition: all 0.5s ease;
-      color: ${isvalid === 'true' ? '#fff' : '#6a6d94'};
-      &:hover {
-        text-shadow: ${isvalid === 'true'
-          ? '0 0 5px #bebebe,0 0 10px #bebebe,0 0 15px #bebebe,0 0 20px #bebebe,0 0 35px #bebebe'
-          : ''};
-      }
-    `;
-  }}
-`;
+//       width: 10rem;
+//       transition: all 0.5s ease;
+//       color: ${isvalid === 'true' ? '#fff' : '#6a6d94'};
+//       &:hover {
+//         text-shadow: ${isvalid === 'true'
+//           ? '0 0 5px #bebebe,0 0 10px #bebebe,0 0 15px #bebebe,0 0 20px #bebebe,0 0 35px #bebebe'
+//           : ''};
+//       }
+//     `;
+//   }}
+// `;
 const InputContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 40%;
-  width: 100%;
-  margin-top: 2rem;
-`;
-const Alert = styled.label`
-  height: 5%;
-  font-size: small;
+  margin-top: 36px;
 `;
 
-const ButtonContainer = styled.div`
-  margin: 3rem 0 0 0;
-
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const StyledButton = styled.button<{ isvalid: string }>`
-  ${({ isvalid }) => {
-    return css`
-      /* position: relative; */
-      background: ${isvalid === 'true'
-        ? 'rgba(209, 209, 209, 0.2)'
-        : 'linear-gradient(to right, #d6d6d6 0%, #68769e 79%)'};
-      letter-spacing: 0.7rem;
-      width: 65%;
-      height: 3rem;
-
-      /* border: none; */
-      color: ${isvalid === 'true' ? '#969696' : 'black'};
-      border-radius: 2rem;
-      transition: all 0.5s ease;
-      cursor: ${isvalid === 'true' ? 'default' : 'pointer'};
-
-      &:hover {
-        transform: ${isvalid === 'true' ? 'none' : 'scale(1.03)'};
-      }
-
-      &:focus {
-        border-width: 10rem;
-        border-color: #4fff00;
-      }
-
-      &:active {
-        position: ${isvalid === 'true' ? 'static' : 'relative'};
-        top: 1px;
-        right: 1px;
-      }
-    `;
-  }}
-`;
 export default Signup;
