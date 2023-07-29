@@ -9,11 +9,14 @@ import { postLogin, setInitName } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
 import CustomButton from '@/components/public/CustomButton';
 import CustomInput from '@/components/public/CustomInput';
+import SetNickname from '@/components/SetNickname';
 import Signup from '@/components/Signup';
 import { useAuthForm } from '@/hooks/useAuthForm';
 
 const Login = () => {
   const [isShownSignup, setShownSignup] = useState(false);
+  const [isShownSetNickname, setShownSetNickname] = useState(false);
+  const [nickname, setNickname] = useState('');
 
   const {
     emailRef,
@@ -28,9 +31,8 @@ const Login = () => {
   const navigate = useNavigate();
 
   const checkNickname = async (accessToken: string) => {
-    let nickname: string | null = prompt('닉네임을 설정해 주세요.');
     if (nickname?.trim()) {
-      nickname = nickname.replace(/(\s*)/g, '');
+      setNickname(nickname.replace(/(\s*)/g, ''));
       await setInitName(nickname, accessToken);
       return nickname;
     } else return null;
@@ -42,16 +44,18 @@ const Login = () => {
       const response = await postLogin(userAccount);
       const { access_token: accessToken, nickname: name } = response.data;
       if (accessToken) {
-        let nickname = name;
-        if (!nickname) nickname = await checkNickname(accessToken);
-        if (nickname) {
+        let usernickname = name;
+        if (!usernickname && !nickname) return setShownSetNickname(true);
+        else if (!usernickname && nickname) usernickname = await checkNickname(accessToken);
+
+        if (usernickname) {
           localStorage.setItem(USER_TOKEN_KEY, accessToken);
           localStorage.setItem(USER_NICKNAME_KEY, name);
           socket.io.opts.extraHeaders = {
             Authorization: 'Bearer ' + accessToken,
           };
           socket.connect();
-          navigate(PATH_ROUTE.lobby, { state: { nickname } });
+          navigate(PATH_ROUTE.lobby, { state: { usernickname } });
         } else {
           alert('닉네임이 있어야 입장이 가능합니다.');
         }
@@ -69,9 +73,15 @@ const Login = () => {
       console.error(error.response.data);
     }
   };
-
+  const handleChangeName = (e: { target: { value: string } }) => {
+    setNickname(e.target.value);
+  };
   const handleShowSignup = () => {
     setShownSignup(!isShownSignup);
+  };
+
+  const handleShowSetNickname = () => {
+    setShownSetNickname(!isShownSetNickname);
   };
 
   useEffect(() => {
@@ -81,6 +91,14 @@ const Login = () => {
   return (
     <MainFrame>
       {isShownSignup && <Signup handleShowSignup={handleShowSignup} />}
+      {isShownSetNickname && (
+        <SetNickname
+          checkNickname={handleLogin}
+          nickname={nickname}
+          handleChange={handleChangeName}
+          handleShowSetting={handleShowSetNickname}
+        />
+      )}
       <LoginContainer>
         <TitleFrame>
           <WelcomeText>Code Run? Code Learn!</WelcomeText>
