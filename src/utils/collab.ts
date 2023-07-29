@@ -5,9 +5,11 @@ import {
   collab,
   getSyncedVersion,
 } from '@codemirror/collab';
-import { Text, ChangeSet } from '@codemirror/state';
+import { StateEffect, Text, ChangeSet } from '@codemirror/state';
 import { EditorView, ViewPlugin, ViewUpdate } from '@codemirror/view';
 import { Socket } from 'socket.io-client';
+
+import { cursor, addCursor } from './cursors';
 
 function pushUpdates(
   socket: Socket,
@@ -39,10 +41,34 @@ function pullUpdates(socket: Socket, title: string, version: number): Promise<re
       resolve(JSON.parse(updates));
     });
   }).then((updates: any) =>
-    updates.map((u: any) => ({
-      changes: ChangeSet.fromJSON(u.changes),
-      clientID: u.clientID,
-    })),
+    updates.map((u: any) => {
+      if (u.effects[0]) {
+        const effects: StateEffect<any>[] = [];
+
+        u.effects.forEach((effect: StateEffect<any>) => {
+          if (effect.value?.id) {
+            const cursor: cursor = {
+              id: effect.value.id,
+              from: effect.value.from,
+              to: effect.value.to,
+            };
+
+            effects.push(addCursor.of(cursor));
+          }
+        });
+
+        return {
+          changes: ChangeSet.fromJSON(u.changes),
+          clientID: u.clientID,
+          effects,
+        };
+      }
+
+      return {
+        changes: ChangeSet.fromJSON(u.changes),
+        clientID: u.clientID,
+      };
+    }),
   );
 }
 
@@ -62,7 +88,7 @@ export function getDocument(
   });
 }
 
-export const peerExtension = (socket: Socket, title: string, startVersion: number) => {
+export const peerExtension = (socket: Socket, title: string, startVersion: number, id: string) => {
   const plugin = ViewPlugin.fromClass(
     class {
       private pushing = false;
@@ -73,7 +99,7 @@ export const peerExtension = (socket: Socket, title: string, startVersion: numbe
       }
 
       update(update: ViewUpdate) {
-        if (update.docChanged || update.transactions.length) this.push();
+        if (update.docChanged || update.transactions[0]?.effects[0]) this.push();
       }
 
       async push() {
@@ -92,7 +118,8 @@ export const peerExtension = (socket: Socket, title: string, startVersion: numbe
         while (!this.done) {
           const version = getSyncedVersion(this.view.state);
           const updates = await pullUpdates(socket, title, version);
-          this.view.dispatch(receiveUpdates(this.view.state, updates));
+          const newUpdates = receiveUpdates(this.view.state, updates);
+          this.view.dispatch(newUpdates);
         }
       }
 
@@ -102,5 +129,18 @@ export const peerExtension = (socket: Socket, title: string, startVersion: numbe
     },
   );
 
-  return [collab({ startVersion }), plugin];
+  return [
+    collab({
+      startVersion,
+      clientID: id,
+      sharedEffects: (tr) => {
+        const effects = tr.effects.filter((e) => {
+          return e.is(addCursor);
+        });
+
+        return effects;
+      },
+    }),
+    plugin,
+  ];
 };

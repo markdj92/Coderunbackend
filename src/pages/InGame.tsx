@@ -6,7 +6,7 @@ import styled from 'styled-components';
 
 import { postExecuteResult, postQuizInfo } from '@/apis/gameApi';
 import { socket } from '@/apis/socketApi';
-import EditorIDE from '@/components/InGame/EditorIDE';
+import EditorMulti from '@/components/InGame/EditorMulti';
 import GameBottom from '@/components/InGame/GameBottom';
 import GameNavbar from '@/components/InGame/GameNavbar';
 import QuizFrame from '@/components/InGame/QuizFrame';
@@ -16,7 +16,7 @@ import { ExecuteResult, QuizInfo } from '@/types/inGame';
 
 const InGame = () => {
   const location = useLocation();
-  const { title }: { title: string } = location.state;
+  const { title, nickname }: { title: string; nickname: string } = location.state;
 
   const [quizNumber, setQuizNumber] = useState<number>(1);
   const [quizInfo, setQuizInfo] = useState<QuizInfo>(null);
@@ -26,13 +26,8 @@ const InGame = () => {
     cpuTime: '0',
     output: '',
   });
-  const [code, setCode] = useState<string | null>('');
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
-
-  const handleEditorCode = (code: string) => {
-    setCode(code);
-  };
 
   const handleSpeaker = () => {
     setIsSpeaker(!isSpeaker);
@@ -43,11 +38,12 @@ const InGame = () => {
   };
 
   const handleRun = async () => {
-    if (code === '') return alert('코드를 작성해주세요.');
+    // if (code === '') return alert('코드를 작성해주세요.');
     const executeData = {
       title: title,
       problemNumber: quizNumber,
-      script: code,
+      // script: code,
+      script: '',
       language: 'python3',
       versionIndex: '0',
     };
@@ -103,7 +99,7 @@ const InGame = () => {
                 </QuizLeft>
                 <QuizRight>
                   <EditorFrame>
-                    <EditorIDE socket={socket} handleEditorCode={handleEditorCode} />
+                    <EditorMulti socket={socket} nickname={nickname} title={title} />
                   </EditorFrame>
                   <RunFrame isSuccess={isSuccess} runResult={runResult} />
                 </QuizRight>
