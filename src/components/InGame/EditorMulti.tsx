@@ -3,125 +3,65 @@ import { basicSetup } from '@uiw/codemirror-extensions-basic-setup';
 import { langs } from '@uiw/codemirror-extensions-langs';
 import CodeMirror from '@uiw/react-codemirror';
 import { useState, useEffect } from 'react';
-import { Socket } from 'socket.io-client';
+import { type Socket } from 'socket.io-client';
 
-import { getDocument, peerExtension } from '@/utils/collab';
+import { peerExtension, getDocument } from '@/utils/collab';
 import { cursorExtension } from '@/utils/cursors';
+import { generateName } from '@/utils/usernames';
 
-type Mode = 'light' | 'dark';
-
-type EditorMultiProps = {
+type Props = {
   socket: Socket;
   className?: string;
   title: string;
   nickname: string;
 };
 
-type EditorMultiState = {
-  connected: boolean;
-  version: number | null;
-  title: string;
-  nickname: string;
-  doc: null | string;
-  mode: Mode;
-};
+const username = generateName();
 
-let editorKey = 0;
-
-function EditorMulti(props: EditorMultiProps) {
-  const [state, setState] = useState<EditorMultiState>({
-    connected: false,
-    version: null,
-    doc: null,
-    title: props.title,
-    nickname: props.nickname,
-    mode: 'dark',
-  });
+const EditorMulti: React.FC<Props> = ({ socket, className }) => {
+  const [version, setVersion] = useState<number | null>(null);
+  const [doc, setDoc] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const { version, doc } = await getDocument(props.socket, state.title);
-
-      setState((prevState) => ({
-        ...prevState,
-        version,
-        doc: doc.toString(),
-      }));
+    const fetchDocument = async () => {
+      const { version, doc } = await getDocument(socket);
+      setVersion(version);
+      setDoc(doc.toString());
     };
-
-    fetchData();
-
-    const connectHandler = () => {
-      setState((prevState) => ({
-        ...prevState,
-        connected: true,
-      }));
-    };
-
-    const disconnectHandler = () => {
-      setState((prevState) => ({
-        ...prevState,
-        connected: false,
-      }));
-    };
-
-    const displayHandler = async (documentName: string) => {
-      const { version, doc } = await getDocument(props.socket, documentName);
-
-      setState((prevState) => ({
-        ...prevState,
-        version,
-        doc: doc.toString(),
-        documentName,
-      }));
-    };
-
-    const changeModeHandler = (event: MediaQueryListEvent) => {
-      const mode = event.matches ? 'dark' : 'light';
-      setState((prevState) => ({
-        ...prevState,
-        mode,
-      }));
-    };
-
-    props.socket.on('connect', connectHandler);
-    props.socket.on('disconnect', disconnectHandler);
-    props.socket.on('display', displayHandler);
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', changeModeHandler);
+    fetchDocument();
 
     return () => {
-      props.socket.off('connect', connectHandler);
-      props.socket.off('disconnect', disconnectHandler);
-      props.socket.off('display', displayHandler);
-      window
-        .matchMedia('(prefers-color-scheme: dark)')
-        .removeEventListener('change', changeModeHandler);
+      socket.off('connect');
+      socket.off('disconnect');
+      socket.off('pullUpdateResponse');
+      socket.off('pushUpdateResponse');
+      socket.off('getDocumentResponse');
     };
-  }, [props.socket, state.title]);
+  }, [socket]);
 
-  editorKey++;
-
-  if (state.version !== null && state.doc !== null) {
+  if (version !== null && doc !== null) {
     return (
-      <CodeMirror
-        key={editorKey}
-        className={`flex-1 overflow-scroll text-left ${props.className}`}
-        height='100%'
-        basicSetup={false}
-        theme={state.mode}
-        extensions={[
-          indentUnit.of('\t'),
-          basicSetup(),
-          langs.c(),
-          peerExtension(props.socket, state.title, state.version, state.nickname),
-          cursorExtension(state.nickname),
-        ]}
-        value={state.doc}
-      />
+      <>
+        <CodeMirror
+          className={`flex-1 overflow-scroll text-left ${className}`}
+          height='100%'
+          basicSetup={false}
+          id='codeEditor'
+          theme={'dark'}
+          extensions={[
+            indentUnit.of('\t'),
+            basicSetup(),
+            langs.c(),
+            peerExtension(socket, version, username),
+            cursorExtension(username),
+          ]}
+          value={doc}
+        />
+      </>
     );
   } else {
-    return <p>loading...</p>;
+    return <span>loading...</span>;
   }
-}
+};
 
 export default EditorMulti;

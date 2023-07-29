@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { postExecuteResult, postQuizInfo } from '@/apis/gameApi';
-import { socket } from '@/apis/socketApi';
+import { gameSocket } from '@/apis/socketApi';
 import EditorMulti from '@/components/InGame/EditorMulti';
 import GameBottom from '@/components/InGame/GameBottom';
 import GameNavbar from '@/components/InGame/GameNavbar';
@@ -99,7 +99,7 @@ const InGame = () => {
                 </QuizLeft>
                 <QuizRight>
                   <EditorFrame>
-                    <EditorMulti socket={socket} nickname={nickname} title={title} />
+                    <EditorMulti socket={gameSocket} nickname={nickname} title={title} />
                   </EditorFrame>
                   <RunFrame isSuccess={isSuccess} runResult={runResult} />
                 </QuizRight>
