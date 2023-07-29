@@ -126,7 +126,10 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
               }
             />
           </InputSet>
-          <CustomButtonSmall title={'Join'} isBorder={false} />
+          <CustomButtonSmall
+            title={'Join'}
+            isDisabled={!validateState.password || !validateState.email || !confirmPassword}
+          />
         </InputContainer>
       </SignupForm>
     </Modal>
