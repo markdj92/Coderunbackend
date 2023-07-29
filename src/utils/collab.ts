@@ -9,10 +9,11 @@ import { StateEffect, Text, ChangeSet } from '@codemirror/state';
 import { EditorView, ViewPlugin, ViewUpdate } from '@codemirror/view';
 import { Socket } from 'socket.io-client';
 
-import { cursor, addCursor, removeCursor } from './cursors';
+import { cursor, addCursor } from './cursors';
 
 function pushUpdates(
   socket: Socket,
+  title: string,
   version: number,
   fullUpdates: readonly Update[],
 ): Promise<boolean> {
@@ -24,7 +25,7 @@ function pushUpdates(
   }));
 
   return new Promise(function (resolve) {
-    socket.emit('pushUpdates', version, JSON.stringify(updates));
+    socket.emit('pushUpdates', { title, version, docUpdates: JSON.stringify(updates) });
 
     socket.once('pushUpdateResponse', function (status: boolean) {
       resolve(status);
@@ -32,9 +33,9 @@ function pushUpdates(
   });
 }
 
-function pullUpdates(socket: Socket, version: number): Promise<readonly Update[]> {
+function pullUpdates(socket: Socket, title: string, version: number): Promise<readonly Update[]> {
   return new Promise(function (resolve) {
-    socket.emit('pullUpdates', version);
+    socket.emit('pullUpdates', { title, version });
 
     socket.once('pullUpdateResponse', function (updates: any) {
       resolve(JSON.parse(updates));
@@ -45,7 +46,7 @@ function pullUpdates(socket: Socket, version: number): Promise<readonly Update[]
         const effects: StateEffect<any>[] = [];
 
         u.effects.forEach((effect: StateEffect<any>) => {
-          if (effect.value?.id && effect.value?.from) {
+          if (effect.value?.id) {
             const cursor: cursor = {
               id: effect.value.id,
               from: effect.value.from,
@@ -53,10 +54,6 @@ function pullUpdates(socket: Socket, version: number): Promise<readonly Update[]
             };
 
             effects.push(addCursor.of(cursor));
-          } else if (effect.value?.id) {
-            const cursorId = effect.value.id;
-
-            effects.push(removeCursor.of(cursorId));
           }
         });
 
@@ -75,9 +72,12 @@ function pullUpdates(socket: Socket, version: number): Promise<readonly Update[]
   );
 }
 
-export function getDocument(socket: Socket): Promise<{ version: number; doc: Text }> {
+export function getDocument(
+  socket: Socket,
+  title: string,
+): Promise<{ version: number; doc: Text }> {
   return new Promise(function (resolve) {
-    socket.emit('getDocument');
+    socket.emit('getDocument', { title });
 
     socket.once('getDocumentResponse', function (version: number, doc: string) {
       resolve({
@@ -88,7 +88,12 @@ export function getDocument(socket: Socket): Promise<{ version: number; doc: Tex
   });
 }
 
-export const peerExtension = (socket: Socket, startVersion: number, id: string) => {
+export const peerExtension = (
+  socket: Socket,
+  title: string,
+  startVersion: number,
+  nickname: string,
+) => {
   const plugin = ViewPlugin.fromClass(
     class {
       private pushing = false;
@@ -99,7 +104,7 @@ export const peerExtension = (socket: Socket, startVersion: number, id: string) 
       }
 
       update(update: ViewUpdate) {
-        if (update.docChanged || update.transactions.length) this.push();
+        if (update.docChanged || update.transactions[0]?.effects[0]) this.push();
       }
 
       async push() {
@@ -107,7 +112,7 @@ export const peerExtension = (socket: Socket, startVersion: number, id: string) 
         if (this.pushing || !updates.length) return;
         this.pushing = true;
         const version = getSyncedVersion(this.view.state);
-        await pushUpdates(socket, version, updates);
+        await pushUpdates(socket, title, version, updates);
         this.pushing = false;
         // Regardless of whether the push failed or new updates came in
         // while it was running, try again if there's updates remaining
@@ -117,8 +122,9 @@ export const peerExtension = (socket: Socket, startVersion: number, id: string) 
       async pull() {
         while (!this.done) {
           const version = getSyncedVersion(this.view.state);
-          const updates = await pullUpdates(socket, version);
-          this.view.dispatch(receiveUpdates(this.view.state, updates));
+          const updates = await pullUpdates(socket, title, version);
+          const newUpdates = receiveUpdates(this.view.state, updates);
+          this.view.dispatch(newUpdates);
         }
       }
 
@@ -131,10 +137,10 @@ export const peerExtension = (socket: Socket, startVersion: number, id: string) 
   return [
     collab({
       startVersion,
-      clientID: id,
+      clientID: nickname,
       sharedEffects: (tr) => {
         const effects = tr.effects.filter((e) => {
-          return e.is(addCursor) || e.is(removeCursor);
+          return e.is(addCursor);
         });
 
         return effects;
