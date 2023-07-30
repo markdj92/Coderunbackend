@@ -29,6 +29,14 @@ export const postLogin = (userAccount: UserAccount | { [k: string]: string }) =>
   return loginInstance.post(PATH_API.login, userAccount);
 };
 
+export const getNicknameByToken = () => {
+  return loginInstance.get(PATH_API.nickname, {
+    headers: {
+      [USER_TOKEN_KEY]: getUserToken(),
+    },
+  });
+};
+
 export const setInitName = (nickname: string, accessToken: string) => {
   return loginInstance.put(
     PATH_API.nickname,

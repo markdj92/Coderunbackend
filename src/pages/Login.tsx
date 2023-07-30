@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { PATH_ROUTE, USER_NICKNAME_KEY, USER_TOKEN_KEY } from '@/constants';
+import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
 
 import { postLogin, setInitName } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
@@ -50,7 +50,6 @@ const Login = () => {
 
         if (usernickname) {
           localStorage.setItem(USER_TOKEN_KEY, accessToken);
-          localStorage.setItem(USER_NICKNAME_KEY, name);
           socket.io.opts.extraHeaders = {
             Authorization: 'Bearer ' + accessToken,
           };
