@@ -63,7 +63,11 @@ export class RoomCreateDto {
 export class RoomAndUserDto {
 
     @IsNotEmpty()
-    @ApiProperty({description: "방 ID", required: true, type: String})
+    @ApiProperty({description: "방제", required: true})
+    title: string;
+
+    @IsNotEmpty()
+    @ApiProperty({description: "방 ID", required: true})
     room_id: ObjectId;
   
     @IsNotEmpty()
