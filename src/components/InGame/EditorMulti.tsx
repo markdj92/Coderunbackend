@@ -2,7 +2,7 @@ import { indentUnit } from '@codemirror/language';
 import { basicSetup } from '@uiw/codemirror-extensions-basic-setup';
 import { langs } from '@uiw/codemirror-extensions-langs';
 import CodeMirror from '@uiw/react-codemirror';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Socket } from 'socket.io-client';
 
 import { getDocument, peerExtension } from '@/utils/collab';
@@ -37,6 +37,14 @@ function EditorMulti(props: EditorMultiProps) {
     nickname: props.nickname,
     mode: 'dark',
   });
+
+  const editorRef = useRef();
+
+  function refCallack(editor) {
+    if (!editorRef.current && editor?.editor && editor?.state && editor?.view) {
+      editorRef.current = editor;
+    }
+  }
 
   useEffect(() => {
     async function fetchData() {
@@ -93,14 +101,16 @@ function EditorMulti(props: EditorMultiProps) {
     return (
       <CodeMirror
         key={editorKey}
+        ref={refCallack}
         className={`flex-1 overflow-scroll text-left ${props.className}`}
         height='100%'
         basicSetup={false}
         theme={state.mode}
+        readOnly={false}
         extensions={[
           indentUnit.of('\t'),
           basicSetup(),
-          langs.c(),
+          langs.python(),
           peerExtension(props.socket, state.title, state.version, state.nickname),
           cursorExtension(state.nickname),
         ]}
