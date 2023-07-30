@@ -132,6 +132,10 @@ export class RoomStatusChangeDto {
     @ApiProperty({description: "현재 준비상태", type: Boolean})
     currentStatus: boolean;
 
+    @IsOptional()
+    @IsNumber()
+    @ApiProperty({description: "현재 최대 맴버 수", type: Number})
+    max_members: number; //최대 맴버 수를 추가 room_status_changed에 추가
 }
 
 export class Page<T> {
