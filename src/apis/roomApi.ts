@@ -4,8 +4,8 @@ import { PATH_API, USER_TOKEN_KEY } from '@/constants';
 import { getUserToken } from '@/utils';
 
 const axiosConfig = {
-  // baseURL: `http://52.69.242.42:3000${PATH_API.room}`,
-  baseURL: `http://localhost:3000${PATH_API.room}`,
+  baseURL: `http://52.69.242.42:3000${PATH_API.room}`,
+  // baseURL: `http://localhost:3000${PATH_API.room}`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
