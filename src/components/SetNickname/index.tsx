@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { styled } from 'styled-components';
 
 import CustomButtonSmall from '../public/CustomButtonSmall';
@@ -18,13 +18,17 @@ const SetNickname = ({
   errorNickname,
   setErrorNickname,
 }: nameProps) => {
-  const nicknameRef = useRef<HTMLInputElement>(null);
   const [nickname, setNickname] = useState<string>('');
+  const nicknameRef = useRef<HTMLInputElement>(null);
 
   const handleChangeNickname = (e: { target: { name: string; value: string } }) => {
     setNickname(e.target.value);
     setErrorNickname('');
   };
+
+  useEffect(() => {
+    nicknameRef.current?.focus();
+  }, []);
 
   return (
     <Modal handleHideModal={handleShowSetNickname}>

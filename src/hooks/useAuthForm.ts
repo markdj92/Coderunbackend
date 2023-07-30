@@ -54,6 +54,8 @@ export const useAuthForm = () => {
       setErrorMessage({ ...errorMessage, rePassword: '' });
       if (isValidPassword()) {
         setValidateState({ ...validateState, password: true });
+      } else {
+        setValidateState({ ...validateState, password: false });
       }
     }
     if (errorMessage[name]) setErrorMessage({ ...errorMessage, [name]: '' });

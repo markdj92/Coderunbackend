@@ -49,7 +49,7 @@ const CustomInputSmall: React.FC<InputAnimationProps> = ({
         isfocus={isFocus ? 'true' : 'false'}
         isvalid={errorMessage === '' ? 'true' : 'false'}
       >
-        <NameSection isvalid={errorMessage === '' ? 'true' : 'false'}>
+        <NameSection>
           <TitleBox
             isfocus={isFocus || inputValue ? 'true' : 'false'}
             isvalid={errorMessage === '' ? 'true' : 'false'}
@@ -58,6 +58,7 @@ const CustomInputSmall: React.FC<InputAnimationProps> = ({
           </TitleBox>
         </NameSection>
         <InputBox
+          isvalid={errorMessage === '' ? 'true' : 'false'}
           onFocus={onFocused}
           onBlur={onBlurred}
           type={type}
@@ -88,16 +89,20 @@ const Container = styled.div`
 
 const InputFrame = styled.div<{ isfocus: string; isvalid: string }>`
   position: relative;
-  transition: all 0.3s ease-in-out;
   border-radius: 8px;
+  transition: all 0.3s ease-in-out;
   background: ${(props) =>
     props.isvalid === 'true'
       ? props.isfocus === 'true'
-        ? 'linear-gradient(90deg, rgba(70, 64, 198, 0.50) 0%, rgba(70, 64, 198, 0.00) 100%), rgba(189, 0, 255, 0.20)'
-        : 'linear-gradient(90deg, rgba(70, 64, 198, 0.5) 0%, rgba(70, 64, 198, 0) 100%), rgba(70, 64, 198, 0.2)'
+        ? 'linear-gradient(270deg, rgba(189, 0, 255, 0.20) 0%, rgba(189, 0, 255, 0.00) 100%), #1F1E4D;'
+        : '#1F1E4D'
       : 'linear-gradient(0deg, rgba(255, 0, 0, 0.20) 0%, rgba(255, 0, 0, 0.20) 100%), #1F1E4D'};
 
   border: ${(props) => (props.isvalid === 'true' ? '1.4px solid #4541a4' : '1.4px solid #ff5c5c')};
+  animation: ${(props) => props.isvalid !== 'true' && 'vibration 0.1s 5'};
+  box-shadow:
+    0px -4px 4px 0px rgba(0, 0, 0, 0.25) inset,
+    0px 4px 4px 0px rgba(0, 0, 0, 0.25) inset;
 
   * {
     color: ${(props) => (props.isvalid === 'true' ? '#8883ff' : '#ff5c5c')};
@@ -106,20 +111,19 @@ const InputFrame = styled.div<{ isfocus: string; isvalid: string }>`
   input {
     color: ${(props) => (props.isvalid === 'true' ? '#fff' : '#ff5c5c')};
   }
-
   display: flex;
+  flex-direction: row;
   padding: 0 20px 0 18px;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: space-between;
   gap: 18px;
 `;
 
-const NameSection = styled.div<{ isvalid: string }>`
+const NameSection = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   margin: 16px 0;
-  padding-right: 18px;
-  border-right: 2px solid ${(props) => (props.isvalid === 'true' ? '#4541a4' : '#FF5C5C;')};
 `;
 const TitleBox = styled.div<{ isvalid: string; isfocus: string }>`
   color: ${(props) =>
@@ -132,7 +136,7 @@ const TitleBox = styled.div<{ isvalid: string; isfocus: string }>`
   line-height: 28px; /* 127.273% */
 `;
 
-const InputBox = styled.input`
+const InputBox = styled.input<{ isvalid: string }>`
   display: flex;
   flex: 1;
   font-family: 'Noto Sans KR', sans-serif;
@@ -144,6 +148,8 @@ const InputBox = styled.input`
   outline: none;
   height: 28px;
   margin: 16px 0 16px 0;
+  padding-left: 18px;
+  border-left: 2px solid ${(props) => (props.isvalid === 'true' ? '#302e75' : '#FF5C5C;')};
 `;
 
 const ResetButton = styled.div`

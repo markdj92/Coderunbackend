@@ -63,11 +63,6 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
         passwordRef.current?.focus();
       }
     } catch (error: any) {
-      if (!error)
-        setErrorMessage({
-          ...errorMessage,
-          email: '서버에 문제가 있습니다. 잠시 후 다시 시도해주세요.',
-        });
       if (error.response?.data.message)
         setErrorMessage({ ...errorMessage, email: error.response.data.message });
       else if (error.response?.status === 401)
