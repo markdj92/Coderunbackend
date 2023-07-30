@@ -1,15 +1,19 @@
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import ErrorPage from './Error';
 
 import { socket } from '@/apis/socketApi';
+import CreateRoom from '@/components/Lobby/CreateRoom';
 import Header from '@/components/Lobby/Header';
 import RoomList from '@/components/Lobby/RoomList';
+import { useInput } from '@/hooks/useInput';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomResponse } from '@/types/lobby';
 
 const Lobby = () => {
+  const [isShownCreateRoom, setShownCreateRoom] = useState(false);
   useSocketConnect();
 
   const navigate = useNavigate();
@@ -18,29 +22,48 @@ const Lobby = () => {
     return <ErrorPage />;
   }
   const { nickname } = location.state;
+  const { value: roomInfo, setValue: setRoomInfo } = useInput({
+    title: '',
+    password: '',
+    status: 'PUBLIC',
+    max_members: 0,
+    level: 1,
+    mode: 'STUDY',
+  });
 
-  const onCreateRoom = () => {
-    const roomName = prompt('방 이름을 입력해 주세요.');
-    if (!roomName) return alert('방 이름은 반드시 입력해야 합니다.');
+  const handleChange = (e: { target: { name: string; value: string } }) => {
+    if (e.target.name === 'password') {
+      const publicState = e.target.value === '' ? 'PUBLIC' : 'PRIVATE';
+      setRoomInfo({ ...roomInfo, [e.target.name]: e.target.value, ['status']: publicState });
+    } else {
+      setRoomInfo({ ...roomInfo, [e.target.name]: e.target.value });
+    }
+  };
+  const onCreateRoom = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-    const message = {
-      title: roomName,
-      max_members: 8,
-      status: 'PUBLIC',
-      level: 1,
-      mode: 'STUDY',
-    };
-
-    socket.emit('create-room', message, (response: RoomResponse) => {
+    socket.emit('create-room', roomInfo, (response: RoomResponse) => {
       if (!response.success) return alert(response.payload);
-      navigate(`/room/${roomName}`, {
+      navigate(`/room/${roomInfo.title}`, {
         state: { ...response.payload.roomInfo, nickname },
       });
     });
   };
 
+  const handleShowCreateRoom = () => {
+    setShownCreateRoom(!isShownCreateRoom);
+  };
+
   return (
     <MainContainer>
+      {isShownCreateRoom && (
+        <CreateRoom
+          roomInfo={roomInfo}
+          handleChange={handleChange}
+          onCreateRoom={onCreateRoom}
+          handleShowCreateRoom={handleShowCreateRoom}
+        />
+      )}
       <HeaderFrame>
         <Header />
       </HeaderFrame>
@@ -48,7 +71,7 @@ const Lobby = () => {
         <LeftBox></LeftBox>
         <ContentsBox>
           <TopContentsBox>
-            <button onClick={onCreateRoom}>방 만들기</button>
+            <button onClick={handleShowCreateRoom}>방 만들기</button>
             <button>빠른 시작</button>
           </TopContentsBox>
           <RoomList nickname={nickname} />
