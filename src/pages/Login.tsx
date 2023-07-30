@@ -5,7 +5,7 @@ import styled from 'styled-components';
 
 import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
 
-import { postLogin, setInitName } from '@/apis/authApi';
+import { postLogin } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
 import CustomButton from '@/components/public/CustomButton';
 import CustomInput from '@/components/public/CustomInput';
@@ -30,33 +30,23 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  const checkNickname = async (accessToken: string) => {
-    if (nickname?.trim()) {
-      setNickname(nickname.replace(/(\s*)/g, ''));
-      await setInitName(nickname, accessToken);
-      return nickname;
-    } else return null;
-  };
-
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const response = await postLogin(userAccount);
       const { access_token: accessToken, nickname: name } = response.data;
       if (accessToken) {
-        let usernickname = name;
-        if (!usernickname && !nickname) return setShownSetNickname(true);
-        else if (!usernickname && nickname) usernickname = await checkNickname(accessToken);
+        let nickname = name;
 
-        if (usernickname) {
+        if (!!nickname) {
           localStorage.setItem(USER_TOKEN_KEY, accessToken);
           socket.io.opts.extraHeaders = {
             Authorization: 'Bearer ' + accessToken,
           };
           socket.connect();
-          navigate(PATH_ROUTE.lobby, { state: { usernickname } });
+          navigate(PATH_ROUTE.lobby, { state: { nickname } });
         } else {
-          alert('닉네임이 있어야 입장이 가능합니다.');
+          setShownSetNickname(true);
         }
       }
     } catch (error: any) {
@@ -81,6 +71,7 @@ const Login = () => {
 
   const handleShowSetNickname = () => {
     setShownSetNickname(!isShownSetNickname);
+    alert('닉네임을 설정해주세요.');
   };
 
   useEffect(() => {
