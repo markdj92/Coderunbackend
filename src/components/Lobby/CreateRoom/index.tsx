@@ -70,10 +70,10 @@ const CreateRoom = ({ roomInfo, handleShowCreateRoom, handleChange, onCreateRoom
               <input
                 min={1}
                 max={10}
-                value={2}
                 type='range'
                 name='max_members'
                 onChange={handleChange}
+                value={roomInfo.max_members}
               />
               <label>{roomInfo.max_members}</label>
             </InputSet>
