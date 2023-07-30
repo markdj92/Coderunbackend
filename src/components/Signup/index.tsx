@@ -62,7 +62,7 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
         setIsDuplicate(true);
         passwordRef.current?.focus();
       }
-    } catch (error: unknown) {
+    } catch (error: any) {
       if (!error)
         setErrorMessage({
           ...errorMessage,
