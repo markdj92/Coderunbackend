@@ -75,6 +75,7 @@ export class RoomService {
         const totalCount = await this.roomModel.countDocuments({ready: true});
         const totalPage = Math.ceil(totalCount / pageSize);
         const rooms = await this.roomModel.find({ready: true})
+            .sort('-createdAt')
             .skip((page - 1) * pageSize)
             .limit(pageSize)
             .exec();
