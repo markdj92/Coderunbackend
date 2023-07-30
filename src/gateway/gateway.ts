@@ -77,7 +77,6 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     }
 
     @SubscribeMessage('create-room')
-    @ApiOperation({ summary: 'Create a new room' })
     async handleCreateRoom(
       @MessageBody() roomCreateDto: RoomCreateDto,
       @ConnectedSocket() socket: ExtendedSocket
