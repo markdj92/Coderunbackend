@@ -1,7 +1,7 @@
 import { indentUnit } from '@codemirror/language';
 import { basicSetup } from '@uiw/codemirror-extensions-basic-setup';
 import { langs } from '@uiw/codemirror-extensions-langs';
-import CodeMirror from '@uiw/react-codemirror';
+import CodeMirror, { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { useState, useEffect, useRef } from 'react';
 import { Socket } from 'socket.io-client';
 
@@ -38,9 +38,9 @@ function EditorMulti(props: EditorMultiProps) {
     mode: 'dark',
   });
 
-  const editorRef = useRef();
+  const editorRef = useRef<ReactCodeMirrorRef>();
 
-  function refCallack(editor) {
+  function refCallback(editor: ReactCodeMirrorRef) {
     if (!editorRef.current && editor?.editor && editor?.state && editor?.view) {
       editorRef.current = editor;
     }
@@ -101,7 +101,7 @@ function EditorMulti(props: EditorMultiProps) {
     return (
       <CodeMirror
         key={editorKey}
-        ref={refCallack}
+        ref={refCallback}
         className={`flex-1 overflow-scroll text-left ${props.className}`}
         height='100%'
         basicSetup={false}
