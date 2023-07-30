@@ -49,7 +49,7 @@ const CustomInput: React.FC<InputAnimationProps> = ({
 
   return (
     <Container>
-      <LoginFrame
+      <InputFrame
         isfocus={isFocus ? 'true' : 'false'}
         isvalid={errorMessage === '' ? 'true' : 'false'}
       >
@@ -82,7 +82,7 @@ const CustomInput: React.FC<InputAnimationProps> = ({
             <img src={ErrorIcon} alt='error' onClick={onReset} />
           </ResetButton>
         )}
-      </LoginFrame>
+      </InputFrame>
       {errorMessage && <ErrorMsg>{errorMessage}</ErrorMsg>}
     </Container>
   );
@@ -94,7 +94,7 @@ const Container = styled.div`
   gap: 12px;
 `;
 
-const LoginFrame = styled.div<{ isfocus: string; isvalid: string }>`
+const InputFrame = styled.div<{ isfocus: string; isvalid: string }>`
   position: relative;
   display: flex;
   flex-direction: row;
