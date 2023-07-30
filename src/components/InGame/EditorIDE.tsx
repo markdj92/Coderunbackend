@@ -7,7 +7,6 @@ import { useLocation } from 'react-router-dom';
 import { type Socket } from 'socket.io-client';
 
 import { peerExtension, getDocument } from '@/utils/collab';
-// import { getDocument } from '@/utils/collab';
 import { cursorExtension } from '@/utils/cursors';
 
 // type Mode = 'light' | 'dark';
@@ -62,7 +61,7 @@ const EditorIDE = ({ socket, className, handleEditorCode }: Props) => {
           indentUnit.of('\t'),
           basicSetup(),
           langs.python(),
-          peerExtension(socket, title, version),
+          peerExtension(socket, title, version, nickname),
           cursorExtension(nickname),
         ]}
         value={doc}
