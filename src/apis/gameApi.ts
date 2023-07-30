@@ -6,6 +6,7 @@ import { getUserToken } from '@/utils';
 import { ExecuteData } from '@/types/inGame';
 
 const axiosConfig = {
+  // baseURL: `http://localhost:3000${PATH_API.codingtest}`,
   baseURL: `http://52.69.242.42:3000${PATH_API.codingtest}`,
   timeout: 10000,
   headers: {

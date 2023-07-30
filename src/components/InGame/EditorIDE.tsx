@@ -7,7 +7,6 @@ import { useLocation } from 'react-router-dom';
 import { type Socket } from 'socket.io-client';
 
 import { peerExtension, getDocument } from '@/utils/collab';
-// import { getDocument } from '@/utils/collab';
 import { cursorExtension } from '@/utils/cursors';
 
 // type Mode = 'light' | 'dark';

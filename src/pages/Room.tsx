@@ -6,7 +6,7 @@ import { PiSpeakerSimpleHighFill, PiSpeakerSimpleSlashFill } from 'react-icons/p
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { socket } from '@/apis/socketApi';
+import { gameSocket, socket } from '@/apis/socketApi';
 import Badge from '@/components/Room/Badge';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomStatus, userInfo } from '@/types/room';
@@ -86,6 +86,7 @@ const Room = () => {
 
     socket.on('room-status-changed', roomHandler);
     socket.on('start', (response) => {
+      gameSocket.emit('codingtest-join', { title });
       navigate('/game', { state: { nickname: nickname, title: response.title } });
     });
     return () => {
