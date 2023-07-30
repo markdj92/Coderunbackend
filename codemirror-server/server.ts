@@ -2,24 +2,6 @@ import { Server, Socket } from 'socket.io';
 import {ChangeSet, Text} from "@codemirror/state"
 import {Update} from "@codemirror/collab"
 
-
-
-// async function bootstrap() {
-//   const app = await NestFactory.create(AppModule);
-//   await app.listen(3000);
-
-//   const server = http.createServer((req, res) => {
-//     res.statusCode = 200;
-//     res.setHeader('Content-Type', 'text/plain');
-//     res.end('Hello from separate Node.js server!\n');
-//   });
-
-//   server.listen(4000, () => {
-//     console.log(`Server running on http://localhost:4000/`);
-//   });
-// }
-// bootstrap();
-
 const express = require('express');
 const cors = require('cors');
 const http = require('http');
@@ -36,9 +18,8 @@ app.get('/', (req, res) => {
 });
 
 server.listen(3000, '127.0.0.1', () => {
-  console.log('Server running at http://127.0.0.1:4000/');
+  console.log('Server running at http://127.0.0.1:3000/');
 });
-
 
 interface document {
 	updates: Update[],
@@ -64,52 +45,46 @@ let io = new Server(server, {
 
 function getDocument(title: string): document {
 	if (documents.has(title)) return documents.get(title)!;
-
 	const documentContent: document = {
 		updates: [],
 		pending: [],
-		doc: Text.of([`\n\n\nHello World from ${title}\n\n\n`])
+		doc: Text.of([`Hello World! It's Codelearn!`])
 	};
-
 	documents.set(title, documentContent);
-
 	return documentContent;
 }
 
 // listening for connections from clients
 io.on('connection', (socket: Socket) => {
     
-    socket.on('codingtest-join', (title: string) => {
+    socket.on('codingtest-join', (nickname: string) => {
 	try {
-		socket.join(title);
+		socket.join(nickname);
 	} catch {
 		return false;
 	}
-		
-	console.log(`Socket ${socket.id} joined room ${title}`);
+	console.log(`Socket ${socket.id} joined room ${nickname}`);
 		return true;
     });
 
-	socket.on('pullUpdates', ({version, title}) => {
+	socket.on('pullUpdates', ({version, nickname}) => {
 		try {
-			const { updates, pending, doc } = getDocument(title);
-
+			const { updates, pending, doc } = getDocument(nickname);
 			if (version < updates.length) {
 				socket.emit("pullUpdateResponse", JSON.stringify(updates.slice(version)))
 			} else {
 				pending.push((updates) => { socket.emit('pullUpdateResponse', JSON.stringify(updates.slice(version))) });
-				documents.set(title, {updates, pending, doc})
+				documents.set(nickname, {updates, pending, doc})
 			}
 		} catch (error) {
 			console.error('pullUpdates', error);
 		}
 	})
 
-	socket.on('pushUpdates', ({ title, version, docUpdates }) => {
+	socket.on('pushUpdates', ({ nickname, version, docUpdates }) => {
 		try {
-			let { updates, pending, doc } = getDocument(title);
+			let { updates, pending, doc } = getDocument(nickname);
 			docUpdates = JSON.parse(docUpdates);
-			console.log(docUpdates);
 			if (version != updates.length) {
 				socket.emit('pushUpdateResponse', false);
 			} else {
@@ -118,33 +93,29 @@ io.on('connection', (socket: Socket) => {
 					// instance
 					let changes = ChangeSet.fromJSON(update.changes)
 					updates.push({ changes, clientID: update.clientID, effects: update.effects })
-					documents.set(title, {updates, pending, doc})
+					documents.set(nickname, {updates, pending, doc})
 					doc = changes.apply(doc)
-					documents.set(title, {updates, pending, doc})
+					documents.set(nickname, {updates, pending, doc})
 				}
 				socket.emit('pushUpdateResponse', true);
 
 				while (pending.length) pending.pop()!(updates)
-				documents.set(title, {updates, pending, doc})
+				documents.set(nickname, {updates, pending, doc})
 			}
 		} catch (error) {
 			console.error('pushUpdates', error)
 		}
 	})
 
-	socket.on('getDocument', ({ title }) => {
+	socket.on('getDocument', ({ nickname }) => {
 		try {
-            let { updates, doc } = getDocument(title);
+            let { updates, doc } = getDocument(nickname);
             
 			socket.emit('getDocumentResponse', updates.length, doc.toString());
 		} catch (error) {
 			console.error('getDocument', error);
 		}
 	})
-
-	// socket.on('edit', (params) => {
-	// 	socket.emit('display', params);
-	// })
 })
 
 const port = process.env.PORT || 8000;

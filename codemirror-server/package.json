@@ -2,10 +2,10 @@
   "name": "codemirror-server",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "dist/src/server.js",
   "scripts": {
-    "build": "tsc",
-    "start": "node ./server.js"
+  "build": "tsc",
+  "start": "node ./dist/src/server.js"
   },
   "author": "Minji Lee",
   "license": "ISC",
