@@ -53,6 +53,7 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
     }
   };
   const handleCheckEmail = async () => {
+    if (!userAccount.email) return;
     if (!validateState.email) {
       return setErrorMessage({ ...errorMessage, email: '이메일 형식이 올바르지 않습니다.' });
     }
@@ -63,11 +64,6 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
         passwordRef.current?.focus();
       }
     } catch (error: any) {
-      if (!error)
-        setErrorMessage({
-          ...errorMessage,
-          email: '서버에 문제가 있습니다. 잠시 후 다시 시도해주세요.',
-        });
       if (error.response?.data.message)
         setErrorMessage({ ...errorMessage, email: error.response.data.message });
       else if (error.response?.status === 401)

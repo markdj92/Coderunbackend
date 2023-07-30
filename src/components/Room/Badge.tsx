@@ -1,21 +1,30 @@
 import { FaCrown } from 'react-icons/fa';
 import styled from 'styled-components';
 
+import { socket } from '@/apis/socketApi';
 import { userInfo } from '@/types/room';
 
 const Badge = ({
   user,
   isOwner,
   isMine,
+  isRoomAuth,
+  badgeNumber,
+  title,
 }: {
   user: userInfo;
   isOwner: boolean;
   isMine: boolean;
-  index?: number;
+  badgeNumber: number;
+  isRoomAuth: boolean;
+  title: string;
 }) => {
   const handleClickCard = () => {};
 
-  const handleLockCard = () => {};
+  const handleLockCard = () => {
+    if (!isRoomAuth) return;
+    socket.emit('lockunlock', { title, index: badgeNumber });
+  };
 
   if (typeof user !== 'string' && user.nickname === null) user.nickname = 'nowonjoo';
   if (user === undefined || user === 'LOCK' || user === 'EMPTY')

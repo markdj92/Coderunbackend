@@ -28,5 +28,6 @@ export interface RoomInformation {
 export interface RoomStatus {
   title: string;
   member_count: number;
+  max_members: number;
   user_info: userInfo[];
 }

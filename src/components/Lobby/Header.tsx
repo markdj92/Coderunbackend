@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { PATH_ROUTE, USER_NICKNAME_KEY, USER_TOKEN_KEY } from '@/constants';
+import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
 
 import { postLogout } from '@/apis/authApi';
 
@@ -13,7 +13,6 @@ const Header = () => {
       try {
         postLogout();
         localStorage.removeItem(USER_TOKEN_KEY);
-        localStorage.removeItem(USER_NICKNAME_KEY);
         alert('로그아웃 되었습니다.');
         navigate(PATH_ROUTE.login);
       } catch (error) {

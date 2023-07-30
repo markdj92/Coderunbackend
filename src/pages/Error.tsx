@@ -1,6 +1,6 @@
 import { useNavigate, useRouteError, isRouteErrorResponse } from 'react-router-dom';
 
-import { USER_NICKNAME_KEY, USER_TOKEN_KEY } from '@/constants';
+import { USER_TOKEN_KEY } from '@/constants';
 
 const ErrorPage = () => {
   const navigate = useNavigate();
@@ -21,7 +21,6 @@ const ErrorPage = () => {
         <button
           onClick={() => {
             localStorage.removeItem(USER_TOKEN_KEY);
-            localStorage.removeItem(USER_NICKNAME_KEY);
             navigate('/login');
           }}
         >

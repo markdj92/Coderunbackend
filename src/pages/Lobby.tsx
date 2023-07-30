@@ -26,7 +26,7 @@ const Lobby = () => {
     title: '',
     password: '',
     status: 'PUBLIC',
-    max_members: 0,
+    max_members: 2,
     level: 1,
     mode: 'STUDY',
   });

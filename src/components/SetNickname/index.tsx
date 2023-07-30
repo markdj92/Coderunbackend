@@ -1,27 +1,38 @@
+import { useState, useEffect, useRef } from 'react';
 import { styled } from 'styled-components';
 
 import CustomButtonSmall from '../public/CustomButtonSmall';
 import CustomInputSmall from '../public/CustomInputSmall';
 import Modal from '../public/Modal';
+
 type nameProps = {
-  handleShowSetting: () => void;
-  handleChange: (e: { target: { value: string } }) => void;
-  nickname: string;
-  checkNickname: (e: React.FormEvent<HTMLFormElement>) => void;
+  handleSetNickname: (e: React.FormEvent<HTMLFormElement>, nickname: string) => void;
+  handleShowSetNickname: () => void;
+  errorNickname: string;
+  setErrorNickname: (errorNickname: string) => void;
 };
+
 const SetNickname = ({
-  nickname = '',
-  handleChange,
-  handleShowSetting,
-  checkNickname,
+  handleSetNickname,
+  handleShowSetNickname,
+  errorNickname,
+  setErrorNickname,
 }: nameProps) => {
-  const handleSetNickname = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    checkNickname(e);
+  const [nickname, setNickname] = useState<string>('');
+  const nicknameRef = useRef<HTMLInputElement>(null);
+
+  const handleChangeNickname = (e: { target: { name: string; value: string } }) => {
+    setNickname(e.target.value);
+    setErrorNickname('');
   };
+
+  useEffect(() => {
+    nicknameRef.current?.focus();
+  }, []);
+
   return (
-    <Modal handleHideModal={handleShowSetting}>
-      <SettingForm onSubmit={handleSetNickname}>
+    <Modal handleHideModal={handleShowSetNickname}>
+      <SettingForm onSubmit={(e) => handleSetNickname(e, nickname)}>
         <Title>
           <Logo />
           <TextContainer>
@@ -31,11 +42,12 @@ const SetNickname = ({
         </Title>
         <InputContainer>
           <CustomInputSmall
+            setRef={nicknameRef}
             title='Nickname'
             inputName='nickname'
-            handleChange={handleChange}
+            handleChange={handleChangeNickname}
             inputValue={nickname}
-            warningMessage=''
+            errorMessage={errorNickname}
           />
           <CustomButtonSmall title={'Join'} isDisabled={nickname === ''} />
         </InputContainer>

@@ -14,21 +14,15 @@ import { RoomStatus, userInfo } from '@/types/room';
 const Room = () => {
   useSocketConnect();
   const location = useLocation();
-  const { title, member_count, user_info, nickname } = location.state;
-
+  const { title, member_count, max_members, user_info, nickname } = location.state;
   const [ableStart, setAbleStart] = useState<boolean>(false);
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
-  const [roomName, setRoomName] = useState<string | undefined>(title);
+  const [roomName, setRoomName] = useState<string>(title);
   const [people, setPeople] = useState<number>(member_count);
   const [myIndex, setMyIndex] = useState<number>(0);
   const [ownerIndex, setOwnerIndex] = useState<number>(0);
-  const [maxPeople, setMaxPeople] = useState<number>(
-    user_info.reduce((count: number, user: userInfo) => {
-      if (user !== 'LOCK') return count + 1;
-      return count;
-    }, 0),
-  );
+  const [maxPeople, setMaxPeople] = useState<number>(max_members);
   const [userInfos, setUserInfos] = useState<userInfo[]>(user_info);
 
   const navigate = useNavigate();
@@ -43,15 +37,12 @@ const Room = () => {
 
   useEffect(() => {
     const roomHandler = (response: RoomStatus) => {
-      const { title, member_count, user_info } = response;
+      const { title, member_count, max_members, user_info } = response;
       setRoomName(title);
       setPeople(member_count);
-      let countLock = 0;
       let countReady = 0;
       user_info.forEach((user: userInfo, index: number) => {
-        if (user === 'LOCK') return;
-        if (user === 'EMPTY') return (countLock += 1);
-        countLock += 1;
+        if (user === 'LOCK' || user === 'EMPTY') return;
         if (user.nickname === nickname) {
           setMyIndex(index);
         }
@@ -62,18 +53,16 @@ const Room = () => {
           countReady += 1;
         }
       });
-      setAbleStart(countReady === member_count - 1);
-      setMaxPeople(countLock);
+      setAbleStart(member_count === countReady + 1);
+      setMaxPeople(max_members);
       setUserInfos(user_info);
     };
 
+    let countReady = 0;
     setRoomName(title);
     setPeople(member_count);
-    let countLock = 0;
     user_info.forEach((user: userInfo, index: number) => {
-      if (user === 'LOCK') return;
-      if (user === 'EMPTY') return (countLock += 1);
-      countLock += 1;
+      if (user === 'LOCK' || user === 'EMPTY') return;
       if (user.nickname === nickname) {
         setMyIndex(index);
       }
@@ -81,12 +70,13 @@ const Room = () => {
         setOwnerIndex(index);
       }
     });
-    setMaxPeople(countLock);
+    setAbleStart(member_count === countReady + 1);
+    setMaxPeople(max_members);
     setUserInfos(user_info);
 
     socket.on('room-status-changed', roomHandler);
     socket.on('start', (response) => {
-      gameSocket.emit('codingtest-join', { title });
+      gameSocket.emit('codingtest-join', { nickname });
       navigate('/game', { state: { nickname: nickname, title: response.title } });
     });
     return () => {
@@ -146,8 +136,10 @@ const Room = () => {
                   key={index}
                   isMine={index === myIndex}
                   isOwner={index === ownerIndex}
+                  isRoomAuth={myIndex === ownerIndex}
                   user={userInfos[index]}
-                  index={index}
+                  title={roomName}
+                  badgeNumber={index}
                 />
               );
             })}
