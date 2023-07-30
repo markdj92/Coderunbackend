@@ -1,5 +1,5 @@
 
-import { Body, Controller, Post, HttpCode, HttpStatus, Request , UseGuards, Put, Param} from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, Request , UseGuards, Put, Param, Get} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto, CheckDto, SetNicknameDto } from './dto/auth.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -47,5 +47,13 @@ export class AuthController {
   updateNickname(@Request() req, @Body('nickname') nickname: string) {
     const email = req.user.email;
     return this.authService.updateNicknameByEmail(email, nickname);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @ApiOperation({ summary: '닉네임가져오기'})
+  @Get('nickname')
+  getNickname(@Request() req) {
+    const email = req.user.email;
+    return this.authService.getNicknameByEmail(email);
   }
 }
