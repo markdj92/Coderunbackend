@@ -1,6 +1,9 @@
 import { useState, useRef } from 'react';
-import { AiOutlineCloseSquare, AiOutlineLock, AiOutlineUnlock } from 'react-icons/ai';
 import styled from 'styled-components';
+
+import ErrorIcon from '/icon/login/error.png';
+import LockIcon from '/icon/login/lock.png';
+import UnLockIcon from '/icon/login/unlock.png';
 
 interface InputAnimationProps {
   type?: string;
@@ -27,7 +30,7 @@ const CustomInput: React.FC<InputAnimationProps> = ({
   const [inputType, setInputType] = useState(type);
   const [isFocus, setIsFocus] = useState(false);
 
-  const onReset = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const onReset: React.MouseEventHandler<HTMLImageElement> = (e) => {
     e.preventDefault();
     inputValue = '';
     handleChange({ target: { name: inputName, value: inputValue } });
@@ -46,7 +49,7 @@ const CustomInput: React.FC<InputAnimationProps> = ({
 
   return (
     <Container>
-      <LoginFrame
+      <InputFrame
         isfocus={isFocus ? 'true' : 'false'}
         isvalid={errorMessage === '' ? 'true' : 'false'}
       >
@@ -68,21 +71,18 @@ const CustomInput: React.FC<InputAnimationProps> = ({
         {errorMessage === '' && isPassword.current && inputValue && (
           <ShowButton>
             {inputType === 'password' ? (
-              <AiOutlineLock size={32} onClick={handleShowPassword} />
+              <img src={LockIcon} alt='lock' onClick={handleShowPassword} />
             ) : (
-              <AiOutlineUnlock size={32} onClick={handleShowPassword} />
+              <img src={UnLockIcon} alt='unlock' onClick={handleShowPassword} />
             )}
           </ShowButton>
         )}
         {errorMessage && (
           <ResetButton>
-            <AiOutlineCloseSquare
-              size={32}
-              onClick={(e: React.MouseEvent<HTMLButtonElement>) => onReset(e)}
-            />
+            <img src={ErrorIcon} alt='error' onClick={onReset} />
           </ResetButton>
         )}
-      </LoginFrame>
+      </InputFrame>
       {errorMessage && <ErrorMsg>{errorMessage}</ErrorMsg>}
     </Container>
   );
@@ -94,7 +94,7 @@ const Container = styled.div`
   gap: 12px;
 `;
 
-const LoginFrame = styled.div<{ isfocus: string; isvalid: string }>`
+const InputFrame = styled.div<{ isfocus: string; isvalid: string }>`
   position: relative;
   display: flex;
   flex-direction: row;
@@ -135,6 +135,8 @@ const ShowButton = styled.div`
   position: absolute;
   right: 40px;
   top: 32px;
+  animation: fadein ease 0.2s;
+  -webkit-animation: fadein 0.2s;
   cursor: pointer;
   * {
     color: '#8883FF';
@@ -145,6 +147,8 @@ const ResetButton = styled.div`
   position: absolute;
   right: 40px;
   top: 32px;
+  animation: fadein ease 0.2s;
+  -webkit-animation: fadein 0.2s;
   cursor: pointer;
   * {
     color: '#ff5c5c';

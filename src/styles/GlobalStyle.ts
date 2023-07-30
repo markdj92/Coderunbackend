@@ -40,6 +40,33 @@ const GlobalStyle = createGlobalStyle`
       transform: rotate(-1deg);
     }
   }
+
+  @-webkit-keyframes vibration {
+    from {
+      transform: rotate(1deg);
+    }
+    to {
+      transform: rotate(-1deg);
+    }
+  }
+
+  @keyframes fadein {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+  }
+
+  @-webkit-keyframes fadein { /* Safari and Chrome */
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+  }
 `;
 
 export default GlobalStyle;

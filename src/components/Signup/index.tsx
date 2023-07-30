@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { validateUserInfo } from '@/utils';
@@ -7,7 +7,7 @@ import CustomButtonSmall from '../public/CustomButtonSmall';
 import CustomInputSmall from '../public/CustomInputSmall';
 import Modal from '../public/Modal';
 
-import { postSignUp } from '@/apis/authApi';
+import { postCheckEmail, postSignUp } from '@/apis/authApi';
 import { useAuthForm } from '@/hooks/useAuthForm';
 
 const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
@@ -18,10 +18,11 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
     userAccount,
     validateState,
     handleAccountChange,
-    // isDuplicate,
-    // setIsDuplicate,
+    isDuplicate,
+    setIsDuplicate,
+    errorMessage,
+    setErrorMessage,
   } = useAuthForm();
-  const [confirmPassword, setconfirmPassword] = useState('');
 
   const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
@@ -30,8 +31,17 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
   };
   window.addEventListener('keyup', (e: KeyboardEvent) => handleKeyPress(e));
 
+  const handleCheckRePassword = () => {
+    if (!validateUserInfo.checkPasswordDiff(userAccount.password, userAccount.rePassword)) {
+      setErrorMessage({ ...errorMessage, rePassword: '비밀번호가 일치하지 않습니다.' });
+      return false;
+    }
+    return true;
+  };
+
   const handleSignup = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!handleCheckRePassword()) return;
     try {
       const response = await postSignUp(userAccount);
       if (response) {
@@ -42,23 +52,46 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
       console.error(error);
     }
   };
-  // const handleCheckEmail = async () => {
-  //   if (!validateState.email) return;
-  //   try {
-  //     const response = await postCheckEmail({ email: userAccount.email });
-  //     if (response) {
-  //       alert('사용할 수 있는 이메일입니다.');
-  //       setIsDuplicate(true);
-  //       passwordRef.current?.focus();
-  //     }
-  //   } catch (error) {
-  //     alert('이미 존재하는 이메일입니다.');
-  //     emailRef.current?.focus();
-  //   }
-  // };
-  const handleChanged = (e: { target: { name: string; value: string } }) => {
-    setconfirmPassword(e.target.value);
+  const handleCheckEmail = async () => {
+    if (!validateState.email) {
+      return setErrorMessage({ ...errorMessage, email: '이메일 형식이 올바르지 않습니다.' });
+    }
+    try {
+      const response = await postCheckEmail({ email: userAccount.email });
+      if (response) {
+        setIsDuplicate(true);
+        passwordRef.current?.focus();
+      }
+    } catch (error: any) {
+      if (!error)
+        setErrorMessage({
+          ...errorMessage,
+          email: '서버에 문제가 있습니다. 잠시 후 다시 시도해주세요.',
+        });
+      if (error.response?.data.message)
+        setErrorMessage({ ...errorMessage, email: error.response.data.message });
+      else if (error.response?.status === 401)
+        setErrorMessage({ ...errorMessage, email: '이미 존재하는 이메일입니다.' });
+      else
+        setErrorMessage({
+          ...errorMessage,
+          email: '서버에 문제가 있습니다. 잠시 후 다시 시도해주세요.',
+        });
+    }
   };
+
+  const handleCheckPassword = () => {
+    if (userAccount.password && !validateState.password) {
+      setErrorMessage({
+        ...errorMessage,
+        password: '비밀번호는 8자 이상 20자 이하로 입력해주세요.',
+      });
+    }
+  };
+
+  useEffect(() => {
+    emailRef.current?.focus();
+  }, []);
 
   return (
     <Modal handleHideModal={handleShowSignup}>
@@ -76,59 +109,41 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
               <CustomInputSmall
                 setRef={emailRef}
                 title='ID'
-                inputName={'email'}
+                inputName='email'
+                isDuplicate={isDuplicate}
                 handleChange={handleAccountChange}
+                handleBlur={handleCheckEmail}
                 inputValue={userAccount.email}
-                isValid={validateState.email}
-                warningMessage={
-                  userAccount.email && !validateUserInfo.checkEmail(userAccount.email)
-                    ? '주소형식을 확인해주세요'
-                    : ''
-                }
+                errorMessage={errorMessage.email}
               />
-              {/* <EmailButton
-                isvalid={validateState.email ? 'true' : 'false'}
-                onClick={handleCheckEmail}
-                >
-                중복확인
-              </EmailButton> */}
             </EmailBox>
           </InputSet>
           <InputSet>
             <CustomInputSmall
               type='password'
-              title='PW'
-              inputName={'password'}
+              title='PASSWORD'
+              inputName='password'
               setRef={passwordRef}
               handleChange={handleAccountChange}
+              handleBlur={handleCheckPassword}
               inputValue={userAccount.password}
-              isValid={validateState.password}
-              warningMessage={
-                userAccount.password && !validateUserInfo.checkPassword(userAccount.password)
-                  ? '조건 : 8자 이상 , 영숫자 only'
-                  : ''
-              }
+              errorMessage={errorMessage.password}
             />
           </InputSet>
           <InputSet>
             <CustomInputSmall
               type='password'
-              title={'PW Confirm'}
-              inputName={'password'}
-              handleChange={handleChanged}
+              title='PW Confirm'
+              inputName='rePassword'
               setRef={rePasswordRef}
-              inputValue={confirmPassword}
-              warningMessage={
-                confirmPassword &&
-                !validateUserInfo.checkPasswordDiff(userAccount.password, confirmPassword)
-                  ? '비밀번호가 일치하지 않습니다'
-                  : ''
-              }
+              handleChange={handleAccountChange}
+              inputValue={userAccount.rePassword}
+              errorMessage={errorMessage.rePassword}
             />
           </InputSet>
           <CustomButtonSmall
             title={'Join'}
-            isDisabled={!validateState.password || !validateState.email || !confirmPassword}
+            isDisabled={!validateState.password || !validateState.email || !userAccount.rePassword}
           />
         </InputContainer>
       </SignupForm>
