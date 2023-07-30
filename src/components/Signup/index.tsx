@@ -53,6 +53,7 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
     }
   };
   const handleCheckEmail = async () => {
+    if (!userAccount.email) return;
     if (!validateState.email) {
       return setErrorMessage({ ...errorMessage, email: '이메일 형식이 올바르지 않습니다.' });
     }
