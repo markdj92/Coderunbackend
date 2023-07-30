@@ -184,6 +184,7 @@ export class RoomService {
 
         roomStatusChangeDto.title = room.title;
         roomStatusChangeDto.member_count = room.member_count;
+        roomStatusChangeDto.max_members = room.max_members;
         roomStatusChangeDto.user_info = userInfo;
 
         return roomStatusChangeDto;
@@ -274,5 +275,44 @@ export class RoomService {
             return false;
         }
         return true;
-    }   
-}
+    }
+    
+ 
+    
+    async unlockRoom(room_id: ObjectId, index: number): Promise<{roomAndUser: RoomAndUserDto, title: string, maxMembers:number} | null> {
+        
+        const roomAndUser = await this.roomAndUserModel.findOne({room_id: room_id}).exec();
+        
+        if (!roomAndUser || !roomAndUser.owner[0]) {
+            throw new BadRequestException('권한이 있는 유저인지 확인');
+        }
+    
+        if(index < 0 || index >= roomAndUser.user_info.length){
+            console.log('Index out of bounds');
+            return null;
+        }
+        
+        let increment = 0;  //증가하는 값을 설정해주고      
+        if(roomAndUser.user_info[index] === EmptyOrLock.LOCK){
+            roomAndUser.user_info[index] = EmptyOrLock.EMPTY;
+            increment = 1; //lock->unlock은 증가하는 값을 1로   
+        } else if (roomAndUser.user_info[index] === EmptyOrLock.EMPTY) {
+            roomAndUser.user_info[index] = EmptyOrLock.LOCK;
+            increment = -1; //unlock->lock은 증가하는 값을 -1
+        } else {
+            return null;
+        }
+    
+        await roomAndUser.save();
+    
+        const room = await this.roomModel.findOne({ _id: room_id }, 'title max_members').exec(); //확인해본 결과 이렇게 했을 경우에 title max_members로 mongodb에서 title과 max_members값만 추출할 수 있습니다.
+                
+        if (room) {
+            room.max_members += increment; //증가하는 값만큼을 더 해주는 방식으로 max_members를 조절함
+            await room.save();
+        }
+        const roomTitle = room ? room.title : '';
+        const maxMembers = room ? room.max_members : 0;
+        return { roomAndUser: roomAndUser, title: roomTitle, maxMembers: maxMembers };
+        }
+    }
