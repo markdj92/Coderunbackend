@@ -35,8 +35,8 @@ export class RoomService {
 
         // 방 만들땐, 방장의 id 와 나머지는 널 값으러 채워야함. 
         const roomAndUserDto = new RoomAndUserDto();
+        roomAndUserDto.title = room.title;
         roomAndUserDto.room_id = newRoom._id;
-
         const max_member_number = room.max_members;
 
         const infoArray = Array.from({length : 10}, (_,index) => {
