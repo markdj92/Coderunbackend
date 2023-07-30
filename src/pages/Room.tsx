@@ -86,7 +86,7 @@ const Room = () => {
 
     socket.on('room-status-changed', roomHandler);
     socket.on('start', (response) => {
-      gameSocket.emit('codingtest-join', { title });
+      gameSocket.emit('codingtest-join', { nickname });
       navigate('/game', { state: { nickname: nickname, title: response.title } });
     });
     return () => {

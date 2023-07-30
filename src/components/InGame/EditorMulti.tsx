@@ -48,7 +48,7 @@ function EditorMulti(props: EditorMultiProps) {
 
   useEffect(() => {
     async function fetchData() {
-      const { version, doc } = await getDocument(props.socket, state.title);
+      const { version, doc } = await getDocument(props.socket, state.nickname);
 
       setState((prevState) => ({
         ...prevState,
@@ -73,14 +73,14 @@ function EditorMulti(props: EditorMultiProps) {
       }));
     };
 
-    const displayHandler = async (title: string) => {
-      const { version, doc } = await getDocument(props.socket, title);
+    const displayHandler = async (nickname: string) => {
+      const { version, doc } = await getDocument(props.socket, nickname);
 
       setState((prevState) => ({
         ...prevState,
         version,
         doc: doc.toString(),
-        title,
+        nickname,
       }));
     };
 
@@ -93,7 +93,7 @@ function EditorMulti(props: EditorMultiProps) {
       props.socket.off('disconnect', disconnectHandler);
       props.socket.off('display', displayHandler);
     };
-  }, [props.socket, state.title]);
+  }, [props.socket, state.nickname]);
 
   editorKey++;
 
@@ -111,7 +111,7 @@ function EditorMulti(props: EditorMultiProps) {
           indentUnit.of('\t'),
           basicSetup(),
           langs.python(),
-          peerExtension(props.socket, state.title, state.version, state.nickname),
+          peerExtension(props.socket, state.nickname, state.version),
           cursorExtension(state.nickname),
         ]}
         value={state.doc}

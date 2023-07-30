@@ -13,7 +13,7 @@ import { cursor, addCursor } from './cursors';
 
 function pushUpdates(
   socket: Socket,
-  title: string,
+  nickname: string,
   version: number,
   fullUpdates: readonly Update[],
 ): Promise<boolean> {
@@ -25,7 +25,7 @@ function pushUpdates(
   }));
 
   return new Promise(function (resolve) {
-    socket.emit('pushUpdates', { title, version, docUpdates: JSON.stringify(updates) });
+    socket.emit('pushUpdates', { nickname, version, docUpdates: JSON.stringify(updates) });
 
     socket.once('pushUpdateResponse', function (status: boolean) {
       resolve(status);
@@ -33,9 +33,13 @@ function pushUpdates(
   });
 }
 
-function pullUpdates(socket: Socket, title: string, version: number): Promise<readonly Update[]> {
+function pullUpdates(
+  socket: Socket,
+  nickname: string,
+  version: number,
+): Promise<readonly Update[]> {
   return new Promise(function (resolve) {
-    socket.emit('pullUpdates', { title, version });
+    socket.emit('pullUpdates', { nickname, version });
 
     socket.once('pullUpdateResponse', function (updates: any) {
       resolve(JSON.parse(updates));
@@ -74,10 +78,10 @@ function pullUpdates(socket: Socket, title: string, version: number): Promise<re
 
 export function getDocument(
   socket: Socket,
-  title: string,
+  nickname: string,
 ): Promise<{ version: number; doc: Text }> {
   return new Promise(function (resolve) {
-    socket.emit('getDocument', { title });
+    socket.emit('getDocument', { nickname });
 
     socket.once('getDocumentResponse', function (version: number, doc: string) {
       resolve({
@@ -88,12 +92,7 @@ export function getDocument(
   });
 }
 
-export const peerExtension = (
-  socket: Socket,
-  title: string,
-  startVersion: number,
-  nickname: string,
-) => {
+export const peerExtension = (socket: Socket, startVersion: number, nickname: string) => {
   const plugin = ViewPlugin.fromClass(
     class {
       private pushing = false;
@@ -112,7 +111,7 @@ export const peerExtension = (
         if (this.pushing || !updates.length) return;
         this.pushing = true;
         const version = getSyncedVersion(this.view.state);
-        await pushUpdates(socket, title, version, updates);
+        await pushUpdates(socket, nickname, version, updates);
         this.pushing = false;
         // Regardless of whether the push failed or new updates came in
         // while it was running, try again if there's updates remaining
@@ -122,7 +121,7 @@ export const peerExtension = (
       async pull() {
         while (!this.done) {
           const version = getSyncedVersion(this.view.state);
-          const updates = await pullUpdates(socket, title, version);
+          const updates = await pullUpdates(socket, nickname, version);
           const newUpdates = receiveUpdates(this.view.state, updates);
           this.view.dispatch(newUpdates);
         }
