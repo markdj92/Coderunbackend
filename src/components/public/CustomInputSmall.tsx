@@ -1,14 +1,19 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 
+import ErrorIcon from '/icon/login/sm_error.png';
+
 interface InputAnimationProps {
   type?: string;
   title: string;
   setRef?: React.MutableRefObject<HTMLInputElement | null>;
   inputName: string;
   inputValue: string;
+  isDuplicate?: boolean;
+  handleBlur?: () => void;
   handleChange: (e: { target: { name: string; value: string } }) => void;
   warningMessage?: string;
+  errorMessage?: string;
   isValid?: boolean;
 }
 
@@ -17,24 +22,37 @@ const CustomInputSmall: React.FC<InputAnimationProps> = ({
   title = '',
   inputName = '',
   inputValue = '',
+  handleBlur,
   handleChange,
   setRef,
-  warningMessage = '',
+  errorMessage = '',
 }) => {
   const [isFocus, setIsFocus] = useState(false);
+
+  const onReset: React.MouseEventHandler<HTMLImageElement> = (e) => {
+    e.preventDefault();
+    inputValue = '';
+    handleChange({ target: { name: inputName, value: inputValue } });
+    if (setRef && setRef.current) setRef.current.value = '';
+  };
+
   const onFocused = () => {
     setIsFocus(true);
   };
   const onBlurred = () => {
+    if (handleBlur) handleBlur();
     setIsFocus(false);
   };
   return (
     <Container>
-      <InputFrame isvalid={warningMessage === '' ? 'true' : 'false'}>
-        <NameSection isvalid={warningMessage === '' ? 'true' : 'false'}>
+      <InputFrame
+        isfocus={isFocus ? 'true' : 'false'}
+        isvalid={errorMessage === '' ? 'true' : 'false'}
+      >
+        <NameSection isvalid={errorMessage === '' ? 'true' : 'false'}>
           <TitleBox
-            isfocus={isFocus ? 'true' : 'false'}
-            isvalid={warningMessage === '' ? 'true' : 'false'}
+            isfocus={isFocus || inputValue ? 'true' : 'false'}
+            isvalid={errorMessage === '' ? 'true' : 'false'}
           >
             {title}
           </TitleBox>
@@ -50,24 +68,13 @@ const CustomInputSmall: React.FC<InputAnimationProps> = ({
           autoComplete='off'
           required
         />
-        {warningMessage && (
-          <ErrorIcon>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              width='28'
-              height='28'
-              viewBox='0 0 28 28'
-              fill='none'
-            >
-              <path
-                d='M0 28V0H28V28H0ZM2.93944 25.312H25.0606V2.688H2.93944V25.312ZM17.9381 20.0107L13.8304 15.904L9.64738 20.048L7.98923 18.368L12.1346 14.2613L7.98923 10.1547L9.64738 8.47467L13.8304 12.5813L17.9381 8.512L19.6339 10.1547L15.4886 14.2613L19.6339 18.368L17.9381 20.0107Z'
-                fill='#FF5C5C'
-              />
-            </svg>
-          </ErrorIcon>
+        {errorMessage && (
+          <ResetButton>
+            <img src={ErrorIcon} alt='error' onClick={onReset} />
+          </ResetButton>
         )}
       </InputFrame>
-      {warningMessage && <ErrorMsg>{warningMessage}</ErrorMsg>}
+      {errorMessage && <ErrorMsg>{errorMessage}</ErrorMsg>}
     </Container>
   );
 };
@@ -79,25 +86,31 @@ const Container = styled.div`
   width: 514px;
 `;
 
-const InputFrame = styled.div<{ isvalid: string }>`
+const InputFrame = styled.div<{ isfocus: string; isvalid: string }>`
+  position: relative;
   transition: all 0.3s ease-in-out;
-
   border-radius: 8px;
   background: ${(props) =>
     props.isvalid === 'true'
-      ? '#1F1E4D'
+      ? props.isfocus === 'true'
+        ? 'linear-gradient(90deg, rgba(70, 64, 198, 0.50) 0%, rgba(70, 64, 198, 0.00) 100%), rgba(189, 0, 255, 0.20)'
+        : 'linear-gradient(90deg, rgba(70, 64, 198, 0.5) 0%, rgba(70, 64, 198, 0) 100%), rgba(70, 64, 198, 0.2)'
       : 'linear-gradient(0deg, rgba(255, 0, 0, 0.20) 0%, rgba(255, 0, 0, 0.20) 100%), #1F1E4D'};
 
-  border: 1.4px solid ${(props) => (props.isvalid === 'true' ? '#4541a4' : '#FF5C5C;')};
+  border: ${(props) => (props.isvalid === 'true' ? '1.4px solid #4541a4' : '1.4px solid #ff5c5c')};
+
+  * {
+    color: ${(props) => (props.isvalid === 'true' ? '#8883ff' : '#ff5c5c')};
+  }
+
+  input {
+    color: ${(props) => (props.isvalid === 'true' ? '#fff' : '#ff5c5c')};
+  }
 
   display: flex;
   padding: 0 20px 0 18px;
   align-items: flex-end;
   gap: 18px;
-
-  &:focus-within {
-    background: linear-gradient(270deg, rgba(189, 0, 255, 0.2) 0%, rgb(31, 30, 77) 40%);
-  }
 `;
 
 const NameSection = styled.div<{ isvalid: string }>`
@@ -132,12 +145,19 @@ const InputBox = styled.input`
   height: 28px;
   margin: 16px 0 16px 0;
 `;
-const ErrorIcon = styled.div`
-  width: 28px;
-  height: 28px;
-  flex-shrink: 0;
-  margin: 16px 0;
+
+const ResetButton = styled.div`
+  position: absolute;
+  right: 20px;
+  top: 16px;
+  animation: fadein ease 0.2s;
+  -webkit-animation: fadein 0.2s;
+  cursor: pointer;
+  * {
+    color: '#ff5c5c';
+  }
 `;
+
 const ErrorMsg = styled.div`
   color: #ff5c5c;
   font-family: 'Noto Sans KR', sans-serif;

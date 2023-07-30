@@ -8,12 +8,21 @@ export const useAuthForm = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const rePasswordRef = useRef<HTMLInputElement>(null);
-  const { value: userAccount, setValue: setUserAccount } = useInput({ email: '', password: '' });
+  const { value: userAccount, setValue: setUserAccount } = useInput({
+    email: '',
+    password: '',
+    rePassword: '',
+  });
   const { value: validateState, setValue: setValidateState } = useInput({
     email: false,
     password: false,
+    rePassword: false,
   });
-  const { value: errorMessage, setValue: setErrorMessage } = useInput({ email: '', password: '' });
+  const { value: errorMessage, setValue: setErrorMessage } = useInput({
+    email: '',
+    password: '',
+    rePassword: '',
+  });
   const [isDuplicate, setIsDuplicate] = useState(false);
 
   const isValidAccount = () => {
@@ -41,10 +50,11 @@ export const useAuthForm = () => {
       if (isValidEmail()) setValidateState({ ...validateState, email: true });
       else setValidateState({ ...validateState, email: false });
       setIsDuplicate(false);
-    }
-    if (name === 'password') {
-      if (isValidPassword()) setValidateState({ ...validateState, password: true });
-      else setValidateState({ ...validateState, password: false });
+    } else if (name === 'password' || name === 'rePassword') {
+      setErrorMessage({ ...errorMessage, rePassword: '' });
+      if (isValidPassword()) {
+        setValidateState({ ...validateState, password: true });
+      }
     }
     if (errorMessage[name]) setErrorMessage({ ...errorMessage, [name]: '' });
     setUserAccount({ ...userAccount, [name]: value });

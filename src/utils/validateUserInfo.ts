@@ -9,11 +9,11 @@ export class validateUserInfo {
   }
 
   static checkPassword(password: string): boolean {
-    const regPassword = /^[a-zA-Z\\d`~!@#$%^&*()-_=+]{8,24}$/;
+    const regPassword = /^[0-9a-zA-Z\\d`~!@#$%^&*()-_=+]{8,20}$/;
     return regPassword.test(password);
   }
 
-  static checkPasswordDiff(password: string, checkPassword: string) {
+  static checkPasswordDiff(password: string, checkPassword: string | undefined): boolean {
     return password === checkPassword;
   }
 }
