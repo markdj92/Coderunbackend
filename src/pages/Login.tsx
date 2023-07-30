@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
+import { getUserToken, validateUserInfo } from '@/utils';
 
-import { postLogin } from '@/apis/authApi';
+import { postLogin, setInitName } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
 import CustomButton from '@/components/public/CustomButton';
 import CustomInput from '@/components/public/CustomInput';
@@ -16,7 +17,6 @@ import { useAuthForm } from '@/hooks/useAuthForm';
 const Login = () => {
   const [isShownSignup, setShownSignup] = useState(false);
   const [isShownSetNickname, setShownSetNickname] = useState(false);
-  const [nickname, setNickname] = useState('');
 
   const {
     emailRef,
@@ -36,13 +36,13 @@ const Login = () => {
       const response = await postLogin(userAccount);
       const { access_token: accessToken, nickname: name } = response.data;
       if (accessToken) {
+        localStorage.setItem(USER_TOKEN_KEY, accessToken);
+        socket.io.opts.extraHeaders = {
+          Authorization: 'Bearer ' + accessToken,
+        };
         let nickname = name;
 
         if (!!nickname) {
-          localStorage.setItem(USER_TOKEN_KEY, accessToken);
-          socket.io.opts.extraHeaders = {
-            Authorization: 'Bearer ' + accessToken,
-          };
           socket.connect();
           navigate(PATH_ROUTE.lobby, { state: { nickname } });
         } else {
@@ -62,16 +62,42 @@ const Login = () => {
       console.error(error.response.data);
     }
   };
-  const handleChangeName = (e: { target: { value: string } }) => {
-    setNickname(e.target.value);
+
+  const [errorNickname, setErrorNickname] = useState<string>('');
+
+  const handleSetNickname = async (e: React.FormEvent<HTMLFormElement>, name: string) => {
+    e.preventDefault();
+    const nickname = name.trim();
+    if (nickname.includes(' ')) {
+      setErrorNickname('닉네임에 공백이 포함되어있습니다.');
+      return;
+    } else if (!validateUserInfo.checkNickname(nickname)) {
+      setErrorNickname('닉네임은 2~10자의 한글, 영문, 숫자로 이루어져야 합니다.');
+      return;
+    }
+
+    try {
+      const userToken = getUserToken();
+      if (!!userToken) {
+        const response = await setInitName(nickname, userToken);
+        if (response.data.success) {
+          socket.connect();
+          navigate(PATH_ROUTE.lobby, { state: { nickname } });
+        }
+      }
+      setErrorNickname('닉네임 설정에 실패했습니다. 다시 시도해주세요!');
+    } catch (error: any) {
+      console.error(error.response.data);
+      setErrorNickname('닉네임 설정에 실패했습니다. 다시 시도해주세요!');
+    }
   };
+
   const handleShowSignup = () => {
     setShownSignup(!isShownSignup);
   };
 
   const handleShowSetNickname = () => {
     setShownSetNickname(!isShownSetNickname);
-    alert('닉네임을 설정해주세요.');
   };
 
   useEffect(() => {
@@ -83,10 +109,10 @@ const Login = () => {
       {isShownSignup && <Signup handleShowSignup={handleShowSignup} />}
       {isShownSetNickname && (
         <SetNickname
-          checkNickname={handleLogin}
-          nickname={nickname}
-          handleChange={handleChangeName}
-          handleShowSetting={handleShowSetNickname}
+          handleSetNickname={handleSetNickname}
+          handleShowSetNickname={handleShowSetNickname}
+          errorNickname={errorNickname}
+          setErrorNickname={setErrorNickname}
         />
       )}
       <LoginContainer>

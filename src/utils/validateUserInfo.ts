@@ -16,4 +16,9 @@ export class validateUserInfo {
   static checkPasswordDiff(password: string, checkPassword: string | undefined): boolean {
     return password === checkPassword;
   }
+
+  static checkNickname(nickname: string): boolean {
+    const regNickname = /^[0-9a-zA-Z가-힣]{2,10}$/;
+    return regNickname.test(nickname);
+  }
 }
