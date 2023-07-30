@@ -30,7 +30,7 @@ const CustomInputSmall: React.FC<InputAnimationProps> = ({
   };
   return (
     <Container>
-      <SignupFrame isvalid={warningMessage === '' ? 'true' : 'false'}>
+      <InputFrame isvalid={warningMessage === '' ? 'true' : 'false'}>
         <NameSection isvalid={warningMessage === '' ? 'true' : 'false'}>
           <TitleBox
             isfocus={isFocus ? 'true' : 'false'}
@@ -66,7 +66,7 @@ const CustomInputSmall: React.FC<InputAnimationProps> = ({
             </svg>
           </ErrorIcon>
         )}
-      </SignupFrame>
+      </InputFrame>
       {warningMessage && <ErrorMsg>{warningMessage}</ErrorMsg>}
     </Container>
   );
@@ -79,7 +79,7 @@ const Container = styled.div`
   width: 514px;
 `;
 
-const SignupFrame = styled.div<{ isvalid: string }>`
+const InputFrame = styled.div<{ isvalid: string }>`
   transition: all 0.3s ease-in-out;
 
   border-radius: 8px;
