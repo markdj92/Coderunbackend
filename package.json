@@ -20,6 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@codemirror/collab": "^6.0.0",
+    "@codemirror/state": "^6.2.1",
     "@nestjs/axios": "^3.0.0",
     "@nestjs/common": "^10.0.5",
     "@nestjs/config": "^3.0.0",
