@@ -117,5 +117,10 @@ export class AuthService {
       await user.save();
       return { message: 'success'};
     }
+  
+  async getNicknameByEmail(email: string) {
+    const user = await this.authModel.findOne({ email: email });
+    return { nickname: user.nickname };
+  }
    
 }
