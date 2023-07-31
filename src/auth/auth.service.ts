@@ -113,6 +113,11 @@ export class AuthService {
       }
       
       const user = await this.authModel.findOne({ email: email });
+      
+      if (user.nickname !== null) {
+        throw new BadRequestException('이미 닉네임이 설정되어 있습니다.');
+      }
+
       user.nickname = nickname;
       await user.save();
       return { message: 'success'};
