@@ -181,18 +181,6 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     }
   }
 
-    @SubscribeMessage('reviewList')
-    async handleReviewShow(
-    @MessageBody('title') title: string,
-    @ConnectedSocket() socket: ExtendedSocket
-    ): Promise<{success : boolean, payload : {roomInfo : RoomStatusChangeDto | boolean}} >{
-        
-        const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
-        await this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
-
-       return {success : true, payload: { roomInfo : roomAndUserInfo}}  
-    }
-
     @SubscribeMessage('reviewUser')
     async handleReviewUser(
     @MessageBody('title') title : string,  @MessageBody('index') index : number,
