@@ -8,6 +8,7 @@ import { postExecuteResult, postQuizInfo } from '@/apis/gameApi';
 import { gameSocket } from '@/apis/socketApi';
 import EditorMulti from '@/components/InGame/EditorMulti';
 import GameBottom from '@/components/InGame/GameBottom';
+import GameLiveBoard from '@/components/InGame/GameLiveBoard';
 import GameNavbar from '@/components/InGame/GameNavbar';
 import QuizFrame from '@/components/InGame/QuizFrame';
 import QuizHeader from '@/components/InGame/QuizHeader';
@@ -18,9 +19,11 @@ const InGame = () => {
   const location = useLocation();
   const { title, nickname }: { title: string; nickname: string } = location.state;
 
+  const [viewer, setViewer] = useState<string>(nickname);
   const [quizNumber, setQuizNumber] = useState<number>(1);
   const [quizInfo, setQuizInfo] = useState<QuizInfo>(null);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
+  const [isSubmit, setIsSubmit] = useState<boolean>(false);
   const [runResult, setRunResult] = useState<ExecuteResult>({
     memory: '0',
     cpuTime: '0',
@@ -57,6 +60,20 @@ const InGame = () => {
     return await postQuizInfo(title);
   };
 
+  const handleSubmit = () => {
+    const result = window.confirm('코드 제출하시겠습니까?');
+    if (result) {
+      gameSocket.emit('joinUsers', { title });
+      setIsSubmit(true);
+    }
+    return;
+  };
+
+  const handleSetViewer = (viewer: string) => {
+    gameSocket.emit('edit', { nickname: viewer });
+    setViewer(nickname);
+  };
+
   useEffect(() => {
     getQuizInfo()
       .then((response) => {
@@ -72,11 +89,19 @@ const InGame = () => {
       });
   }, []);
 
+  useEffect(() => {
+    gameSocket.on('joinResponse', () => {});
+    return () => {
+      gameSocket.off('joinResponse');
+    };
+  }, [viewer]);
+
   if (quizInfo === null) return <></>;
   return (
     <Container>
       <GameNavbar />
       <MainFrame>
+        {isSubmit && <GameLiveBoard handleSetViewer={handleSetViewer} />}
         <GameFrame>
           <OptionSection>
             <button onClick={handleSpeaker}>
@@ -99,7 +124,7 @@ const InGame = () => {
                 </QuizLeft>
                 <QuizRight>
                   <EditorFrame>
-                    <EditorMulti socket={gameSocket} nickname={nickname} title={title} />
+                    <EditorMulti socket={gameSocket} viewer={viewer} nickname={nickname} />
                   </EditorFrame>
                   <RunFrame isSuccess={isSuccess} runResult={runResult} />
                 </QuizRight>
@@ -107,7 +132,7 @@ const InGame = () => {
             </QuizSection>
           </MainSection>
         </GameFrame>
-        <GameBottom handleRun={handleRun} />
+        {!isSubmit && <GameBottom handleRun={handleRun} handleSubmit={handleSubmit} />}
       </MainFrame>
     </Container>
   );
@@ -145,7 +170,7 @@ const MainFrame = styled.div`
 
 const GameFrame = styled.div`
   display: flex;
-  height: 93%;
+  height: 100%;
 `;
 
 const OptionSection = styled.div`

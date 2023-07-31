@@ -1,10 +1,16 @@
 import styled from 'styled-components';
 
-const GameBottom = ({ handleRun }: { handleRun: () => void }) => {
+const GameBottom = ({
+  handleRun,
+  handleSubmit,
+}: {
+  handleRun: () => void;
+  handleSubmit: () => void;
+}) => {
   return (
     <Container>
       <RunButton onClick={handleRun}>코드 실행</RunButton>
-      <SubmitButton>제출 후 채점하기</SubmitButton>
+      <SubmitButton onClick={handleSubmit}>제출 후 채점하기</SubmitButton>
     </Container>
   );
 };

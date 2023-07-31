@@ -13,14 +13,14 @@ type Mode = 'light' | 'dark';
 type EditorMultiProps = {
   socket: Socket;
   className?: string;
-  title: string;
+  viewer: string;
   nickname: string;
 };
 
 type EditorMultiState = {
   connected: boolean;
   version: number | null;
-  title: string;
+  viewer: string;
   nickname: string;
   doc: null | string;
   mode: Mode;
@@ -33,7 +33,7 @@ function EditorMulti(props: EditorMultiProps) {
     connected: false,
     version: null,
     doc: null,
-    title: props.title,
+    viewer: props.viewer,
     nickname: props.nickname,
     mode: 'dark',
   });
@@ -73,14 +73,13 @@ function EditorMulti(props: EditorMultiProps) {
       }));
     };
 
-    const displayHandler = async (nickname: string) => {
-      const { version, doc } = await getDocument(props.socket, nickname);
-
+    const displayHandler = async (viewer: string) => {
+      const { version, doc } = await getDocument(props.socket, viewer);
       setState((prevState) => ({
         ...prevState,
         version,
         doc: doc.toString(),
-        nickname,
+        viewer,
       }));
     };
 
@@ -93,7 +92,7 @@ function EditorMulti(props: EditorMultiProps) {
       props.socket.off('disconnect', disconnectHandler);
       props.socket.off('display', displayHandler);
     };
-  }, [props.socket, state.nickname]);
+  }, [props.socket, state.viewer]);
 
   editorKey++;
 
@@ -111,7 +110,7 @@ function EditorMulti(props: EditorMultiProps) {
           indentUnit.of('\t'),
           basicSetup(),
           langs.python(),
-          peerExtension(props.socket, state.version, state.nickname),
+          peerExtension(props.socket, state.version, state.viewer, state.nickname),
           cursorExtension(state.nickname),
         ]}
         value={state.doc}
