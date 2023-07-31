@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
 import { getUserToken } from '@/utils';
 
-import { getNicknameByToken } from '@/apis/authApi';
+import { getNicknameByToken, postLogout } from '@/apis/authApi';
 import { attempt, socket } from '@/apis/socketApi';
 
 const useSocketConnect = () => {
@@ -13,7 +13,13 @@ const useSocketConnect = () => {
   const fetchUserNickName = useCallback(async () => {
     try {
       const response = await getNicknameByToken();
-      navigate(PATH_ROUTE.lobby, { state: { nickname: response.data.nickname } });
+      if (response.data.nickname) {
+        navigate(PATH_ROUTE.lobby, { state: { nickname: response.data.nickname } });
+      } else {
+        postLogout();
+        localStorage.removeItem(USER_TOKEN_KEY);
+        navigate(PATH_ROUTE.login);
+      }
     } catch (error) {
       navigate(PATH_ROUTE.login);
     }
