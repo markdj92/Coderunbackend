@@ -83,6 +83,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
       @ConnectedSocket() socket: ExtendedSocket
     ) :Promise <{success : boolean, payload : {roomInfo : RoomStatusChangeDto | boolean}} > {
         const room = await this.roomService.createRoom(roomCreateDto, socket.decoded.email);
+        if (!room) {
+            this.logger.log(`Room creation failed for email: ${socket.decoded.email}`);
+            return { success: false, payload: { roomInfo: false } };
+        }
         await room.save(); 
         const user_id = await this.userService.userInfoFromEmail(socket.decoded.email);
         socket.user_id = user_id;
@@ -225,5 +229,42 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     @ConnectedSocket() socket: ExtendedSocket
     ){
         await this.nsp.to(title).emit('start', { "title" : title });
+    }
+
+    @SubscribeMessage('quick-join')
+        async handleQuickJoinRoom( 
+    @ConnectedSocket() socket: ExtendedSocket): 
+    Promise<{ success: boolean, payload: { roomInfo: RoomStatusChangeDto | boolean } }> {
+
+    const email = socket.decoded.email; //token을 통해서 클라이언트의 email정보를 가져옴
+    const roomInfo = await this.roomService.findRoomForQuickJoin(email); //email정보를 매개변수로 사용자를 위한 방을 찾는 다.    
+
+    if (!roomInfo) {
+        return { success: false, payload: { roomInfo: false } }; //방이 없다면 실패를 반환 
+    }
+
+    this.logger.log(`${socket.id} : 방에 입장 준비 중입니다!`);
+
+    socket.join(roomInfo.title);
+    this.logger.log(`${socket.id} : Room enter!`);
+
+    const user_id = await this.userService.userInfoFromEmail(email); //email정보를 가지고 user_id를 찾고 
+    const objectId = Object(roomInfo.room_id);  // string으로 저장된 정보를 Objectid로 변경해줌->emit으로 전달해 줄 때 ObjectId값으로 찾아서 전달해줘야 하기 때문에
+
+    const isUserInRoom = await this.roomService.isUserInRoom(objectId, user_id); // quick-join의 경우 postman으로 요청을 계속 보내게 되면 요청한 유저가 중복되어 방에 접속하는 현상을 확인함 하여 다른 방에 해당 유저가 있으면 quick-join이 불가능하도록 만듬 
+        if (isUserInRoom) {
+    this.logger.log(`${socket.id} : 사용자가 이미 방에 입장했습니다!`);
+    return { success: false, payload: { roomInfo: false } };
+    }
+
+    await this.roomService.changeRoomStatusForJoin(objectId, user_id); //사용자를 방에 추가함
+    this.logger.log(`${socket.id} : 방에 입장 완료하였습니다!`);
+    const roomAndUserInfo = await this.roomService.getRoomInfo(objectId);//방과 사용자의 정보를 얻는다.
+        socket.user_id = user_id;
+        socket.room_id = objectId;
+    this.nsp.to(roomInfo.title).emit('room-status-changed', roomAndUserInfo); //클라이언트에는 join-room과 동일한 정보를 전달함
+
+    this.nsp.emit('enter-room', "enter-room!");
+    return { success: true, payload: { roomInfo: roomAndUserInfo } }; //성공과 방을 정보를 반환 
     }
 }

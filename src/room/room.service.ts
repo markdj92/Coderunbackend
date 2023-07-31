@@ -88,8 +88,9 @@ export class RoomService {
         };
     }
     
-    async getRoomIdFromTitle(title : string) : Promise<ObjectId> {
+    async getRoomIdFromTitle(title : string) : Promise<ObjectId | null> {
         const room = await this.roomModel.findOne({title: title}).exec();
+        
         return room._id;
     }
 
@@ -321,6 +322,36 @@ export class RoomService {
         const roomList = await this.roomModel.findOne({ title: title }).exec();
         return this.getRoomInfo(roomList._id);
     }
+
+    async findRoomForQuickJoin(email: string): Promise<{title: string, room_id: string} | null> {
+        const user_id = await this.userService.userInfoFromEmail(email);
+        const roomAndUser = await this.roomAndUserModel.findOne({
+            user_info: "EMPTY"
+        }).exec();
+        
+        if (roomAndUser && roomAndUser.title) {
+            return {
+                title: roomAndUser.title,
+                room_id: roomAndUser.room_id.toString()
+            };
+        } else {
+            return null;
+        }
+    }
+
+    async isUserInRoom(room_id : ObjectId, user_id : ObjectId) : Promise<boolean> {
+    const roomAndUser = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
+    if (roomAndUser) {
+        return roomAndUser.user_info.includes(user_id.toString());
+    }
+    return false;
+    
+    }
+    async getRoomById(room_id: string): Promise<Room> {
+        const room = await this.roomModel.findById(room_id).exec();
+ 
+        return room;
+    }  
         
         
 }
