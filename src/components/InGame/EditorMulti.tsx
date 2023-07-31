@@ -111,7 +111,7 @@ function EditorMulti(props: EditorMultiProps) {
           indentUnit.of('\t'),
           basicSetup(),
           langs.python(),
-          peerExtension(props.socket, state.nickname, state.version),
+          peerExtension(props.socket, state.version, state.nickname),
           cursorExtension(state.nickname),
         ]}
         value={state.doc}
