@@ -7,6 +7,7 @@ export type userInfo =
       owner: boolean;
       solved: boolean;
       status: boolean;
+      review: boolean;
     }
   | 'EMPTY'
   | 'LOCK';
