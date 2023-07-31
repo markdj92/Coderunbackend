@@ -170,7 +170,6 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         const userStatus = await this.roomService.setUserStatusToReady(room_id, user_id);
         const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
 
-        
         if (roomAndUserInfo instanceof RoomStatusChangeDto) {
             roomAndUserInfo.user_info
             userStatus.status;
@@ -231,13 +230,15 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         await this.nsp.to(title).emit('start', { "title" : title });
     }
 
+
+
     @SubscribeMessage('quick-join')
         async handleQuickJoinRoom( 
     @ConnectedSocket() socket: ExtendedSocket): 
     Promise<{ success: boolean, payload: { roomInfo: RoomStatusChangeDto | boolean } }> {
 
     const email = socket.decoded.email; //token을 통해서 클라이언트의 email정보를 가져옴
-    const roomInfo = await this.roomService.findRoomForQuickJoin(email); //email정보를 매개변수로 사용자를 위한 방을 찾는 다.    
+    const roomInfo = await this.roomService.findRoomForQuickJoin(email); //email정보를 매개변수로 사용자를 위한 방을 찾음    
 
     if (!roomInfo) {
         return { success: false, payload: { roomInfo: false } }; //방이 없다면 실패를 반환 

@@ -325,6 +325,7 @@ export class RoomService {
 
     async findRoomForQuickJoin(email: string): Promise<{title: string, room_id: string} | null> {
         const user_id = await this.userService.userInfoFromEmail(email);
+        //이메일을 통해 유저 정보를 얻음
         const roomAndUser = await this.roomAndUserModel.findOne({
             user_info: "EMPTY"
         }).exec();
