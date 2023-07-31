@@ -13,7 +13,7 @@ const useSocketConnect = () => {
   const fetchUserNickName = useCallback(async () => {
     try {
       const response = await getNicknameByToken();
-      if (response.data.nickname !== null) {
+      if (response.data.nickname) {
         navigate(PATH_ROUTE.lobby, { state: { nickname: response.data.nickname } });
       } else {
         postLogout();
