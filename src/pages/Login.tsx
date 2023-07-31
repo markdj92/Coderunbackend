@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
-import { getUserToken, validateUserInfo } from '@/utils';
+import { validateUserInfo } from '@/utils';
 
 import { postLogin, setInitName } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
@@ -77,18 +77,13 @@ const Login = () => {
     }
 
     try {
-      const userToken = getUserToken();
-      if (!!userToken) {
-        const response = await setInitName(nickname, userToken);
-        if (response.data.success) {
-          socket.connect();
-          navigate(PATH_ROUTE.lobby, { state: { nickname } });
-        }
-      }
-      setErrorNickname('닉네임 설정에 실패했습니다. 다시 시도해주세요!');
+      await setInitName(nickname);
+      socket.connect();
+      navigate(PATH_ROUTE.lobby, { state: { nickname } });
     } catch (error: any) {
       console.error(error.response.data);
-      setErrorNickname('닉네임 설정에 실패했습니다. 다시 시도해주세요!');
+      if (error.response.data.message) setErrorNickname(error.response.data.message);
+      else setErrorNickname('닉네임 설정에 실패했습니다. 다시 시도해주세요!');
     }
   };
 
@@ -97,6 +92,7 @@ const Login = () => {
   };
 
   const handleShowSetNickname = () => {
+    localStorage.removeItem(USER_TOKEN_KEY);
     setShownSetNickname(!isShownSetNickname);
   };
 

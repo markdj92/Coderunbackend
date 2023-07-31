@@ -37,7 +37,7 @@ export const getNicknameByToken = () => {
   });
 };
 
-export const setInitName = (nickname: string, accessToken: string) => {
+export const setInitName = (nickname: string) => {
   return loginInstance.put(
     PATH_API.nickname,
     {
@@ -45,7 +45,7 @@ export const setInitName = (nickname: string, accessToken: string) => {
     },
     {
       headers: {
-        [USER_TOKEN_KEY]: 'Bearer ' + accessToken,
+        [USER_TOKEN_KEY]: getUserToken(),
       },
     },
   );
