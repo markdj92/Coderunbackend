@@ -315,5 +315,12 @@ export class RoomService {
         const roomTitle = room ? room.title : '';
         const maxMembers = room ? room.max_members : 0;
         return { roomAndUser: roomAndUser, title: roomTitle, maxMembers: maxMembers };
-        }
     }
+    
+    async getResultList(title: string): Promise<RoomStatusChangeDto | boolean>  {
+        const roomList = await this.roomModel.findOne({ title: title }).exec();
+        return this.getRoomInfo(roomList._id);
+    }
+        
+        
+}

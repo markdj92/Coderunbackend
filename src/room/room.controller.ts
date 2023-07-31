@@ -25,5 +25,12 @@ export class RoomController {
     getRoomList(@Req() req, @Query('page') page: number) {
         return this.roomService.getRoomList(page);
     }
+    
+    @UseGuards(AuthGuard('jwt'))
+    @Post('/resultList')
+    getResultList(@Req() req, @Body('title') title: string) {
+        return this.roomService.getResultList(title);
+    }
+
 
 }
