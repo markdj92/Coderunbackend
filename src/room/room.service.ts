@@ -73,8 +73,15 @@ export class RoomService {
     async getRoomList(page: number): Promise<Page<Room[]>> {
         const pageSize = 8;
         const totalCount = await this.roomModel.countDocuments({ready: true});
-        const totalPage = Math.ceil(totalCount / pageSize);
-        const rooms = await this.roomModel.find({ready: true})
+        let totalPage = Math.ceil(totalCount / pageSize);
+        totalPage = totalPage > 0 ? totalPage : 1;
+
+        if (page > totalPage) {
+            page = totalPage;
+        }
+
+        const rooms = await this.roomModel
+            .find({ready: true})
             .sort('-createdAt')
             .skip((page - 1) * pageSize)
             .limit(pageSize)
