@@ -83,6 +83,8 @@ const Lobby = () => {
 };
 
 const MainContainer = styled.div`
+  background: url('./background_lobby.png');
+  background-size: cover;
   font-family: 'Noto Sans KR', sans-serif;
   display: flex;
   flex-direction: column;
@@ -102,7 +104,7 @@ const HeaderFrame = styled.div`
   border-radius: 20px;
   border: 1px solid #fff;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.2);
+  /* background: rgba(255, 255, 255, 0.2); */
   box-shadow: 0 0 32px 0 rgba(31, 38, 135, 1);
   backdrop-filter: blur(8.5px);
   -webkit-backdrop-filter: blur(8.5px);
@@ -118,7 +120,7 @@ const MainFrame = styled.div`
   border: 1px solid #fff;
   border-top: 0px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.2);
+  /* background: rgba(255, 255, 255, 0.2); */
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 1);
   backdrop-filter: blur(8.5px);
   -webkit-backdrop-filter: blur(8.5px);
