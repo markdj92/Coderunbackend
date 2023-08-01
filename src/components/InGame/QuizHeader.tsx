@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-
-const QuizHeader = ({ title, timer }: { title: string; timer: { mm: number; ss: number } }) => {
+const QuizHeader = ({
+  roomName,
+  title,
+  timer,
+}: {
+  roomName: string;
+  title: string;
+  timer: { mm: number; ss: number };
+}) => {
   const [minutes, setMinutes] = useState<number>(timer.mm);
   const [seconds, setSeconds] = useState<number>(timer.ss);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const countdown = setInterval(() => {
       if (seconds > 0) {
@@ -13,6 +21,7 @@ const QuizHeader = ({ title, timer }: { title: string; timer: { mm: number; ss: 
       if (seconds === 0) {
         if (minutes === 0) {
           clearInterval(countdown);
+          navigate('/result', { state: { title: roomName } });
         } else {
           setMinutes(minutes - 1);
           setSeconds(59);
