@@ -48,7 +48,7 @@ function EditorMulti(props: EditorMultiProps) {
 
   useEffect(() => {
     async function fetchData() {
-      const { version, doc } = await getDocument(props.socket, state.nickname);
+      const { version, doc } = await getDocument(props.socket, state.viewer);
 
       setState((prevState) => ({
         ...prevState,
