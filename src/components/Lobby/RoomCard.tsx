@@ -13,12 +13,18 @@ const RoomCard = ({ nickname, roomInfo }: { nickname: string; roomInfo: RoomInfo
   const navigate = useNavigate();
 
   const onClickRoom = useCallback(
-    (roomName: string) => {
+    (roomName: string, mode: string) => {
       socket.emit('join-room', { title: roomName }, (response: RoomResponse) => {
         if (!response.payload?.roomInfo) return alert('방 입장 실패!');
-        navigate(`/room/${roomName}`, {
-          state: { ...response.payload.roomInfo, nickname },
-        });
+        if (mode === 'STUDY') {
+          navigate(`/room/${roomName}`, {
+            state: { ...response.payload.roomInfo, nickname },
+          });
+        } else {
+          navigate(`/cooproom/${roomName}`, {
+            state: { ...response.payload.roomInfo, nickname },
+          });
+        }
       });
     },
     [navigate],
@@ -36,7 +42,7 @@ const RoomCard = ({ nickname, roomInfo }: { nickname: string; roomInfo: RoomInfo
   return (
     <Container>
       <CardFrame
-        onClick={() => onClickRoom(roomInfo.title)}
+        onClick={() => onClickRoom(roomInfo.title, roomInfo.mode)}
         ready={roomInfo.ready ? 'true' : 'false'}
       >
         <CardTop>
