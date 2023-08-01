@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { postExecuteResult, postQuizInfo } from '@/apis/gameApi';
+import { getNickname } from '@/apis/roomApi';
 import { gameSocket } from '@/apis/socketApi';
 import EditorMulti from '@/components/InGame/EditorMulti';
 import GameBottom from '@/components/InGame/GameBottom';
@@ -19,6 +20,7 @@ const InGame = () => {
   const location = useLocation();
   const { title, nickname }: { title: string; nickname: string } = location.state;
 
+  const [userInGame, setUserInGame] = useState<string[]>([]);
   const [viewer, setViewer] = useState<string>(nickname);
   const [quizNumber, setQuizNumber] = useState<number>(1);
   const [quizInfo, setQuizInfo] = useState<QuizInfo>(null);
@@ -60,10 +62,16 @@ const InGame = () => {
     return await postQuizInfo(title);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const result = window.confirm('코드 제출하시겠습니까?');
     if (result) {
-      gameSocket.emit('joinUsers', { title });
+      try {
+        const response = await getNickname({ title });
+        const { data } = response;
+        setUserInGame(data);
+      } catch (e) {
+        console.error(e);
+      }
       setIsSubmit(true);
     }
     return;
@@ -89,19 +97,12 @@ const InGame = () => {
       });
   }, []);
 
-  useEffect(() => {
-    gameSocket.on('joinResponse', () => {});
-    return () => {
-      gameSocket.off('joinResponse');
-    };
-  }, [viewer]);
-
   if (quizInfo === null) return <></>;
   return (
     <Container>
       <GameNavbar />
       <MainFrame>
-        {isSubmit && <GameLiveBoard handleSetViewer={handleSetViewer} />}
+        {isSubmit && <GameLiveBoard userInGame={userInGame} handleSetViewer={handleSetViewer} />}
         <GameFrame>
           <OptionSection>
             <button onClick={handleSpeaker}>
