@@ -71,7 +71,7 @@ export class RoomService {
     }
 
     async getRoomList(page: number): Promise<Page<Room[]>> {
-        const pageSize = 8;
+        const pageSize = 6;
         const totalCount = await this.roomModel.countDocuments({ready: true});
         let totalPage = Math.ceil(totalCount / pageSize);
         totalPage = totalPage > 0 ? totalPage : 1;
