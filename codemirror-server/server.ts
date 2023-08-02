@@ -20,7 +20,6 @@ function getRoom(nickname: string) {
     };
     rooms.set(nickname, room);
   }
-  console.log('room', room.ydoc);
   return room;
 }
 
