@@ -77,6 +77,37 @@ export class CodingTestService {
     await activeRoom.save();
   }
 
+
+  async saveSubmitInfo(email: string, title : string) {
+    const userInfo = await this.authModel.findOne({ email: email }).exec();
+    const roomInfo = await this.roomModel.findOne({ title: title }).exec();
+    const activeRoom = await this.roomAndUserModel.findOne({ room_id: roomInfo._id });
+    const user_index = activeRoom.user_info.indexOf(userInfo._id.toString());
+
+    activeRoom.submit[user_index] = true;
+    await activeRoom.save();
+  }
+
+  async checkFinish(title: string) : Promise<boolean>{
+    const roomStatusInfo = await this.roomAndUserModel.findOne({ title: title }).exec();
+    const roomInfo = await this.roomModel.findOne({ title: title }).exec();
+    let count = 0; 
+    await roomStatusInfo.submit.forEach((element) => {
+      if (element == true) {
+        count++;
+      }
+    });
+    
+    if (count == roomInfo.member_count) {
+      return await true;
+    }
+    else {    
+      return await false;
+    }
+  }
+
+
+      
   // for testing about saving data with json struct
   async insertProblemToDB() {
    

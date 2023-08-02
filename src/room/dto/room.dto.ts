@@ -84,7 +84,11 @@ export class RoomAndUserDto {
 
     @IsNotEmpty()
     @ApiProperty()
-    solved : boolean[];
+    solved: boolean[];
+    
+    @IsNotEmpty()
+    @ApiProperty()
+    submit : boolean[];
 
     @IsNotEmpty()
     @ApiProperty()
@@ -110,7 +114,11 @@ export class UserInfoDto {
 
     @IsNotEmpty()
     @ApiProperty()
-    solved : boolean;
+    solved: boolean;
+    
+    @IsNotEmpty()
+    @ApiProperty()
+    submit : boolean;
 
     @IsNotEmpty()
     @ApiProperty()
