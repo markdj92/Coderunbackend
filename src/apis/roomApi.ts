@@ -35,7 +35,7 @@ roomInstance.interceptors.request.use(
   },
 );
 
-export const postResult = ({ title }: { title: string }) => {
+export const postResult = ({ title }: { title: string }): any => {
   return roomInstance.post(PATH_API.resultList, title, {
     headers: { [USER_TOKEN_KEY]: getUserToken() },
   });
