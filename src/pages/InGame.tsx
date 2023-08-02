@@ -1,13 +1,14 @@
+import { WebsocketProvider } from 'node_modules/y-websocket/dist/src/y-websocket';
 import { useEffect, useState } from 'react';
 import { BsFillMicFill, BsFillMicMuteFill } from 'react-icons/bs';
 import { PiSpeakerSimpleHighFill, PiSpeakerSimpleSlashFill } from 'react-icons/pi';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import * as Y from 'yjs';
 
 import { postExecuteResult, postQuizInfo } from '@/apis/gameApi';
 import { getNickname } from '@/apis/roomApi';
-import { gameSocket } from '@/apis/socketApi';
-import EditorMulti from '@/components/InGame/EditorMulti';
+import EditorCodeMirror from '@/components/InGame/EditorCodeMirror';
 import GameBottom from '@/components/InGame/GameBottom';
 import GameLiveBoard from '@/components/InGame/GameLiveBoard';
 import GameNavbar from '@/components/InGame/GameNavbar';
@@ -19,9 +20,10 @@ import { ExecuteResult, QuizInfo } from '@/types/inGame';
 const InGame = () => {
   const location = useLocation();
   const { title, nickname }: { title: string; nickname: string } = location.state;
-
+  const [ydoc, setYdoc] = useState<Y.Doc | null>(new Y.Doc());
+  const [provider, setProvider] = useState<WebsocketProvider | undefined>(undefined);
   const [userInGame, setUserInGame] = useState<string[]>([]);
-  const [viewer, setViewer] = useState<string>(nickname);
+  const [viewer, setViewer] = useState<string>(`ROOMNAME${title}${nickname}`);
   const [quizNumber, setQuizNumber] = useState<number>(1);
   const [quizInfo, setQuizInfo] = useState<QuizInfo>(null);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
@@ -33,6 +35,11 @@ const InGame = () => {
   });
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
+
+  const handleProvider = (provider: WebsocketProvider) => {
+    setYdoc(new Y.Doc());
+    setProvider(provider);
+  };
 
   const handleSpeaker = () => {
     setIsSpeaker(!isSpeaker);
@@ -78,8 +85,7 @@ const InGame = () => {
   };
 
   const handleSetViewer = (viewer: string) => {
-    gameSocket.emit('edit', { nickname: viewer });
-    setViewer(nickname);
+    setViewer(`ROOMNAME${title}${viewer}`);
   };
 
   useEffect(() => {
@@ -125,7 +131,17 @@ const InGame = () => {
                 </QuizLeft>
                 <QuizRight>
                   <EditorFrame>
-                    <EditorMulti socket={gameSocket} viewer={viewer} nickname={nickname} />
+                    <EditorCodeMirror
+                      ydoc={ydoc}
+                      provider={provider}
+                      handleProvider={handleProvider}
+                      title={title}
+                      viewer={viewer}
+                      setViewer={setViewer}
+                      nickname={nickname}
+                      isSubmit={isSubmit}
+                    />
+                    {/* <EditorMulti socket={gameSocket} viewer={viewer} nickname={nickname} /> */}
                   </EditorFrame>
                   <RunFrame isSuccess={isSuccess} runResult={runResult} />
                 </QuizRight>
