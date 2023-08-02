@@ -41,9 +41,7 @@ wss.on('connection', (ws: any, request: any) => {
   });
   
   // y-websocket의 setupWSConnection을 사용하여 yjs와 연결 설정
-  setupWSConnection(ws, {
-    ydoc: room.ydoc
-  });
+ setupWSConnection(request, ws, { docName });
 });
 
 server.on('upgrade', (request: any, socket: any, head: any) => {
