@@ -30,14 +30,14 @@ const server = http.createServer((request: any, response: any) => {
 });
 
 // wss.on('connection', setupWSConnection);
-wss.on('connection', (ws: any, req: any) => {
-	const docName = req.url.slice(1); // URL에서 문서 이름 추출
-	const room = getRoom(docName);
-	
-	room.clients.add(ws);
-	
-	ws.on('close', () => {
-		room.clients.delete(ws);
+wss.on('connection', (ws: any, request: any) => {
+  const docName = request.url.slice(1); // URL에서 문서 이름 추출
+  const room = getRoom(docName);
+  
+  room.clients.add(ws);
+  
+  ws.on('close', () => {
+    room.clients.delete(ws);
   });
   
   // y-websocket의 setupWSConnection을 사용하여 yjs와 연결 설정
@@ -45,7 +45,6 @@ wss.on('connection', (ws: any, req: any) => {
     ydoc: room.ydoc
   });
 });
-
 
 server.on('upgrade', (request: any, socket: any, head: any) => {
   // You may check auth of request here..
