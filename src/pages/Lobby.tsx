@@ -44,9 +44,15 @@ const Lobby = () => {
 
     socket.emit('create-room', roomInfo, (response: RoomResponse) => {
       if (!response.success) return alert(response.payload);
-      navigate(`/room/${roomInfo.title}`, {
-        state: { ...response.payload.roomInfo, nickname },
-      });
+      if (roomInfo.mode === 'STUDY') {
+        navigate(`/room/${roomInfo.title}`, {
+          state: { ...response.payload.roomInfo, nickname },
+        });
+      } else {
+        navigate(`/cooproom/${roomInfo.title}`, {
+          state: { ...response.payload.roomInfo, nickname },
+        });
+      }
     });
   };
 
