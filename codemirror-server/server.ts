@@ -20,6 +20,7 @@ function getRoom(nickname: string) {
     };
     rooms.set(nickname, room);
   }
+  console.log('room', room.ydoc);
   return room;
 }
 
@@ -30,8 +31,6 @@ const server = http.createServer((request: any, response: any) => {
 
 // wss.on('connection', setupWSConnection);
 wss.on('connection', (ws: any, req: any) => {
-  console.log(req);
-  console.log(req.url); 
 	const docName = req.url.slice(1); // URL에서 문서 이름 추출
 	const room = getRoom(docName);
 	
@@ -47,11 +46,19 @@ wss.on('connection', (ws: any, req: any) => {
   });
 });
 
+
 server.on('upgrade', (request: any, socket: any, head: any) => {
-  wss.handleUpgrade(request, socket, head, (ws: any) => {
+  // You may check auth of request here..
+  // See https://github.com/websockets/ws#client-authentication
+  /**
+   * @param {any} ws
+   */
+  const handleAuth = (ws: any) => {
     wss.emit('connection', ws, request);
-  });
+  };
+  wss.handleUpgrade(request, socket, head, handleAuth);
 });
+
 
 server.listen(8000, () => {
   console.log(`WebSocket server running at on port 8000`);
