@@ -3,6 +3,7 @@ import { styled } from 'styled-components';
 import { userInfo } from '@/types/room';
 
 const User = ({ user }: { user: userInfo }) => {
+  if (user === 'EMPTY' || user === 'LOCK') return;
   const isReview: boolean = user.review;
   return <UserCard status={isReview ? 'true' : 'false'}>{user.nickname}</UserCard>;
 };

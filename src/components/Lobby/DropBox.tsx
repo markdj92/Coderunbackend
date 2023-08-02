@@ -3,7 +3,11 @@ import styled from 'styled-components';
 
 import ArrowIcon from '/icon/lobby/dropArrow.png';
 
-const DropBox = ({ options }) => {
+interface Props {
+  options: string[];
+}
+
+const DropBox = ({ options }: Props) => {
   const [active, setActive] = useState('false');
   const [isShown, setIsShown] = useState(false);
   const [selected, setSelected] = useState(options[0]);
@@ -38,7 +42,7 @@ const DropBox = ({ options }) => {
                 onMouseOut={() => setActive('false')}
               >
                 <DropBoxInSection>
-                  <DropBoxText active={active}>{option}</DropBoxText>
+                  <DropBoxText>{option}</DropBoxText>
                 </DropBoxInSection>
               </DropOption>
             ))}
@@ -121,9 +125,8 @@ const DropButtonBox = styled.div<{ active?: string }>`
   align-items: center;
 `;
 
-const DropBoxText = styled.div<{ active: string }>`
+const DropBoxText = styled.div`
   color: #8883ff;
-  /* opacity: ${(props) => (props.active === 'true' ? '1' : '0.5')}; */
   font-family: 'Noto Sans KR', sans-serif;
   font-size: 22px;
   font-style: normal;

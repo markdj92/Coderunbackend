@@ -41,7 +41,8 @@ const Result = () => {
 
     let reviewMembers = 0;
     userInfos.forEach((user: userInfo) => {
-      if (user !== 'LOCK' && user.review) return (reviewMembers += 1);
+      if (user === 'EMPTY' || user === 'LOCK') return;
+      if (user.review) return (reviewMembers += 1);
     });
     if (reviewMembers === 0) setAbleReview(false);
     else setAbleReview(true);

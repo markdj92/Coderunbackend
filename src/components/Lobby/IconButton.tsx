@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 
 interface Props {
-  icon: React.ReactNode;
+  icon: string;
   alt?: string;
   onClick?: () => void;
 }
