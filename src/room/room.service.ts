@@ -300,12 +300,19 @@ export class RoomService {
         return { nickname: user.nickname, status: roomAndUser.ready_status[userIndex] };
     }
 
-    async getResult(room_id: ObjectId, index : number) {
+    async getResult(room_id: ObjectId, user_id : ObjectId) {
         
         const roomInfo = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
         console.log(roomInfo);
+        let review_index = 0;
+
+        await roomInfo.user_info.forEach(async (user, index) => {
+            if (user === user_id.toString()) {
+                review_index = index;
+            }
+        });
         
-        roomInfo.review[index] = true;
+        roomInfo.review[review_index] = true;
         try {
             await roomInfo.save();
         } catch {
