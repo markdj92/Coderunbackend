@@ -76,12 +76,18 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     async handleCreateRoom(
       @MessageBody() roomCreateDto: RoomCreateDto,
       @ConnectedSocket() socket: ExtendedSocket
-    ) :Promise <{success : boolean, payload : {roomInfo : RoomStatusChangeDto | boolean}} > {
-        const room = await this.roomService.createRoom(roomCreateDto, socket.decoded.email);
-        if (!room) {
-            this.logger.log(`Room creation failed for email: ${socket.decoded.email}`);
-            return { success: false, payload: { roomInfo: false } };
+    ): Promise<ResponsePayload> {
+        const dup_check = await this.roomService.duplicationCheck(roomCreateDto.title);
+        if (!dup_check) {
+            return { success: false, payload: { message: "중복된 방제입니다." } };
         }
+        const room = await this.roomService.createRoom(roomCreateDto, socket.decoded.email);
+
+        if (!room) {
+            this.logger.log(`Room creation failed : ${socket.decoded.email}`);
+            return { success: false, payload: { message: "방을 생성 할 수 없습니다. 다시 시도해주세요." } };
+        }
+
         await room.save(); 
         const user_id = await this.userService.userInfoFromEmail(socket.decoded.email);
         socket.user_id = user_id;
@@ -89,7 +95,6 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         const room_id = await this.roomService.getRoomIdFromTitle(roomCreateDto.title);
         socket.room_id = room_id;
         const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
-        this.nsp.emit('room-created', "room created!");
         return {success : true,  payload: { roomInfo : roomAndUserInfo}}
     }
 
