@@ -125,9 +125,8 @@ const DropButtonBox = styled.div<{ active?: string }>`
   align-items: center;
 `;
 
-const DropBoxText = styled.div<{ active: string }>`
+const DropBoxText = styled.div`
   color: #8883ff;
-  /* opacity: ${(props) => (props.active === 'true' ? '1' : '0.5')}; */
   font-family: 'Noto Sans KR', sans-serif;
   font-size: 22px;
   font-style: normal;
