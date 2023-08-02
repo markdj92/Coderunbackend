@@ -29,8 +29,10 @@ const Background = ({ title, mode, level, members }: props) => {
 const Container = styled.div`
   position: relative;
   display: inline-block;
-  width: 484px;
-  height: 184px;
+  min-width: 484px;
+  min-height: 184px;
+  width: 40%;
+  height: 100%;
 
   display: flex;
   justify-content: center;
@@ -41,8 +43,10 @@ const Container = styled.div`
 `;
 
 const RoomCardShape = styled.div`
-  width: 430px;
-  height: 184px;
+  min-width: 430px;
+  min-height: 184px;
+  width: 80%;
+  height: 100%;
 
   transform: sKewX(-15deg);
   border-radius: 30px;

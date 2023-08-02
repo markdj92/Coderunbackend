@@ -10,8 +10,8 @@ const LevelForm = ({ level }: props) => {
   return (
     <Container>
       {Array.from({ length: level }).map((_, idx) => (
-        <StarBox opacity={((idx + 1) / 5).toString()}>
-          <img key={idx} src={StarIcon} alt='' />
+        <StarBox key={idx} opacity={((idx + 1) / 5).toString()}>
+          <img src={StarIcon} alt='' />
         </StarBox>
       ))}
     </Container>

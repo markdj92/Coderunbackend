@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import Background from './BackGround';
+import Background from './Background';
 import BackgroundEmpty from './BackgroundEmpty';
 import DetailForm from './DetailForm';
 import LevelForm from './LevelForm';
