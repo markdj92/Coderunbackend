@@ -24,6 +24,8 @@ const Result = () => {
 
   const [roomName, setRoomName] = useState(payload.roomInfo.title);
   const [userInfos, setUserInfos] = useState<userInfo[]>(payload.roomInfo.user_info);
+  const [solvedUsers, setSolvedUsers] = useState<userInfo[]>();
+  const [unsolvedUsers, setUnsolvedUsers] = useState<userInfo[]>();
 
   const [ableReview, setAbleReview] = useState<boolean>(false);
   const [review, setReview] = useState<boolean>(false);
@@ -37,8 +39,32 @@ const Result = () => {
       const { title, user_info } = response;
       setUserInfos(user_info);
       setRoomName(title);
-    };
 
+      setSolvedUsers(
+        userInfos.filter(
+          (user: userInfo) =>
+            user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && user.solved,
+        ),
+      );
+      setUnsolvedUsers(
+        userInfos.filter(
+          (user: userInfo) =>
+            user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && !user.solved,
+        ),
+      );
+    };
+    setSolvedUsers(
+      userInfos.filter(
+        (user: userInfo) =>
+          user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && user.solved,
+      ),
+    );
+    setUnsolvedUsers(
+      userInfos.filter(
+        (user: userInfo) =>
+          user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && !user.solved,
+      ),
+    );
     let reviewMembers = 0;
     userInfos.forEach((user: userInfo) => {
       if (user !== 'LOCK' && user.review) return (reviewMembers += 1);
@@ -50,15 +76,7 @@ const Result = () => {
     return () => {
       socket.off('room-status-changed');
     };
-  });
-
-  const solvedUsers: userInfo[] = userInfos.filter(
-    (user: userInfo) => user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && user.solved,
-  );
-
-  const unsolvedUsers: userInfo[] = userInfos.filter(
-    (user: userInfo) => user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && !user.solved,
-  );
+  }, []);
 
   const handleSpeaker = () => {
     setIsSpeaker(!isSpeaker);
@@ -80,8 +98,8 @@ const Result = () => {
   }, [navigate, roomName]);
 
   const onReview = () => {
+    socket.emit('reviewUser', { title: roomName, index: 0 });
     setReview(!review);
-    socket.emit('reviewUser', { title: roomName });
   };
 
   return (
@@ -102,14 +120,12 @@ const Result = () => {
         </OptionSection>
         <SolvedResult>
           <SolvedSection>
-            {solvedUsers.map((_, index) => (
-              <User key={index} user={solvedUsers[index]} />
-            ))}
+            {solvedUsers &&
+              solvedUsers.map((_, index) => <User key={index} user={solvedUsers[index]} />)}
           </SolvedSection>
           <UnSolvedSection>
-            {unsolvedUsers.map((_, index) => (
-              <User key={index} user={unsolvedUsers[index]} />
-            ))}
+            {unsolvedUsers &&
+              unsolvedUsers.map((_, index) => <User key={index} user={unsolvedUsers[index]} />)}
           </UnSolvedSection>
         </SolvedResult>
         <Review>
