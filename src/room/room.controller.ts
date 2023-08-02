@@ -32,5 +32,12 @@ export class RoomController {
         return this.roomService.getResultList(title);
     }
 
+    @UseGuards(AuthGuard('jwt'))
+    @Post('/getNickname')
+    getNickNameList(@Req() req, @Body('title') title: string) {
+        return this.roomService.getNickNameltList(title);
+    }
+
+
 
 }
