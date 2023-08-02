@@ -30,6 +30,8 @@ const server = http.createServer((request: any, response: any) => {
 
 // wss.on('connection', setupWSConnection);
 wss.on('connection', (ws: any, req: any) => {
+  console.log(req);
+  console.log(req.url); 
 	const docName = req.url.slice(1); // URL에서 문서 이름 추출
 	const room = getRoom(docName);
 	
