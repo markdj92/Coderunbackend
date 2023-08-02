@@ -1,7 +1,7 @@
 import { RoomAndUser } from './../room/schemas/roomanduser.schema';
 import { ObjectId } from 'mongoose';
-import { Logger, UseGuards } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { Logger, Req, UseGuards } from '@nestjs/common';
+import { verify } from 'jsonwebtoken';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import * as jwt from 'jsonwebtoken';
 import {
@@ -18,6 +18,9 @@ import { RoomAndUserDto, RoomCreateDto, RoomStatusChangeDto } from 'src/room/dto
 import { RoomService } from 'src/room/room.service';
 import { UsersService } from 'src/users/users.service';
 import { jwtSocketIoMiddleware } from './jwt-socket-io.middleware';
+import { CodingTestService } from 'src/codingtest/codingtest.service';
+import { CompileResultDto } from 'src/codingtest/dto/compileresult.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 
 
@@ -27,12 +30,21 @@ interface ExtendedSocket extends Socket {
     nickname : String,
     room_id : ObjectId
 }
+
+interface CodeSubmission {
+    script: string;
+    language: string;
+    versionIndex: number;
+    problemNumber: number;
+    title: string;
+}
 @ApiTags('Room')
 @UseGuards(jwtSocketIoMiddleware)
 @WebSocketGateway({cors : true, namespace: 'room'})
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     constructor(private readonly roomService: RoomService,
         private readonly userService: UsersService, 
+        private readonly codingService : CodingTestService,
     ) {}
 
     private logger = new Logger('Room');
@@ -268,4 +280,31 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     this.nsp.emit('enter-room', "enter-room!");
     return { success: true, payload: { roomInfo: roomAndUserInfo } }; //성공과 방을 정보를 반환 
     }
+
+    @SubscribeMessage('submitCode')
+    async handleSubmitCode(
+        @MessageBody() codeSubmission: CodeSubmission,
+        @ConnectedSocket() socket: ExtendedSocket) {
+        const userOutputResult = []; 
+        const problem = await this.codingService.getProblemInput(codeSubmission.problemNumber);
+        let result; 
+         for (const index of problem.input) {
+            result = await this.codingService.executeCode(codeSubmission.script, codeSubmission.language, codeSubmission.versionIndex, index);
+            if (!(result instanceof CompileResultDto)) {
+                return result;
+            }
+            const resultOutput = result.output.replace(/\n/g, '');
+            userOutputResult.push(resultOutput);
+         }
+        if (userOutputResult.length == problem.output.length && 
+            userOutputResult.every((value, index) => value == problem.output[index])) {
+            await this.codingService.saveSolvedInfo(socket.decoded.email, codeSubmission.title);  
+        }
+        await this.codingService.saveSubmitInfo(socket.decoded.email, codeSubmission.title);
+        const finish = await this.codingService.checkFinish(codeSubmission.title);
+        console.log(finish);
+        socket.emit('solved', { success: finish, payload: { result: result } });  
+    }
+
+
 }

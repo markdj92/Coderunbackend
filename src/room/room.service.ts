@@ -58,6 +58,7 @@ export class RoomService {
 
         roomAndUserDto.ready_status = AllFalseStatusArray;
         roomAndUserDto.owner = ownerArray;
+        roomAndUserDto.submit = AllFalseStatusArray;
         roomAndUserDto.solved = AllFalseStatusArray; 
         roomAndUserDto.review = AllFalseStatusArray;
         await this.saveRoomAndUser(roomAndUserDto);
@@ -211,6 +212,7 @@ export class RoomService {
                 userInfoDto.status = roomanduser.ready_status[index];
                 userInfoDto.owner = roomanduser.owner[index];
                 userInfoDto.solved = roomanduser.solved[index];
+                userInfoDto.submit = roomanduser.submit[index];
                 userInfoDto.review = roomanduser.review[index];
                 return userInfoDto;
               }

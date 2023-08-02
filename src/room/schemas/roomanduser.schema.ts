@@ -24,6 +24,9 @@ export class RoomAndUser extends Document {
   solved : boolean[];
 
   @Prop({ required: true, type: [Boolean], default : false})
+  submit: boolean[];
+  
+  @Prop({ required: true, type: [Boolean], default : false})
   review : boolean[];
   
 }

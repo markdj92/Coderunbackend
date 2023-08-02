@@ -26,7 +26,6 @@ export class CodingtestController {
         if (userOutputResult.length == problem.output.length && 
             userOutputResult.every((value, index) => value == problem.output[index])) {
             await this.codingTestService.saveSolvedInfo(req.user.email, codePayload.title);
-
             return { success: true, payload: { result : result } };
         } else {
             return { success: false, payload: { result : result } };
