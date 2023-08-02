@@ -1,8 +1,9 @@
-import { IoMdArrowDropleftCircle, IoMdArrowDroprightCircle } from 'react-icons/io';
 import styled from 'styled-components';
 
+import ArrowLeft from '/icon/lobby/arrowLeft.png';
+import ArrowRight from '/icon/lobby/arrowRight.png';
+
 const Arrows = ({
-  size,
   totalPage,
   page,
   setPage,
@@ -21,14 +22,15 @@ const Arrows = ({
     if (page === totalPage) return setPage(totalPage);
     setPage(page + 1);
   };
+
   return (
     <Container>
-      <button onClick={handleLeftClick}>
-        <IoMdArrowDropleftCircle size={size} />
-      </button>
-      <button onClick={handleRightClick}>
-        <IoMdArrowDroprightCircle size={size} />
-      </button>
+      <Button onClick={handleLeftClick}>
+        <img src={ArrowLeft} alt='' />
+      </Button>
+      <Button onClick={handleRightClick}>
+        <img src={ArrowRight} alt='' />
+      </Button>
     </Container>
   );
 };
@@ -38,7 +40,17 @@ const Container = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  width: 80px;
+  width: 150px;
+  margin: 20px;
+  padding-left: 20px;
+`;
+
+const Button = styled.button`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #4640c6;
+  cursor: pointer;
 `;
 
 export default Arrows;
