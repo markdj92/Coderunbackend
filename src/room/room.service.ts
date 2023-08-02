@@ -396,5 +396,18 @@ export class RoomService {
         return room;
     }  
         
-        
+    async checkRoomPassword(title: string, password: string): Promise<boolean> {
+        const roomInfo = this.roomModel.findOne({ title: title }).exec();
+        if ((await roomInfo).status === "PUBLIC") {
+            return true;
+        }
+        if (password === undefined) {
+            return false;
+        }
+        const isPasswordMatched = await bcrypt.compare(password, (await roomInfo).password);
+        if (isPasswordMatched) {
+            return true;
+        }
+        return false;
+    }
 }
