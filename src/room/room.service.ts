@@ -412,4 +412,20 @@ export class RoomService {
         }
         return false;
     }
+
+    async getNickNameltList(title: string): Promise<string[]> {
+    let nickNameList: string[] = [];
+
+    const roomAndUserList = await this.roomAndUserModel.find({ title: title }, 'user_info').exec();
+
+    for (const roomAndUser of roomAndUserList) {
+        for (const user_id of roomAndUser.user_info) {
+            if (user_id !== EmptyOrLock.EMPTY && user_id !== EmptyOrLock.LOCK) {
+                const user = await this.authModel.findOne({ _id: user_id }, 'nickname').exec();
+                nickNameList.push(user.nickname);
+            }
+        }
+    }
+    return nickNameList;
+}
 }
