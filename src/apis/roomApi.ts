@@ -18,6 +18,12 @@ export const getRoomList = ({ page }: { page: number }) => {
   return roomInstance.get(`?page=${page}`);
 };
 
+export const getNickname = ({ title }: { title: string }) => {
+  return roomInstance.post('/getNickname', {
+    title,
+  });
+};
+
 roomInstance.interceptors.request.use(
   (config) => {
     config.headers[USER_TOKEN_KEY] = getUserToken();

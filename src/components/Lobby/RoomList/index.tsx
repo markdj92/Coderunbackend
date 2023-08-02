@@ -3,9 +3,8 @@ import { FaFilter } from 'react-icons/fa';
 import { TbRefresh } from 'react-icons/tb';
 import styled from 'styled-components';
 
-import RoomCard from '../RoomCard';
-
 import Arrows from './Arrows';
+import RoomCard from './RoomCard';
 
 import { getRoomList } from '@/apis/roomApi';
 import { RoomInformation } from '@/types/room';
@@ -91,6 +90,7 @@ const HeaderRightBox = styled.div`
 const ContentFrame = styled.div`
   display: flex;
   flex-wrap: wrap;
+  gap: 56px 20px;
 `;
 
 export default RoomList;

@@ -1,13 +1,21 @@
 import styled from 'styled-components';
 
-const GameLiveBoard = ({ handleSetViewer }: { handleSetViewer: (nickname: string) => void }) => {
+const GameLiveBoard = ({
+  userInGame = [],
+  handleSetViewer,
+}: {
+  userInGame: string[];
+  handleSetViewer: (nickname: string) => void;
+}) => {
   return (
     <Container>
       <UserListSection>
-        <UserCard onClick={() => handleSetViewer('현오')}>현오</UserCard>
-        <UserCard onClick={() => handleSetViewer('MINJI')}>MINJI</UserCard>
-        <UserCard onClick={() => handleSetViewer('user3')}>user3</UserCard>
-        <UserCard onClick={() => handleSetViewer('user4')}>user4</UserCard>
+        {userInGame &&
+          userInGame.map((user, index) => (
+            <UserCard key={index} onClick={() => handleSetViewer(user)}>
+              {user}
+            </UserCard>
+          ))}
       </UserListSection>
     </Container>
   );
