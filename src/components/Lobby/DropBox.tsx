@@ -3,7 +3,11 @@ import styled from 'styled-components';
 
 import ArrowIcon from '/icon/lobby/dropArrow.png';
 
-const DropBox = ({ options }) => {
+interface Props {
+  options: string[];
+}
+
+const DropBox = ({ options }: Props) => {
   const [active, setActive] = useState('false');
   const [isShown, setIsShown] = useState(false);
   const [selected, setSelected] = useState(options[0]);
