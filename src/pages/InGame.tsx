@@ -124,7 +124,7 @@ const InGame = () => {
           </OptionSection>
           <MainSection>
             <QuizSection>
-              <QuizHeader title={quizInfo.title} timer={{ mm: 1, ss: 22 }} />
+              <QuizHeader roomName={title} title={quizInfo.title} timer={{ mm: 1, ss: 22 }} />
               <QuizMain>
                 <QuizLeft>
                   <QuizFrame quizInfo={quizInfo} />

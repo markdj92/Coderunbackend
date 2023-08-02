@@ -11,8 +11,9 @@ const Root = lazy(() => import('@/pages/Root'));
 const Lobby = lazy(() => import('@/pages/Lobby'));
 const Login = lazy(() => import('@/pages/Login'));
 const Error = lazy(() => import('@/pages/Error'));
-
+const Result = lazy(() => import('@/pages/Result'));
 const Room = lazy(() => import('@/pages/Room'));
+const CoopRoom = lazy(() => import('@/pages/CoopRoom'));
 
 const routes: RouteObject[] = [
   {
@@ -39,8 +40,18 @@ const routes: RouteObject[] = [
         errorElement: <Error />,
       },
       {
+        path: PATH_ROUTE.cooproom + '/:roomName',
+        element: <CoopRoom />,
+        errorElement: <Error />,
+      },
+      {
         path: PATH_ROUTE.game,
         element: <InGame />,
+        errorElement: <Error />,
+      },
+      {
+        path: PATH_ROUTE.result,
+        element: <Result />,
         errorElement: <Error />,
       },
     ],
