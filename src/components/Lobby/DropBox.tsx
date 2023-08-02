@@ -42,7 +42,7 @@ const DropBox = ({ options }: Props) => {
                 onMouseOut={() => setActive('false')}
               >
                 <DropBoxInSection>
-                  <DropBoxText active={active}>{option}</DropBoxText>
+                  <DropBoxText>{option}</DropBoxText>
                 </DropBoxInSection>
               </DropOption>
             ))}
