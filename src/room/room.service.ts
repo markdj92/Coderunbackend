@@ -93,18 +93,15 @@ export class RoomService {
     
         let rooms: RoomWithOwnerNickname[] = [];  
         
+
         for (let i = 0; i < roomsDocuments.length; i++) {
             const roomDoc = roomsDocuments[i];
-            const ownerRoomAndUser = await this.roomAndUserModel.findOne({ room_id: roomDoc._id, owner: true });
-            // 오너 인덱스를 찾아서 반환합니다.
-            const ownerIndex = ownerRoomAndUser.owner.findIndex(isOwner => isOwner);
-            // 오너 인덱스에 해당하는 user_info(objectId)
-            const ownerId = ownerRoomAndUser.user_info[ownerIndex];
-            // 오브젝트 아이디를 통해서 Authmodel에서 nickname을 찾습니다.
-            const ownerAuth = await this.authModel.findById(ownerId);
-            // 새로운 오브젝트를 만들서 필요한 값을 추가하여 반환
+            const roomInfo = await this.roomAndUserModel.findOne({ room_id: roomDoc._id})
+            const indexForowner = roomInfo.owner.indexOf(true);
+            const ownerID = roomInfo.user_info[indexForowner];
+            const ownerNickname = await this.authModel.findOne({ _id: ownerID }).exec();
+
             let room: RoomWithOwnerNickname = {
-                _id: roomDoc._id,
                 title: roomDoc.title,
                 member_count: roomDoc.member_count,
                 max_members: roomDoc.max_members,
@@ -113,7 +110,7 @@ export class RoomService {
                 level: roomDoc.level,
                 mode: roomDoc.mode,
                 ready: roomDoc.ready,
-                ownerNickname: ownerAuth.nickname, // nickname값 추가
+                ownerNickname: ownerNickname.nickname, // nickname값 추가
             };
             
             rooms.push(room);
