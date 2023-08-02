@@ -16,8 +16,15 @@ function getRoom(docName) {
 }
 
 const server = http.createServer((request, response) => {
-  response.writeHead(200, { 'Content-Type': 'text/plain' });
-  response.end('okay');
+  // 문서 이름이 URL에 포함되어 있다면 해당 문서를 반환합니다.
+  const docName = request.url.slice(1);
+  if (rooms.has(docName)) {
+    response.writeHead(200, { 'Content-Type': 'application/json' });
+    response.end(JSON.stringify({ docName }));
+  } else {
+    response.writeHead(404);
+    response.end('Document not found');
+  }
 });
 
 const wss = new WebSocket1.Server({ noServer: true });
