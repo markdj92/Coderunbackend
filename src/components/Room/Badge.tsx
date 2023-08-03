@@ -100,13 +100,19 @@ const Badge = ({
   return (
     <>
       {isRoomAuth ? (
-        <Menu outerRef={outerRef} menuOnClick={(e) => menuOnClickHandler(e)}>
+        <Menu
+          outerRef={outerRef as React.MutableRefObject<HTMLDivElement>}
+          menuOnClick={(e) => menuOnClickHandler(e)}
+        >
           <li data-option='profile'>프로필 보기</li>
           <li data-option='add-friend'>친구추가 요청</li>
           <li data-option='register-admin'>방장 위임</li>
         </Menu>
       ) : (
-        <Menu outerRef={outerRef} menuOnClick={(e) => menuOnClickHandler(e)}>
+        <Menu
+          outerRef={outerRef as React.MutableRefObject<HTMLDivElement>}
+          menuOnClick={(e) => menuOnClickHandler(e)}
+        >
           <li data-option='profile'>프로필 보기</li>
           <li data-option='add-friend'>친구추가 요청</li>
         </Menu>
