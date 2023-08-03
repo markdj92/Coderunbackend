@@ -4,36 +4,32 @@ import { ImExit } from 'react-icons/im';
 import { LuSettings2 } from 'react-icons/lu';
 import { PiSpeakerSimpleHighFill, PiSpeakerSimpleSlashFill } from 'react-icons/pi';
 import { useLocation, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import { styled } from 'styled-components';
 
-import { socket } from '@/apis/socketApi';
+import { gameSocket, socket } from '@/apis/socketApi';
 import Badge from '@/components/Room/Badge';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomStatus, userInfo } from '@/types/room';
 
-const Room = () => {
+const CoopRoom = () => {
   useSocketConnect();
+
+  const navigate = useNavigate();
   const location = useLocation();
+
   const { title, member_count, max_members, user_info, nickname } = location.state;
+
   const [ableStart, setAbleStart] = useState<boolean>(false);
+
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
+
   const [roomName, setRoomName] = useState<string>(title);
   const [people, setPeople] = useState<number>(member_count);
   const [myIndex, setMyIndex] = useState<number>(0);
   const [ownerIndex, setOwnerIndex] = useState<number>(0);
   const [maxPeople, setMaxPeople] = useState<number>(max_members);
-  const [userInfos, setUserInfos] = useState<userInfo[]>(user_info);
-
-  const navigate = useNavigate();
-
-  const handleSpeaker = () => {
-    setIsSpeaker(!isSpeaker);
-  };
-
-  const handleMicrophone = () => {
-    setIsMicrophone(!isMicrophone);
-  };
+  const [userInfos, setUserInfos] = useState<any[]>(user_info);
 
   useEffect(() => {
     const roomHandler = (response: RoomStatus) => {
@@ -41,7 +37,6 @@ const Room = () => {
       setRoomName(title);
       setPeople(member_count);
       let countReady = 0;
-
       user_info.forEach((user: userInfo, index: number) => {
         if (user === 'LOCK' || user === 'EMPTY') return;
         if (user.nickname === nickname) {
@@ -54,7 +49,7 @@ const Room = () => {
           countReady += 1;
         }
       });
-      setAbleStart(member_count === countReady + 1);
+      setAbleStart(member_count === countReady + 1 && countReady % 2 === 1);
       setMaxPeople(max_members);
       setUserInfos(user_info);
     };
@@ -62,8 +57,8 @@ const Room = () => {
     let countReady = 0;
     setRoomName(title);
     setPeople(member_count);
-    user_info.forEach((user: userInfo, index: number) => {
-      if (user === 'LOCK' || user === 'EMPTY') return;
+    user_info.forEach((user: any, index: number) => {
+      if (user === undefined || user === 'LOCK' || user === 'EMPTY') return;
       if (user.nickname === nickname) {
         setMyIndex(index);
       }
@@ -71,12 +66,13 @@ const Room = () => {
         setOwnerIndex(index);
       }
     });
-    setAbleStart(member_count === countReady + 1);
+    setAbleStart(member_count === countReady + 1 && member_count % 2 === 0);
     setMaxPeople(max_members);
     setUserInfos(user_info);
 
     socket.on('room-status-changed', roomHandler);
     socket.on('start', (response) => {
+      gameSocket.emit('codingtest-join', { nickname });
       navigate('/game', { state: { nickname: nickname, title: response.title } });
     });
     return () => {
@@ -85,20 +81,20 @@ const Room = () => {
     };
   }, []);
 
+  const handleSpeaker = () => {
+    setIsSpeaker(!isSpeaker);
+  };
+
+  const handleMicrophone = () => {
+    setIsMicrophone(!isMicrophone);
+  };
+
   const handleLeaveRoom = () => {
     const answer = confirm('정말 나가시겠습니까?');
     if (answer) {
       onLeaveRoom();
     }
   };
-
-  const onLeaveRoom = useCallback(() => {
-    socket.emit('leave-room', { title: roomName }, () => {
-      navigate('/lobby', { state: { nickname } });
-    });
-  }, [navigate, roomName]);
-
-  const onCustomRoom = () => {};
 
   const onReady = () => {
     socket.emit('ready', { title: roomName });
@@ -108,11 +104,16 @@ const Room = () => {
     socket.emit('start', { title: roomName });
   };
 
+  const onLeaveRoom = useCallback(() => {
+    socket.emit('leave-room', { title: roomName }, () => {
+      navigate('/lobby', { state: { nickname } });
+    });
+  }, [navigate, roomName]);
   return (
     <MainContainer>
       <MainFrame>
-        <div className='part1'>
-          <HeaderLogo onClick={() => navigate('/lobby')}>CODE LEARN</HeaderLogo>
+        <LeftSide>
+          <HeaderLogo onClick={handleLeaveRoom}>CODE LEARN</HeaderLogo>
           <RoomName>{title}</RoomName>
 
           <OptionSection>
@@ -127,8 +128,10 @@ const Room = () => {
               {isMicrophone ? <BsFillMicFill size={'2rem'} /> : <BsFillMicMuteFill size={'2rem'} />}
             </button>
           </OptionSection>
-        </div>
-        <div className='part2'>
+        </LeftSide>
+        <MainSide>
+          <RedTeam />
+          <BlueTeam />
           {userInfos &&
             Array.from({ length: 10 }).map((_, index) => {
               return (
@@ -143,13 +146,13 @@ const Room = () => {
                 />
               );
             })}
-        </div>
-        <div className='part3'>
+        </MainSide>
+        <RightSide>
           <RoomButtons>
             <button onClick={handleLeaveRoom}>
               <ImExit size={'2rem'} />
             </button>
-            <button onClick={onCustomRoom}>
+            <button>
               <LuSettings2 size={'2rem'} />
             </button>
           </RoomButtons>
@@ -159,14 +162,14 @@ const Room = () => {
           </People>
           {myIndex === ownerIndex ? (
             ableStart ? (
-              <ButtonStart onClick={onGameRoom}>시작</ButtonStart>
+              <ButtonState onClick={onGameRoom}>시작</ButtonState>
             ) : (
               <ButtonStartLock>시작</ButtonStartLock>
             )
           ) : (
-            <Ready onClick={onReady}>준비</Ready>
+            <ButtonState onClick={onReady}>준비</ButtonState>
           )}
-        </div>
+        </RightSide>
       </MainFrame>
     </MainContainer>
   );
@@ -180,7 +183,22 @@ const MainContainer = styled.div`
   align-items: center;
   height: 100vh;
 `;
+const MainFrame = styled.div`
+  width: 90%;
+  height: 90%;
+  display: flex;
+  justify-content: space-between;
 
+  min-width: 900px;
+
+  border: 1px solid #fff;
+  border-top: 0px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 1);
+  backdrop-filter: blur(8.5px);
+  -webkit-backdrop-filter: blur(8.5px);
+`;
 const HeaderLogo = styled.div`
   transition: all 0.5s ease;
   font-size: 2rem;
@@ -188,7 +206,19 @@ const HeaderLogo = styled.div`
   font-weight: 500;
   cursor: pointer;
 `;
-
+const RedTeam = styled.div`
+  background: radial-gradient(rgba(228, 100, 100, 0.8), rgba(255, 255, 255, 0) 70%);
+  width: 50%;
+  height: 100%;
+  position: absolute;
+  right: 0;
+`;
+const BlueTeam = styled.div`
+  background: radial-gradient(rgba(106, 100, 228, 0.8), rgba(255, 255, 255, 0) 70%);
+  width: 50%;
+  height: 100%;
+  position: absolute;
+`;
 const RoomName = styled.div`
   font-family: 'Black Han Sans', sans-serif;
   font-size: 2.5rem;
@@ -206,7 +236,6 @@ const OptionSection = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  box-shadow: inset -0.0625rem 0 #172334;
   button {
     transition: all 0.3s ease;
     padding: 1rem;
@@ -261,7 +290,7 @@ const ButtonStartLock = styled.button`
   cursor: default;
 `;
 
-const ButtonStart = styled.button`
+const ButtonState = styled.button`
   margin-left: 1rem;
   transition: all 0.3s ease;
   font-size: xx-large;
@@ -281,67 +310,30 @@ const ButtonStart = styled.button`
       0 0 35px #bebebe;
   }
 `;
-
-const Ready = styled.button`
-  margin-left: 1rem;
-  transition: all 0.3s ease;
-  font-size: xx-large;
-  font-weight: bolder;
-  width: fit-content;
-  text-align: center;
-  height: 3rem;
-  margin-bottom: 30%;
-  padding: 0 1rem 0;
-  border-left: 5px solid #fff;
-  &:hover {
-    text-shadow:
-      0 0 5px #bebebe,
-      0 0 10px #bebebe,
-      0 0 15px #bebebe,
-      0 0 20px #bebebe,
-      0 0 35px #bebebe;
-  }
-`;
-
-const MainFrame = styled.div`
-  width: 90%;
-  height: 90%;
+const LeftSide = styled.div`
+  height: 100%;
+  width: 25%;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-
-  min-width: 900px;
-
-  border: 1px solid #fff;
-  border-top: 0px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 1);
-  backdrop-filter: blur(8.5px);
-  -webkit-backdrop-filter: blur(8.5px);
-
-  .part1 {
-    height: 100%;
-    width: 25%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    word-break: break-word;
-  }
-  .part2 {
-    height: 100%;
-    width: 55%;
-    display: flex;
-    flex-wrap: wrap;
-  }
-  .part3 {
-    height: 100%;
-    width: 20%;
-    min-width: 200px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-  }
+  word-break: break-word;
 `;
+const MainSide = styled.div`
+  position: relative;
 
-export default Room;
+  padding-top: 1rem;
+  height: 100%;
+  width: 60%;
+  display: flex;
+  flex-wrap: wrap;
+`;
+const RightSide = styled.div`
+  height: 100%;
+  width: 20%;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+`;
+export default CoopRoom;

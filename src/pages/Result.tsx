@@ -77,11 +77,11 @@ const Result = () => {
         ),
     );
     let reviewMembers = 0;
-    if (userInfos) {
-      userInfos.forEach((user: userInfo) => {
-        if (user !== 'LOCK' && user !== 'EMPTY' && user.review) return (reviewMembers += 1);
-      });
-    }
+    
+    userInfos.forEach((user: userInfo) => {
+      if (user === 'EMPTY' || user === 'LOCK') return;
+      if (user.review) return (reviewMembers += 1);
+    });
     if (reviewMembers === 0) setAbleReview(false);
     else setAbleReview(true);
     socket.on('room-status-changed', resultHandler);

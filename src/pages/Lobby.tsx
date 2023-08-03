@@ -4,9 +4,18 @@ import styled from 'styled-components';
 
 import ErrorPage from './Error';
 
+import IconLogout from '/images/lobby/button_logout.png';
+import IconSetting from '/images/lobby/button_setting.png';
+
+import { postLogout } from '@/apis/authApi';
+
+import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
+
 import { socket } from '@/apis/socketApi';
+import Button from '@/components/Lobby/Button';
 import CreateRoom from '@/components/Lobby/CreateRoom';
-import Header from '@/components/Lobby/Header';
+import DropBox from '@/components/Lobby/DropBox';
+import IconButton from '@/components/Lobby/IconButton';
 import RoomList from '@/components/Lobby/RoomList';
 import { useInput } from '@/hooks/useInput';
 import useSocketConnect from '@/hooks/useSocketConnect';
@@ -31,6 +40,8 @@ const Lobby = () => {
     mode: 'STUDY',
   });
 
+  const LEVEL_OPTIONS = ['ALL', '1', '2', '3', '4', '5'];
+
   const handleChange = (e: { target: { name: string; value: string } }) => {
     if (e.target.name === 'password') {
       const publicState = e.target.value === '' ? 'PUBLIC' : 'PRIVATE';
@@ -43,16 +54,43 @@ const Lobby = () => {
     e.preventDefault();
 
     socket.emit('create-room', roomInfo, (response: RoomResponse) => {
-      if (!response.success) return alert(response.payload);
-      navigate(`/room/${roomInfo.title}`, {
-        state: { ...response.payload.roomInfo, nickname },
-      });
+      if (!response.success) {
+        return alert(response.payload.message);
+      }
+      if (!response.payload.roomInfo) {
+        return alert('서버 문제가 발생했습니다.');
+      }
+      if (roomInfo.mode === 'STUDY') {
+        navigate(`/room/${roomInfo.title}`, {
+          state: { ...response.payload.roomInfo, nickname },
+        });
+      } else {
+        navigate(`/cooproom/${roomInfo.title}`, {
+          state: { ...response.payload.roomInfo, nickname },
+        });
+      }
     });
   };
 
   const handleShowCreateRoom = () => {
     setShownCreateRoom(!isShownCreateRoom);
   };
+
+  const handleLogout = () => {
+    if (confirm('정말 떠나실건가요?'))
+      try {
+        postLogout();
+        localStorage.removeItem(USER_TOKEN_KEY);
+        alert('로그아웃 되었습니다.');
+        navigate(PATH_ROUTE.login);
+      } catch (error) {
+        console.error(error);
+      }
+  };
+
+  const handleSetting = () => {};
+
+  const handleQuickStart = () => {};
 
   return (
     <MainContainer>
@@ -64,105 +102,90 @@ const Lobby = () => {
           handleShowCreateRoom={handleShowCreateRoom}
         />
       )}
-      <HeaderFrame>
-        <Header />
-      </HeaderFrame>
+      <LeftFrame>
+        <HeaderSection>
+          <HeaderLogo onClick={() => navigate('/lobby')}>CODE LEARN</HeaderLogo>
+        </HeaderSection>
+      </LeftFrame>
       <MainFrame>
-        <LeftBox></LeftBox>
-        <ContentsBox>
-          <TopContentsBox>
-            <button onClick={handleShowCreateRoom}>방 만들기</button>
-            <button>빠른 시작</button>
-          </TopContentsBox>
-          <RoomList nickname={nickname} />
-        </ContentsBox>
-        <RightBox></RightBox>
+        <HeaderSection>
+          <RoomButtonBox>
+            <Button onClick={handleShowCreateRoom} title='방 만들기' />
+            <Button title='빠른 시작' onClick={handleQuickStart} />
+            <DropBox options={LEVEL_OPTIONS} />
+          </RoomButtonBox>
+          <RoomButtonBox>
+            <IconButton icon={IconSetting} alt='setting' onClick={handleSetting} />
+            <IconButton icon={IconLogout} alt='setting' onClick={handleLogout} />
+          </RoomButtonBox>
+        </HeaderSection>
+        <RoomList nickname={nickname} />
       </MainFrame>
+      <RightFrame>
+        <HeaderSection></HeaderSection>
+      </RightFrame>
     </MainContainer>
   );
 };
 
+const HeaderLogo = styled.div`
+  transition: all 0.5s ease;
+  font-size: 2.5rem;
+  font-weight: 500;
+  margin-top: 25px;
+  margin-left: 80px;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: #8883ff;
+`;
+
 const MainContainer = styled.div`
+  background: url('./background_lobby.png');
+  background-size: contain;
   font-family: 'Noto Sans KR', sans-serif;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
+  width: 100vw;
   height: 100vh;
 `;
 
-const HeaderFrame = styled.div`
-  display: flex;
-  font-size: 1.5rem;
-  justify-content: space-between;
-  align-items: center;
-  width: 90%;
-  height: 10%;
-  padding: 0 2rem;
-  border-radius: 20px;
-  border: 1px solid #fff;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 0 32px 0 rgba(31, 38, 135, 1);
-  backdrop-filter: blur(8.5px);
-  -webkit-backdrop-filter: blur(8.5px);
-  min-width: 900px;
+const LeftFrame = styled.div`
+  width: 25%;
+  height: 100%;
 `;
 
 const MainFrame = styled.div`
-  width: 90%;
-  height: 80%;
-  display: flex;
-  justify-content: space-between;
-
-  border: 1px solid #fff;
-  border-top: 0px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 1);
-  backdrop-filter: blur(8.5px);
-  -webkit-backdrop-filter: blur(8.5px);
-  min-width: 900px;
-
-  overflow: auto;
-`;
-
-const LeftBox = styled.div`
-  width: 15%;
-`;
-
-const RightBox = styled.div`
-  width: 15%;
-`;
-
-const ContentsBox = styled.div`
+  min-width: 988px;
+  width: 50%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  width: 70%;
+  justify-content: flex-start;
 `;
 
-const TopContentsBox = styled.div`
+const RightFrame = styled.div`
+  width: 25%;
+  height: 100%;
+`;
+
+const HeaderSection = styled.div`
+  padding-top: 80px;
   width: 100%;
-  font-size: 1.5rem;
-  font-weight: 500;
-  margin-top: 2rem;
-  button {
-    margin: 1rem 0 1rem 3rem;
-    padding-left: 1rem;
-    height: 2rem;
-    border-left: 5px solid #fff;
-    transition: all 0.3s ease;
-    &:hover {
-      text-shadow:
-        0 0 5px #bebebe,
-        0 0 10px #bebebe,
-        0 0 15px #bebebe,
-        0 0 20px #bebebe,
-        0 0 35px #bebebe;
-    }
-  }
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const RoomButtonBox = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 78px;
+  gap: 24px;
 `;
 
 export default Lobby;

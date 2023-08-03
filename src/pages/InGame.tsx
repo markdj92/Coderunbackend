@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react';
+//@ts-nocheck
+import { useEffect, useRef, useState } from 'react';
 import { BsFillMicFill, BsFillMicMuteFill } from 'react-icons/bs';
 import { PiSpeakerSimpleHighFill, PiSpeakerSimpleSlashFill } from 'react-icons/pi';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import { WebsocketProvider } from 'y-websocket';
+import * as Y from 'yjs';
 
 import { postExecuteResult, postQuizInfo } from '@/apis/gameApi';
-import { gameSocket } from '@/apis/socketApi';
-import EditorMulti from '@/components/InGame/EditorMulti';
+import { getNickname } from '@/apis/roomApi';
+import EditorCodeMirror from '@/components/InGame/EditorCodeMirror';
 import GameBottom from '@/components/InGame/GameBottom';
 import GameLiveBoard from '@/components/InGame/GameLiveBoard';
 import GameNavbar from '@/components/InGame/GameNavbar';
@@ -19,7 +22,14 @@ const InGame = () => {
   const location = useLocation();
   const { title, nickname }: { title: string; nickname: string } = location.state;
 
-  const [viewer, setViewer] = useState<string>(nickname);
+  const ydoc = useRef<Y.Doc>(new Y.Doc());
+  const [viewer, setViewer] = useState<string>(`ROOMNAME${title}${nickname}`);
+  const [provider, setProvider] = useState<WebsocketProvider>(
+    new WebsocketProvider('ws://52.69.242.42:8000', viewer, ydoc.current),
+  );
+  const [ytext, setYtext] = useState(ydoc.current.getText('codemirror'));
+
+  const [userInGame, setUserInGame] = useState<string[]>([]);
   const [quizNumber, setQuizNumber] = useState<number>(1);
   const [quizInfo, setQuizInfo] = useState<QuizInfo>(null);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
@@ -32,6 +42,10 @@ const InGame = () => {
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
 
+  const handleProvider = (pro: WebsocketProvider) => {
+    setProvider(pro);
+  };
+
   const handleSpeaker = () => {
     setIsSpeaker(!isSpeaker);
   };
@@ -41,12 +55,13 @@ const InGame = () => {
   };
 
   const handleRun = async () => {
-    // if (code === '') return alert('코드를 작성해주세요.');
+    const code = ytext.toString();
+
+    if (code === '') return alert('코드를 작성해주세요.');
     const executeData = {
       title: title,
       problemNumber: quizNumber,
-      // script: code,
-      script: '',
+      script: code,
       language: 'python3',
       versionIndex: '0',
     };
@@ -60,18 +75,23 @@ const InGame = () => {
     return await postQuizInfo(title);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const result = window.confirm('코드 제출하시겠습니까?');
     if (result) {
-      gameSocket.emit('joinUsers', { title });
+      try {
+        const response = await getNickname({ title });
+        const { data } = response;
+        setUserInGame(data);
+      } catch (e) {
+        console.error(e);
+      }
       setIsSubmit(true);
     }
     return;
   };
 
   const handleSetViewer = (viewer: string) => {
-    gameSocket.emit('edit', { nickname: viewer });
-    setViewer(nickname);
+    setViewer(`ROOMNAME${title}${viewer}`);
   };
 
   useEffect(() => {
@@ -89,19 +109,12 @@ const InGame = () => {
       });
   }, []);
 
-  useEffect(() => {
-    gameSocket.on('joinResponse', () => {});
-    return () => {
-      gameSocket.off('joinResponse');
-    };
-  }, [viewer]);
-
   if (quizInfo === null) return <></>;
   return (
     <Container>
       <GameNavbar />
       <MainFrame>
-        {isSubmit && <GameLiveBoard handleSetViewer={handleSetViewer} />}
+        {isSubmit && <GameLiveBoard userInGame={userInGame} handleSetViewer={handleSetViewer} />}
         <GameFrame>
           <OptionSection>
             <button onClick={handleSpeaker}>
@@ -117,14 +130,24 @@ const InGame = () => {
           </OptionSection>
           <MainSection>
             <QuizSection>
-              <QuizHeader roomName={title} title={quizInfo.title} timer={{ mm: 1, ss: 22 }} />
+              <QuizHeader roomName={title} title={quizInfo.title} timer={{ mm: 20, ss: 22 }} />
               <QuizMain>
                 <QuizLeft>
                   <QuizFrame quizInfo={quizInfo} />
                 </QuizLeft>
                 <QuizRight>
                   <EditorFrame>
-                    <EditorMulti socket={gameSocket} viewer={viewer} nickname={nickname} />
+                    <EditorCodeMirror
+                      ydoc={ydoc.current}
+                      provider={provider}
+                      isSubmit={isSubmit}
+                      viewer={viewer}
+                      nickname={nickname}
+                      ytext={ytext}
+                      setYtext={setYtext}
+                      handleProvider={handleProvider}
+                    />
+                    {/* <EditorMulti socket={gameSocket} viewer={viewer} nickname={nickname} /> */}
                   </EditorFrame>
                   <RunFrame isSuccess={isSuccess} runResult={runResult} />
                 </QuizRight>
