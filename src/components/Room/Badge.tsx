@@ -32,6 +32,11 @@ const Badge = ({
     }
   };
 
+  const handleKick = () => {
+    if (!isRoomAuth) return;
+    socket.emit('forceLeave', { title, index: badgeNumber });
+  };
+
   const handleLockCard = () => {
     if (!isRoomAuth) return;
     socket.emit('lockunlock', { title, index: badgeNumber });
