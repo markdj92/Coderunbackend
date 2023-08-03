@@ -150,8 +150,8 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
         socket.leave(await title);
   
-        const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
-        if (roomAndUserInfo !== false) {
+        const roomAndUserInfo = await this.roomService.getRoomInfo(await room_id);
+        if (await roomAndUserInfo !== false) {
             await this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);   
         }
         return {success : true}  
