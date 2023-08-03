@@ -24,13 +24,6 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
     setErrorMessage,
   } = useAuthForm();
 
-  const handleKeyPress = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      handleShowSignup();
-    }
-  };
-  window.addEventListener('keyup', (e: KeyboardEvent) => handleKeyPress(e));
-
   const handleCheckRePassword = () => {
     if (!validateUserInfo.checkPasswordDiff(userAccount.password, userAccount.rePassword)) {
       setErrorMessage({ ...errorMessage, rePassword: '비밀번호가 일치하지 않습니다.' });

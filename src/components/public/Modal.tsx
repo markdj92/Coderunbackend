@@ -6,6 +6,13 @@ type ModalProps = {
 };
 
 const Modal = ({ children, handleHideModal }: ModalProps) => {
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      handleHideModal();
+    }
+  };
+  window.addEventListener('keyup', (e: KeyboardEvent) => handleKeyPress(e));
+
   return (
     <>
       <Backdrop onClick={() => {}} />
