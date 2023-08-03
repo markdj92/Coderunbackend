@@ -24,9 +24,7 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "y-websocket": ["node_modules/y-websocket/dist/src/y-websocket.d.ts"],
-      "y-codemirror.next": ["node_modules/y-codemirror.next/dist/src/index.d.ts"]
+      "@/*": ["src/*"]
     },
     "types": ["vite/client"]
   },
