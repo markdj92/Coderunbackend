@@ -13,36 +13,48 @@ import * as Y from 'yjs';
 import { userColor } from '@/utils/userTagColors';
 
 interface Props {
-  provider?: WebsocketProvider;
-  handleProvider?: (provider: WebsocketProvider) => void;
-  title: string;
+  ydoc: Y.Doc;
+  provider: WebsocketProvider | null;
+  ytext: Y.Text;
+  setYtext: (ytext: Y.Text) => void;
   viewer: string;
-  setViewer: (viewer: string) => void;
   nickname: string;
+  handleProvider: (pro: WebsocketProvider) => void;
   isSubmit: boolean;
 }
 
-const EditorCodeMirror: React.FC<Props> = ({ viewer, nickname, isSubmit }) => {
+const EditorCodeMirror: React.FC<Props> = ({
+  ydoc,
+  viewer,
+  ytext,
+  nickname,
+  isSubmit,
+  provider,
+  setYtext,
+  handleProvider,
+}) => {
   const editor = useRef(null);
 
-  const ydoc = useRef(new Y.Doc());
-  const provider = useRef<WebsocketProvider | null>(null);
-
-  const ytext = ydoc.current.getText('codemirror');
+  useEffect(() => {
+    if (!provider || !ydoc) return;
+    setYtext(ydoc.getText('codemirror'));
+  }, [provider]);
 
   useEffect(() => {
-    ydoc.current.getText('codemirror').delete(0, ydoc.current.getText('codemirror').length);
+    if (!ydoc || !viewer) return;
+    ydoc.getText('codemirror').delete(0, ydoc.getText('codemirror').length);
+    handleProvider(new WebsocketProvider('ws://52.69.242.42:8000', viewer, ydoc));
   }, [viewer]);
 
   useEffect(() => {
-    provider.current = new WebsocketProvider('ws://52.69.242.42:8000', viewer, ydoc.current);
+    if (!ytext) return;
 
-    provider.current?.awareness.setLocalStateField('user', {
+    provider?.awareness.setLocalStateField('user', {
       name: nickname,
       color: userColor.color,
       colorLight: userColor.light,
       roomName: viewer,
-      clientID: provider.current.awareness.clientID,
+      clientID: provider.awareness.clientID,
     });
 
     const editorPlaceHolder = `print("welcome to coding learn")`;
@@ -52,7 +64,7 @@ const EditorCodeMirror: React.FC<Props> = ({ viewer, nickname, isSubmit }) => {
       extensions: [
         basicSetup,
         python(),
-        yCollab(ytext, provider.current.awareness),
+        yCollab(ytext, provider.awareness),
         keymap.of([...yUndoManagerKeymap, indentWithTab]),
         keymap.of(standardKeymap),
         keymap.of(defaultKeymap),
@@ -71,9 +83,9 @@ const EditorCodeMirror: React.FC<Props> = ({ viewer, nickname, isSubmit }) => {
 
     return () => {
       view?.destroy();
-      provider.current?.destroy();
+      provider.destroy();
     };
-  }, [viewer]);
+  }, [provider, viewer]);
 
   return (
     <div>
