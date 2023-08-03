@@ -1,3 +1,4 @@
+import { ObjectId } from 'mongoose';
 import { AuthDto } from './dto/auth.dto';
 import { Injectable, UnauthorizedException, BadRequestException,ConflictException, HttpException, HttpStatus } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -127,5 +128,15 @@ export class AuthService {
     const user = await this.authModel.findOne({ email: email });
     return { nickname: user.nickname };
   }
-   
+ 
+  async saveSocketId(email: string, socketid: string) {
+    const user = await this.authModel.findOne({ email: email });
+    user.socketid = socketid;
+    await user.save();
+    return { message: 'success'};
+  }
+  async getSocketIdByuserId(userid: ObjectId) {
+    const user = await this.authModel.findOne({ _id: userid });
+    return user.socketid;
+  }
 }
