@@ -40,8 +40,7 @@ const Room = () => {
   };
 
   useEffect(() => {
-    const roomHandler = (response: RoomStatus) => {
-      const { title, member_count, max_members, user_info } = response;
+    const roomHandler = ({ title, member_count, max_members, user_info }: RoomStatus) => {
       setRoomName(title);
       setPeople(member_count);
       let countReady = 0;
@@ -91,6 +90,7 @@ const Room = () => {
       navigate('/game', { state: { nickname: nickname, title: response.title } });
     });
     return () => {
+      socket.off('kicked');
       socket.off('start');
       socket.off('room-status-changed', roomHandler);
     };
