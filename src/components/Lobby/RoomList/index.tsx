@@ -9,7 +9,15 @@ import RoomCard from './RoomCard';
 import { getRoomList } from '@/apis/roomApi';
 import { RoomInformation } from '@/types/room';
 
-const RoomList = ({ nickname }: { nickname: string }) => {
+const RoomList = ({
+  nickname,
+  handlePrivate,
+  onClickRoom,
+}: {
+  nickname: string;
+  handlePrivate: () => void;
+  onClickRoom: (title: string) => void;
+}) => {
   const [roomList, setRoomList] = useState<RoomInformation[]>([]);
   const [page, setPage] = useState<number>(1);
   const [totalPage, setTotalPage] = useState<number>(1);
@@ -46,7 +54,13 @@ const RoomList = ({ nickname }: { nickname: string }) => {
       </HeaderFrame>
       <ContentFrame>
         {Array.from({ length: 6 }).map((_, index) => (
-          <RoomCard key={index} nickname={nickname} roomInfo={roomList[index]} />
+          <RoomCard
+            key={index}
+            nickname={nickname}
+            roomInfo={roomList[index]}
+            handleClickRoom={onClickRoom}
+            handlePrivate={handlePrivate}
+          />
         ))}
       </ContentFrame>
     </Container>

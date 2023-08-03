@@ -16,9 +16,11 @@ import { RoomInformation } from '@/types/room';
 interface Props {
   nickname: string;
   roomInfo: RoomInformation;
+  handleClickRoom: (title: string) => void;
+  handlePrivate: () => void;
 }
 
-const RoomCard = ({ nickname, roomInfo }: Props) => {
+const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props) => {
   const navigate = useNavigate();
 
   const onClickRoom = useCallback(
@@ -41,7 +43,15 @@ const RoomCard = ({ nickname, roomInfo }: Props) => {
     );
 
   return (
-    <Container onClick={() => onClickRoom(roomInfo.title)}>
+    <Container
+      onClick={() => {
+        if (roomInfo.status === 'PRIVATE') {
+          handlePrivate();
+          return handleClickRoom(roomInfo.title);
+        }
+        return onClickRoom(roomInfo.title);
+      }}
+    >
       <Background
         title={<Title title={roomInfo.title} status={roomInfo.status} host={roomInfo.master} />}
         mode={<DetailForm title='Mode' contents={roomInfo.mode} />}
