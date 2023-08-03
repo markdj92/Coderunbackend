@@ -28,8 +28,29 @@ const Badge = ({
   ) => {
     const eventTarget = e.target as HTMLUListElement;
     if (eventTarget) {
-      // console.log(eventTarget.dataset.option);
+      switch (eventTarget.dataset.option) {
+        case 'profile':
+          openProfile();
+          break;
+        case 'add-friend':
+          requestFriend();
+          break;
+        case 'register-admin':
+          registerAdmin();
+          break;
+        default:
+          break;
+      }
     }
+  };
+
+  const openProfile = () => {};
+
+  const requestFriend = () => {};
+
+  const registerAdmin = () => {
+    if (!isRoomAuth) return;
+    socket.emit('change-owner', { title, index: badgeNumber });
   };
 
   const handleKick = () => {
