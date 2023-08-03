@@ -20,6 +20,7 @@ interface Props {
   setViewer: (viewer: string) => void;
   nickname: string;
   isSubmit: boolean;
+  handleRun: () => void;
 }
 
 const EditorCodeMirror: React.FC<Props> = ({ viewer, nickname, isSubmit }) => {
@@ -35,7 +36,7 @@ const EditorCodeMirror: React.FC<Props> = ({ viewer, nickname, isSubmit }) => {
   }, [viewer]);
 
   useEffect(() => {
-    provider.current = new WebsocketProvider('ws://localhost:8000', viewer, ydoc.current);
+    provider.current = new WebsocketProvider('ws://52.69.242.42:8000', viewer, ydoc.current);
 
     provider.current?.awareness.setLocalStateField('user', {
       name: nickname,
