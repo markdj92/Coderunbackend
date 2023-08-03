@@ -45,7 +45,7 @@ const RoomList = ({ nickname }: { nickname: string }) => {
         </HeaderRightBox>
       </HeaderFrame>
       <ContentFrame>
-        {Array.from({ length: 8 }).map((_, index) => (
+        {Array.from({ length: 6 }).map((_, index) => (
           <RoomCard key={index} nickname={nickname} roomInfo={roomList[index]} />
         ))}
       </ContentFrame>
