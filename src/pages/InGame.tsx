@@ -1,9 +1,11 @@
-import { WebsocketProvider } from 'node_modules/y-websocket/dist/src/y-websocket';
-import { useEffect, useState } from 'react';
+//@ts-nocheck
+import { useEffect, useRef, useState } from 'react';
 import { BsFillMicFill, BsFillMicMuteFill } from 'react-icons/bs';
 import { PiSpeakerSimpleHighFill, PiSpeakerSimpleSlashFill } from 'react-icons/pi';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import { WebsocketProvider } from 'y-websocket';
+import * as Y from 'yjs';
 
 import { postExecuteResult, postQuizInfo } from '@/apis/gameApi';
 import { getNickname } from '@/apis/roomApi';
@@ -19,10 +21,15 @@ import { ExecuteResult, QuizInfo } from '@/types/inGame';
 const InGame = () => {
   const location = useLocation();
   const { title, nickname }: { title: string; nickname: string } = location.state;
-  const [provider, setProvider] = useState<WebsocketProvider | undefined>(undefined);
-  const [userInGame, setUserInGame] = useState<string[]>([]);
+
+  const ydoc = useRef<Y.Doc>(new Y.Doc());
   const [viewer, setViewer] = useState<string>(`ROOMNAME${title}${nickname}`);
-  // const [viewer, setViewer] = useState<string>(nickname);
+  const [provider, setProvider] = useState<WebsocketProvider>(
+    new WebsocketProvider('ws://52.69.242.42:8000', viewer, ydoc.current),
+  );
+  const [ytext, setYtext] = useState(ydoc.current.getText('codemirror'));
+
+  const [userInGame, setUserInGame] = useState<string[]>([]);
   const [quizNumber, setQuizNumber] = useState<number>(1);
   const [quizInfo, setQuizInfo] = useState<QuizInfo>(null);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
@@ -35,8 +42,8 @@ const InGame = () => {
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
 
-  const handleProvider = (provider: WebsocketProvider) => {
-    setProvider(provider);
+  const handleProvider = (pro: WebsocketProvider) => {
+    setProvider(pro);
   };
 
   const handleSpeaker = () => {
@@ -48,12 +55,13 @@ const InGame = () => {
   };
 
   const handleRun = async () => {
-    // if (code === '') return alert('코드를 작성해주세요.');
+    const code = ytext.toString();
+
+    if (code === '') return alert('코드를 작성해주세요.');
     const executeData = {
       title: title,
       problemNumber: quizNumber,
-      // script: code,
-      script: '',
+      script: code,
       language: 'python3',
       versionIndex: '0',
     };
@@ -84,7 +92,6 @@ const InGame = () => {
 
   const handleSetViewer = (viewer: string) => {
     setViewer(`ROOMNAME${title}${viewer}`);
-    // setViewer(`${viewer}`);
   };
 
   useEffect(() => {
@@ -131,13 +138,14 @@ const InGame = () => {
                 <QuizRight>
                   <EditorFrame>
                     <EditorCodeMirror
+                      ydoc={ydoc.current}
                       provider={provider}
-                      handleProvider={handleProvider}
-                      title={title}
-                      viewer={viewer}
-                      setViewer={setViewer}
-                      nickname={nickname}
                       isSubmit={isSubmit}
+                      viewer={viewer}
+                      nickname={nickname}
+                      ytext={ytext}
+                      setYtext={setYtext}
+                      handleProvider={handleProvider}
                     />
                     {/* <EditorMulti socket={gameSocket} viewer={viewer} nickname={nickname} /> */}
                   </EditorFrame>
