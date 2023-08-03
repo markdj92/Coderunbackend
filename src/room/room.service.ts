@@ -8,6 +8,7 @@ import mongoose, { Model,Mongoose,ObjectId,ObjectIdSchemaDefinition,Types } from
 import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
 import { Auth } from 'src/auth/schemas/auth.schema';
+import { constrainedMemory } from 'process';
 @Injectable()
 export class RoomService {
     constructor(
@@ -309,7 +310,7 @@ export class RoomService {
     
  
     
-    async unlockRoom(room_id: ObjectId, index: number): Promise<{roomAndUser: RoomAndUserDto, title: string, maxMembers:number} | null> {
+    async unlockRoom(room_id: ObjectId, index: number): Promise<boolean> {
         
         const roomAndUser = await this.roomAndUserModel.findOne({room_id: room_id}).exec();
         
@@ -330,20 +331,17 @@ export class RoomService {
             roomAndUser.user_info[index] = EmptyOrLock.LOCK;
             increment = -1; //unlock->lock은 증가하는 값을 -1
         } else {
-            return null;
+            return false;
         }
     
         await roomAndUser.save();
-    
         const room = await this.roomModel.findOne({ _id: room_id }, 'title max_members').exec(); //확인해본 결과 이렇게 했을 경우에 title max_members로 mongodb에서 title과 max_members값만 추출할 수 있습니다.
-                
+  
         if (room) {
             room.max_members += increment; //증가하는 값만큼을 더 해주는 방식으로 max_members를 조절함
             await room.save();
         }
-        const roomTitle = room ? room.title : '';
-        const maxMembers = room ? room.max_members : 0;
-        return { roomAndUser: roomAndUser, title: roomTitle, maxMembers: maxMembers };
+        return true;
     }
     
     async getResultList(title: string): Promise<RoomStatusChangeDto | boolean>  {
