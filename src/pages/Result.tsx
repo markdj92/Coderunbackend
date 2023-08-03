@@ -10,56 +10,85 @@ import Header from '@/components/Result/Header';
 import Timer from '@/components/Result/Timer';
 import User from '@/components/Result/User';
 import useSocketConnect from '@/hooks/useSocketConnect';
+import { RoomResponse } from '@/types/lobby';
 import { userInfo } from '@/types/room';
-import { RoomStatus } from '@/types/room';
+
 const Result = () => {
   useSocketConnect();
   const location = useLocation();
   const { title } = location.state;
-  const { payload } = postResult({ title });
+
+  const onResultPage = async () => {
+    try {
+      const response = await postResult(title);
+
+      setRoomName(response.data.title);
+      setUserInfos(response.data.user_info);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const navigate = useNavigate();
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
 
-  const [roomName, setRoomName] = useState(payload.roomInfo.title);
-  const [userInfos, setUserInfos] = useState<userInfo[]>(payload.roomInfo.user_info);
+  const [roomName, setRoomName] = useState('');
+  const [userInfos, setUserInfos] = useState<userInfo[]>();
+  const [solvedUsers, setSolvedUsers] = useState<userInfo[]>();
+  const [unsolvedUsers, setUnsolvedUsers] = useState<userInfo[]>();
 
   const [ableReview, setAbleReview] = useState<boolean>(false);
   const [review, setReview] = useState<boolean>(false);
 
   useEffect(() => {
-    // userInfos가 바뀔 때 마다 계속 userInfos 정보를 가져온다 <= 리뷰 정보가 바뀔 것이다
-    // setUserInfos();
-    // userInfo.review 를 돌면서 체크하다가
-    // true 발견하면 setAbleReview(true); || 발견못하면 setAbleReview(false);
-    const resultHandler = (response: RoomStatus) => {
-      const { title, user_info } = response;
+    const resultHandler = (response: RoomResponse) => {
+      const { payload } = response;
+      const { title, user_info } = payload.roomInfo;
       setUserInfos(user_info);
       setRoomName(title);
-    };
 
+      setSolvedUsers(
+        user_info.filter(
+          (user: userInfo) =>
+            user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && user.solved,
+        ),
+      );
+      setUnsolvedUsers(
+        user_info.filter(
+          (user: userInfo) =>
+            user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && !user.solved,
+        ),
+      );
+    };
+    onResultPage();
+    setSolvedUsers(
+      userInfos &&
+        userInfos.filter(
+          (user: userInfo) =>
+            user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && user.solved,
+        ),
+    );
+    setUnsolvedUsers(
+      userInfos &&
+        userInfos.filter(
+          (user: userInfo) =>
+            user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && !user.solved,
+        ),
+    );
     let reviewMembers = 0;
+    
     userInfos.forEach((user: userInfo) => {
       if (user === 'EMPTY' || user === 'LOCK') return;
       if (user.review) return (reviewMembers += 1);
     });
     if (reviewMembers === 0) setAbleReview(false);
     else setAbleReview(true);
-
     socket.on('room-status-changed', resultHandler);
     return () => {
       socket.off('room-status-changed');
     };
-  });
-
-  const solvedUsers: userInfo[] = userInfos.filter(
-    (user: userInfo) => user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && user.solved,
-  );
-
-  const unsolvedUsers: userInfo[] = userInfos.filter(
-    (user: userInfo) => user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && !user.solved,
-  );
+  }, [userInfos]);
 
   const handleSpeaker = () => {
     setIsSpeaker(!isSpeaker);
@@ -81,8 +110,8 @@ const Result = () => {
   }, [navigate, roomName]);
 
   const onReview = () => {
-    setReview(!review);
     socket.emit('reviewUser', { title: roomName });
+    setReview(!review);
   };
 
   return (
@@ -103,14 +132,12 @@ const Result = () => {
         </OptionSection>
         <SolvedResult>
           <SolvedSection>
-            {solvedUsers.map((_, index) => (
-              <User key={index} user={solvedUsers[index]} />
-            ))}
+            {solvedUsers &&
+              solvedUsers.map((_, index) => <User key={index} user={solvedUsers[index]} />)}
           </SolvedSection>
           <UnSolvedSection>
-            {unsolvedUsers.map((_, index) => (
-              <User key={index} user={unsolvedUsers[index]} />
-            ))}
+            {unsolvedUsers &&
+              unsolvedUsers.map((_, index) => <User key={index} user={unsolvedUsers[index]} />)}
           </UnSolvedSection>
         </SolvedResult>
         <Review>
