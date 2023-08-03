@@ -233,8 +233,7 @@ export class RoomService {
         // 디비에 해당 유저를 empty 로 바꾸고
         // 방 인원수도 바꿔줌.
         // 해당 방에 대한 정보를 얻음
-        console.log("function, userID :", user_id);
-        console.log("function, userID :", user_id.toString());
+    
          const roomAndUserInfo = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
 
          if (!roomAndUserInfo) {
