@@ -38,6 +38,4 @@ export class RoomController {
         return this.roomService.getNickNameltList(title);
     }
 
-
-
 }

@@ -150,23 +150,28 @@ export class RoomStatusChangeDto {
     max_members: number; //최대 맴버 수를 추가 room_status_changed에 추가
 }
 
-export class Page<T> {
-    pageSize: number;
-    totalCount: number;
-    totalPage: number;
-    rooms: T;
-}
+export class RoomListDto {
 
-export class RoomWithOwnerNickname {
-    // ownerNickname을 포함 시키기위해 새로 만든 class
-    title: string;
+    @IsNotEmpty()
+    @IsString()
+    title : string;
+
+    @IsNotEmpty()
+    @IsNumber()
+    max_members : number;
+
+    @IsNotEmpty()
+    @IsNumber()
     member_count: number;
-    max_members: number;
-    status: RoomStatus;
-    password: string;
+
+    @IsEnum(RoomStatus)
+    status : RoomStatus;
+
+    @IsNotEmpty()
     level: number;
+    
+    @IsEnum(RoomMode)
     mode: RoomMode;
-    ready: boolean;
-    ownerNickname: string; // 추가된 새로운 요소
+    
 }
 
