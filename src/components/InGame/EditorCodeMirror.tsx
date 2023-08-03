@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { defaultKeymap, indentWithTab, standardKeymap } from '@codemirror/commands';
 import { python } from '@codemirror/lang-python';
 import { indentUnit, foldGutter } from '@codemirror/language';
