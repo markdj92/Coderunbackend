@@ -18,6 +18,7 @@ const Room = () => {
   useSocketConnect();
   const location = useLocation();
   const { title, member_count, max_members, user_info, nickname } = location.state;
+
   const [ableStart, setAbleStart] = useState<boolean>(false);
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
@@ -79,6 +80,13 @@ const Room = () => {
     setUserInfos(user_info);
 
     socket.on('room-status-changed', roomHandler);
+    socket.on('kicked', (title) => {
+      if (title === roomName) {
+        socket.emit('leave-room', { title: roomName }, () => {
+          navigate('/lobby', { state: { nickname, kicked: true } });
+        });
+      }
+    });
     socket.on('start', (response) => {
       navigate('/game', { state: { nickname: nickname, title: response.title } });
     });
