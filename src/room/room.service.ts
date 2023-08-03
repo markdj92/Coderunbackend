@@ -1,7 +1,7 @@
 import { IsEmail } from 'class-validator';
 import { RoomAndUser } from './schemas/roomanduser.schema';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { RoomCreateDto, RoomAndUserDto, EmptyOrLock, UserInfoDto, RoomStatusChangeDto, Page, RoomWithOwnerNickname } from './dto/room.dto';
+import { RoomCreateDto, RoomAndUserDto, EmptyOrLock, UserInfoDto, RoomStatusChangeDto } from './dto/room.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Room } from './schemas/room.schema'
 import mongoose, { Model,Mongoose,ObjectId,ObjectIdSchemaDefinition,Types } from 'mongoose';
@@ -76,7 +76,7 @@ export class RoomService {
         await newInfoForRoom.save();
     }
 
-    async getRoomList(page: number): Promise<Page<RoomWithOwnerNickname[]>> {
+    async getRoomList(page: number): Promise<any> {
         const pageSize = 6;
         const totalCount = await this.roomModel.countDocuments({ready: true});
         let totalPage = Math.ceil(totalCount / pageSize);
@@ -85,42 +85,26 @@ export class RoomService {
         if (page > totalPage) {
             page = totalPage;
         }
+
         const roomsDocuments = await this.roomModel.find({ready: true})
             .sort('-createdAt')
             .skip((page - 1) * pageSize)
             .limit(pageSize)
             .exec();
-    
-        let rooms: RoomWithOwnerNickname[] = [];  
         
-
-        for (let i = 0; i < roomsDocuments.length; i++) {
-            const roomDoc = roomsDocuments[i];
-            const roomInfo = await this.roomAndUserModel.findOne({ room_id: roomDoc._id})
-            const indexForowner = roomInfo.owner.indexOf(true);
-            const ownerID = roomInfo.user_info[indexForowner];
-            const ownerNickname = await this.authModel.findOne({ _id: ownerID }).exec();
-
-            let room: RoomWithOwnerNickname = {
-                title: roomDoc.title,
-                member_count: roomDoc.member_count,
-                max_members: roomDoc.max_members,
-                status: roomDoc.status,
-                password: roomDoc.password,
-                level: roomDoc.level,
-                mode: roomDoc.mode,
-                ready: roomDoc.ready,
-                ownerNickname: ownerNickname.nickname, // nickname값 추가
+       const roomListDto = roomsDocuments.map((room) => {
+            return {
+                title: room.title,
+                member_count: room.member_count,
+                max_members: room.max_members,
+                status: room.status,
+                level: room.level,
+                mode: room.mode,
             };
-            
-            rooms.push(room);
-        }
-    
+        });
         return {
-            pageSize,
-            totalCount,
-            totalPage,
-            rooms: rooms,
+            rooms : roomListDto,
+            totalPage
         };
     }
     
