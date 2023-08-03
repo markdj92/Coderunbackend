@@ -44,7 +44,7 @@ const EditorCodeMirror: React.FC<Props> = ({ viewer, nickname, isSubmit }) => {
       clientID: provider.current.awareness.clientID,
     });
 
-    const editorPlaceHolder = `print("hello codewarts")  # 디폴트 언어는 python입니다`;
+    const editorPlaceHolder = `print("welcome to coding learn")`;
 
     const state = EditorState.create({
       doc: ytext.toString(),
@@ -59,7 +59,7 @@ const EditorCodeMirror: React.FC<Props> = ({ viewer, nickname, isSubmit }) => {
         foldGutter(),
         placeholder(editorPlaceHolder),
         EditorView.lineWrapping,
-        EditorView.contentAttributes.of({ contenteditable: isSubmit ? 'true' : 'false' }),
+        EditorView.contentAttributes.of({ contenteditable: isSubmit ? 'true' : 'true' }),
       ],
     });
 
