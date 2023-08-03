@@ -11,15 +11,19 @@ const Alert = ({
   title: string;
   children?: React.ReactNode;
   handleCloseAlert: () => void;
-  handleAlert: () => void;
+  handleAlert?: () => void;
 }) => {
   return (
     <Modal handleHideModal={handleCloseAlert}>
       <MSG>{title}</MSG>
       {children}
       <Buttons>
-        <Button onClick={handleAlert}>YES</Button>
-        <Button onClick={handleCloseAlert}>NO</Button>
+        {handleAlert && <Button onClick={handleAlert}>YES</Button>}
+        {handleAlert ? (
+          <Button onClick={handleCloseAlert}>NO</Button>
+        ) : (
+          <Button onClick={handleCloseAlert}>Close</Button>
+        )}
       </Buttons>
     </Modal>
   );
@@ -37,25 +41,25 @@ const MSG = styled.div`
 const Buttons = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
   width: 514px;
   margin-top: 7px;
+  gap: 10px;
 `;
 const Button = styled.div`
   color: #e2e0ff;
   text-align: center;
-  font-family: 'Noto Sans' KR;
+  font-family: 'Noto Sans KR', sans-serif;
   font-size: 22px;
   font-style: normal;
   font-weight: 700;
   line-height: 22px; /* 100% */
 
   display: flex;
-  width: 245px;
+  width: 50%;
   padding: 16px 20px;
   justify-content: center;
   align-items: center;
-  gap: 10px;
   flex-shrink: 0;
   border-radius: 8px;
   background: linear-gradient(

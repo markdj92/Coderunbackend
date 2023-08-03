@@ -1,7 +1,9 @@
+import React, { useRef, MouseEvent } from 'react';
 import { FaCrown } from 'react-icons/fa';
 import styled from 'styled-components';
 
 import { socket } from '@/apis/socketApi';
+import { Menu } from '@/components/public/ContextMenu';
 import { userInfo } from '@/types/room';
 
 const Badge = ({
@@ -19,7 +21,42 @@ const Badge = ({
   isRoomAuth: boolean;
   title: string;
 }) => {
-  const handleClickCard = () => {};
+  const outerRef = useRef<HTMLDivElement>(null);
+
+  const menuOnClickHandler = (
+    e: React.MouseEvent<HTMLUListElement, MouseEvent> | React.KeyboardEvent<HTMLUListElement>,
+  ) => {
+    const eventTarget = e.target as HTMLUListElement;
+    if (eventTarget) {
+      switch (eventTarget.dataset.option) {
+        case 'profile':
+          openProfile();
+          break;
+        case 'add-friend':
+          requestFriend();
+          break;
+        case 'register-admin':
+          registerAdmin();
+          break;
+        default:
+          break;
+      }
+    }
+  };
+
+  const openProfile = () => {};
+
+  const requestFriend = () => {};
+
+  const registerAdmin = () => {
+    if (!isRoomAuth) return;
+    socket.emit('change-owner', { title, index: badgeNumber });
+  };
+
+  const handleKick = () => {
+    if (!isRoomAuth) return;
+    socket.emit('forceLeave', { title, index: badgeNumber });
+  };
 
   const handleLockCard = () => {
     if (!isRoomAuth) return;
@@ -42,27 +79,58 @@ const Badge = ({
         </NonUserCard>
       </Container>
     );
-  return (
-    <Container>
-      <UserImg>
-        {user.status && <p className='ready'>READY</p>}
-        <img id='profile-image' src={'/images/anonymous.jpg'} />
-      </UserImg>
-      <UserCard
-        ismine={isMine ? 'true' : 'false'}
-        islock={user.status ? 'true' : 'false'}
-        onClick={handleClickCard}
-      >
-        <DropButton>x</DropButton>
 
-        <InfoFrame>
-          <p className='nickname'>
-            {user.nickname} {isOwner && <FaCrown size={'1.5rem'} />}
-          </p>
-          <p className='level'>LV {user.level}</p>
-        </InfoFrame>
-      </UserCard>
-    </Container>
+  if (isMine)
+    return (
+      <Container>
+        <UserImg>
+          {user.status && <p className='ready'>READY</p>}
+          <img id='profile-image' src={'/images/anonymous.jpg'} />
+        </UserImg>
+        <UserCard ismine={isMine ? 'true' : 'false'} islock={user.status ? 'true' : 'false'}>
+          <InfoFrame>
+            <p className='nickname'>
+              {user.nickname} {isOwner && <FaCrown size={'1.5rem'} />}
+            </p>
+            <p className='level'>LV {user.level}</p>
+          </InfoFrame>
+        </UserCard>
+      </Container>
+    );
+  return (
+    <>
+      {isRoomAuth ? (
+        <Menu outerRef={outerRef} menuOnClick={(e) => menuOnClickHandler(e)}>
+          <li data-option='profile'>프로필 보기</li>
+          <li data-option='add-friend'>친구추가 요청</li>
+          <li data-option='register-admin'>방장 위임</li>
+        </Menu>
+      ) : (
+        <Menu outerRef={outerRef} menuOnClick={(e) => menuOnClickHandler(e)}>
+          <li data-option='profile'>프로필 보기</li>
+          <li data-option='add-friend'>친구추가 요청</li>
+        </Menu>
+      )}
+      <Container>
+        <UserImg>
+          {user.status && <p className='ready'>READY</p>}
+          <img id='profile-image' src={'/images/anonymous.jpg'} />
+        </UserImg>
+        <UserCard
+          ref={outerRef}
+          ismine={isMine ? 'true' : 'false'}
+          islock={user.status ? 'true' : 'false'}
+        >
+          {isRoomAuth && <KickButton onClick={handleKick}>x</KickButton>}
+          <InfoFrame>
+            <p className='nickname'>
+              {user.nickname} {isOwner && <FaCrown size={'1.5rem'} />}
+            </p>
+            <p className='level'>LV {user.level}</p>
+          </InfoFrame>
+        </UserCard>
+      </Container>
+    </>
   );
 };
 
@@ -131,7 +199,7 @@ const InfoFrame = styled.div`
   }
 `;
 
-const DropButton = styled.button`
+const KickButton = styled.button`
   position: absolute;
   top: 0;
   right: 0.5rem;

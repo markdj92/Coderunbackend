@@ -61,7 +61,9 @@ const Result = () => {
         ),
       );
     };
+
     onResultPage();
+
     setSolvedUsers(
       userInfos &&
         userInfos.filter(
@@ -77,11 +79,13 @@ const Result = () => {
         ),
     );
     let reviewMembers = 0;
-    
-    userInfos.forEach((user: userInfo) => {
-      if (user === 'EMPTY' || user === 'LOCK') return;
-      if (user.review) return (reviewMembers += 1);
-    });
+
+    userInfos &&
+      userInfos.forEach((user: userInfo) => {
+        if (user === 'EMPTY' || user === 'LOCK') return;
+        if (user.review) return (reviewMembers += 1);
+      });
+
     if (reviewMembers === 0) setAbleReview(false);
     else setAbleReview(true);
     socket.on('room-status-changed', resultHandler);

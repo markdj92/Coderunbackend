@@ -18,6 +18,7 @@ const Room = () => {
   useSocketConnect();
   const location = useLocation();
   const { title, member_count, max_members, user_info, nickname } = location.state;
+
   const [ableStart, setAbleStart] = useState<boolean>(false);
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
@@ -39,8 +40,7 @@ const Room = () => {
   };
 
   useEffect(() => {
-    const roomHandler = (response: RoomStatus) => {
-      const { title, member_count, max_members, user_info } = response;
+    const roomHandler = ({ title, member_count, max_members, user_info }: RoomStatus) => {
       setRoomName(title);
       setPeople(member_count);
       let countReady = 0;
@@ -79,10 +79,18 @@ const Room = () => {
     setUserInfos(user_info);
 
     socket.on('room-status-changed', roomHandler);
+    socket.on('kicked', (title) => {
+      if (title === roomName) {
+        socket.emit('leave-room', { title: roomName }, () => {
+          navigate('/lobby', { state: { nickname, kicked: true } });
+        });
+      }
+    });
     socket.on('start', (response) => {
       navigate('/game', { state: { nickname: nickname, title: response.title } });
     });
     return () => {
+      socket.off('kicked');
       socket.off('start');
       socket.off('room-status-changed', roomHandler);
     };

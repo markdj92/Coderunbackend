@@ -35,7 +35,8 @@ const Lobby = () => {
   if (!location.state) {
     return <ErrorPage />;
   }
-  const { nickname } = location.state;
+  const { nickname, kicked } = location.state;
+  const [isKicked, setIsKicked] = useState(kicked ? true : false);
   const { value: roomInfo, setValue: setRoomInfo } = useInput({
     title: '',
     password: '',
@@ -119,6 +120,9 @@ const Lobby = () => {
           handleCloseAlert={() => setIsLogout(false)}
         />
       )}
+      {isKicked && (
+        <Alert title={'강퇴 당하셨습니다.'} handleCloseAlert={() => setIsKicked(false)} />
+      )}
       {isPrivateRoom && (
         <PrivateModal
           nickname={nickname}
@@ -168,7 +172,7 @@ const HeaderLogo = styled.div`
 `;
 
 const MainContainer = styled.div`
-  background: url('./background_lobby.png');
+  background: url('/background_lobby.png');
   background-size: contain;
   font-family: 'Noto Sans KR', sans-serif;
   display: flex;
