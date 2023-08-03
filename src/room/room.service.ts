@@ -323,22 +323,22 @@ export class RoomService {
             return null;
         }
         
-        let increment = 0;  //증가하는 값을 설정해주고      
+        let increment = 0; 
         if(roomAndUser.user_info[index] === EmptyOrLock.LOCK){
             roomAndUser.user_info[index] = EmptyOrLock.EMPTY;
-            increment = 1; //lock->unlock은 증가하는 값을 1로   
+            increment = 1; 
         } else if (roomAndUser.user_info[index] === EmptyOrLock.EMPTY) {
             roomAndUser.user_info[index] = EmptyOrLock.LOCK;
-            increment = -1; //unlock->lock은 증가하는 값을 -1
+            increment = -1; 
         } else {
             return false;
         }
     
         await roomAndUser.save();
-        const room = await this.roomModel.findOne({ _id: room_id }, 'title max_members').exec(); //확인해본 결과 이렇게 했을 경우에 title max_members로 mongodb에서 title과 max_members값만 추출할 수 있습니다.
+        const room = await this.roomModel.findOne({ _id: room_id }, 'title max_members').exec(); 
   
         if (room) {
-            room.max_members += increment; //증가하는 값만큼을 더 해주는 방식으로 max_members를 조절함
+            room.max_members += increment; 
             await room.save();
         }
         return true;
