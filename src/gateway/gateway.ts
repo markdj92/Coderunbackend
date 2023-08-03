@@ -1,3 +1,4 @@
+import { AuthService } from './../auth/auth.service';
 import { Logger, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import * as jwt from 'jsonwebtoken';
@@ -27,20 +28,21 @@ import { CodeSubmission, ExtendedSocket, JoinRoomPayload, ResponsePayload } from
 export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     constructor(private readonly roomService: RoomService,
         private readonly userService: UsersService, 
-        private readonly codingService : CodingTestService,
+        private readonly codingService: CodingTestService,
+        private readonly authService: AuthService
     ) {}
 
     private logger = new Logger('Room');
 
     @WebSocketServer() nsp: Namespace;
     afterInit(server: any) {
-        this.nsp.adapter.on('create-room', (room) => {
-        this.logger.log(`"${room}" 이 생성되었습니다.`);
-        });
+        this.logger.log('Initialized!');
+    
     }
 
     async handleConnection(@ConnectedSocket()  socket: ExtendedSocket) {
         if (socket.handshake.headers && socket.handshake.headers.authorization) {
+
             const token = socket.handshake.headers.authorization.split(' ')[1]; 
         
             jwt.verify(token, process.env.JWT_SECRET, (err: any, decoded: any) => {
@@ -50,6 +52,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
             }
             socket.decoded = decoded;
             this.logger.log(`"token 인증 되어있습니다!`);
+            this.authService.saveSocketId(decoded.email, socket.id);
             });
           } else {
             socket.disconnect(); // 연결을 끊음
@@ -310,14 +313,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         @ConnectedSocket() socket: ExtendedSocket) {
         
         const userId = this.roomService.getUserIdFromIndex(title, index);
-        const result = await this.roomService.changeRoomStatusForLeave(socket.room_id, await userId);
-        if (!result) {
-            return { success: false, payload: { message: "강퇴하는데 오류가 생겼습니다. 다시 시도해주세요." } };
-        }
-        let roomAndUserInfo: RoomStatusChangeDto | boolean;
-        roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
-        this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
-        return { success: true, payload: { roomInfo: roomAndUserInfo } };
+        const userSocketid = this.authService.getSocketIdByuserId(await userId);
+        this.nsp.to(await userSocketid).emit('kicked', title);
+     
     }
 
 }
