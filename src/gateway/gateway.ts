@@ -201,8 +201,6 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     @MessageBody('title') title : string,
     @ConnectedSocket() socket: ExtendedSocket
     ): Promise<{success : boolean, payload : {roomInfo : RoomStatusChangeDto | boolean}} >{
-
-        console.log(socket.room_id);
         await this.roomService.getResult(socket.room_id, socket.user_id);
 
         const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
@@ -303,7 +301,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         }
         await this.codingService.saveSubmitInfo(socket.decoded.email, codeSubmission.title);
         const finish = await this.codingService.checkFinish(codeSubmission.title);
-        console.log(finish);
+
         socket.emit('solved', { success: finish, payload: { result: result } });  
     }
 

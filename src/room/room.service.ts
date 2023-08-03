@@ -246,9 +246,7 @@ export class RoomService {
             return 'user_id is undefined';
          }
         
-        console.log("function, roomAndUserInfo :", roomAndUserInfo);
         const user_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());
-        console.log("function, user_index :", user_index);
 
         await this.roomAndUserModel.findOneAndUpdate(
              { room_id : room_id },
@@ -308,7 +306,6 @@ export class RoomService {
     async getResult(room_id: ObjectId, user_id : ObjectId) {
         
         const roomInfo = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
-        console.log(roomInfo);
         let review_index = 0;
 
         await roomInfo.user_info.forEach(async (user, index) => {
