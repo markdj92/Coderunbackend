@@ -8,14 +8,15 @@ import IconLogout from '/images/lobby/button_logout.png';
 import IconSetting from '/images/lobby/button_setting.png';
 
 import { postLogout } from '@/apis/authApi';
+import { socket } from '@/apis/socketApi';
+import Button from '@/components/Lobby/Button';
 
 import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
 
-import { socket } from '@/apis/socketApi';
-import Button from '@/components/Lobby/Button';
 import CreateRoom from '@/components/Lobby/CreateRoom';
 import DropBox from '@/components/Lobby/DropBox';
 import IconButton from '@/components/Lobby/IconButton';
+import PrivateModal from '@/components/Lobby/PrivateModal';
 import RoomList from '@/components/Lobby/RoomList';
 import Alert from '@/components/public/Alert';
 import { useInput } from '@/hooks/useInput';
@@ -24,6 +25,8 @@ import { RoomResponse } from '@/types/lobby';
 
 const Lobby = () => {
   const [isShownCreateRoom, setShownCreateRoom] = useState(false);
+  const [isPrivateRoom, setIsPrivateRoom] = useState(false);
+  const [privateRoomName, setPrivateRoomName] = useState('');
   const [isLogout, setIsLogout] = useState(false);
   useSocketConnect();
 
@@ -92,7 +95,13 @@ const Lobby = () => {
 
   const handleSetting = () => {};
 
-  const handleQuickStart = () => {};
+  const handleQuickStart = () => {
+    handlePrivateRoom();
+  };
+
+  const handlePrivateRoom = () => {
+    setIsPrivateRoom(!isPrivateRoom);
+  };
 
   return (
     <MainContainer>
@@ -114,6 +123,13 @@ const Lobby = () => {
       {isKicked && (
         <Alert title={'강퇴 당하셨습니다.'} handleCloseAlert={() => setIsKicked(false)} />
       )}
+      {isPrivateRoom && (
+        <PrivateModal
+          nickname={nickname}
+          handleShowModal={handlePrivateRoom}
+          roomName={privateRoomName}
+        />
+      )}
       <LeftFrame>
         <HeaderSection>
           <HeaderLogo onClick={() => navigate('/lobby')}>CODE LEARN</HeaderLogo>
@@ -131,7 +147,11 @@ const Lobby = () => {
             <IconButton icon={IconLogout} alt='setting' onClick={() => setIsLogout(true)} />
           </RoomButtonBox>
         </HeaderSection>
-        <RoomList nickname={nickname} />
+        <RoomList
+          nickname={nickname}
+          onClickRoom={(title: string) => setPrivateRoomName(title)}
+          handlePrivate={handlePrivateRoom}
+        />
       </MainFrame>
       <RightFrame>
         <HeaderSection></HeaderSection>
