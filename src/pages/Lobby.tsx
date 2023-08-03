@@ -17,12 +17,14 @@ import CreateRoom from '@/components/Lobby/CreateRoom';
 import DropBox from '@/components/Lobby/DropBox';
 import IconButton from '@/components/Lobby/IconButton';
 import RoomList from '@/components/Lobby/RoomList';
+import Alert from '@/components/public/Alert';
 import { useInput } from '@/hooks/useInput';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomResponse } from '@/types/lobby';
 
 const Lobby = () => {
   const [isShownCreateRoom, setShownCreateRoom] = useState(false);
+  const [isLogout, setIsLogout] = useState(false);
   useSocketConnect();
 
   const navigate = useNavigate();
@@ -76,16 +78,15 @@ const Lobby = () => {
     setShownCreateRoom(!isShownCreateRoom);
   };
 
+  const logoutTitle = '정말 떠나실건가요?';
   const handleLogout = () => {
-    if (confirm('정말 떠나실건가요?'))
-      try {
-        postLogout();
-        localStorage.removeItem(USER_TOKEN_KEY);
-        alert('로그아웃 되었습니다.');
-        navigate(PATH_ROUTE.login);
-      } catch (error) {
-        console.error(error);
-      }
+    try {
+      postLogout();
+      localStorage.removeItem(USER_TOKEN_KEY);
+      navigate(PATH_ROUTE.login);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleSetting = () => {};
@@ -102,6 +103,13 @@ const Lobby = () => {
           handleShowCreateRoom={handleShowCreateRoom}
         />
       )}
+      {isLogout && (
+        <Alert
+          title={logoutTitle}
+          handleAlert={handleLogout}
+          handleCloseAlert={() => setIsLogout(false)}
+        />
+      )}
       <LeftFrame>
         <HeaderSection>
           <HeaderLogo onClick={() => navigate('/lobby')}>CODE LEARN</HeaderLogo>
@@ -116,7 +124,7 @@ const Lobby = () => {
           </RoomButtonBox>
           <RoomButtonBox>
             <IconButton icon={IconSetting} alt='setting' onClick={handleSetting} />
-            <IconButton icon={IconLogout} alt='setting' onClick={handleLogout} />
+            <IconButton icon={IconLogout} alt='setting' onClick={() => setIsLogout(true)} />
           </RoomButtonBox>
         </HeaderSection>
         <RoomList nickname={nickname} />

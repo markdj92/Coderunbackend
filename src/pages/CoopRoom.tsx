@@ -7,11 +7,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { styled } from 'styled-components';
 
 import { gameSocket, socket } from '@/apis/socketApi';
+import Alert from '@/components/public/Alert';
 import Badge from '@/components/Room/Badge';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomStatus, userInfo } from '@/types/room';
 
 const CoopRoom = () => {
+  const [isLeaveRoom, setIsLeaveRoom] = useState(false);
+
   useSocketConnect();
 
   const navigate = useNavigate();
@@ -89,13 +92,6 @@ const CoopRoom = () => {
     setIsMicrophone(!isMicrophone);
   };
 
-  const handleLeaveRoom = () => {
-    const answer = confirm('정말 나가시겠습니까?');
-    if (answer) {
-      onLeaveRoom();
-    }
-  };
-
   const onReady = () => {
     socket.emit('ready', { title: roomName });
   };
@@ -104,6 +100,7 @@ const CoopRoom = () => {
     socket.emit('start', { title: roomName });
   };
 
+  const leaveRoomTitle = '정말 나가시겠습니까?';
   const onLeaveRoom = useCallback(() => {
     socket.emit('leave-room', { title: roomName }, () => {
       navigate('/lobby', { state: { nickname } });
@@ -111,9 +108,18 @@ const CoopRoom = () => {
   }, [navigate, roomName]);
   return (
     <MainContainer>
+      {isLeaveRoom && (
+        <Alert
+          title={leaveRoomTitle}
+          handleCloseAlert={() => setIsLeaveRoom(false)}
+          handleAlert={onLeaveRoom}
+        />
+      )}
       <MainFrame>
         <LeftSide>
-          <HeaderLogo onClick={handleLeaveRoom}>CODE LEARN</HeaderLogo>
+          <HeaderLogo onClick={() => navigate('/lobby', { state: { nickname } })}>
+            CODE LEARN
+          </HeaderLogo>
           <RoomName>{title}</RoomName>
 
           <OptionSection>
@@ -149,7 +155,7 @@ const CoopRoom = () => {
         </MainSide>
         <RightSide>
           <RoomButtons>
-            <button onClick={handleLeaveRoom}>
+            <button onClick={() => setIsLeaveRoom(true)}>
               <ImExit size={'2rem'} />
             </button>
             <button>

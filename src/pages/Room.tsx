@@ -7,11 +7,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { socket } from '@/apis/socketApi';
+import Alert from '@/components/public/Alert';
 import Badge from '@/components/Room/Badge';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomStatus, userInfo } from '@/types/room';
 
 const Room = () => {
+  const [isLeaveRoom, setIsLeaveRoom] = useState(false);
+
   useSocketConnect();
   const location = useLocation();
   const { title, member_count, max_members, user_info, nickname } = location.state;
@@ -85,13 +88,7 @@ const Room = () => {
     };
   }, []);
 
-  const handleLeaveRoom = () => {
-    const answer = confirm('정말 나가시겠습니까?');
-    if (answer) {
-      onLeaveRoom();
-    }
-  };
-
+  const leaveRoomTitle = '정말 나가시겠습니까?';
   const onLeaveRoom = useCallback(() => {
     socket.emit('leave-room', { title: roomName }, () => {
       navigate('/lobby', { state: { nickname } });
@@ -110,6 +107,13 @@ const Room = () => {
 
   return (
     <MainContainer>
+      {isLeaveRoom && (
+        <Alert
+          title={leaveRoomTitle}
+          handleCloseAlert={() => setIsLeaveRoom(false)}
+          handleAlert={onLeaveRoom}
+        />
+      )}
       <MainFrame>
         <div className='part1'>
           <HeaderLogo onClick={() => navigate('/lobby')}>CODE LEARN</HeaderLogo>
@@ -146,7 +150,7 @@ const Room = () => {
         </div>
         <div className='part3'>
           <RoomButtons>
-            <button onClick={handleLeaveRoom}>
+            <button onClick={() => setIsLeaveRoom(true)}>
               <ImExit size={'2rem'} />
             </button>
             <button onClick={onCustomRoom}>
