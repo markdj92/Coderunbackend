@@ -4,7 +4,6 @@ import { BsFillMicFill, BsFillMicMuteFill } from 'react-icons/bs';
 import { PiSpeakerSimpleHighFill, PiSpeakerSimpleSlashFill } from 'react-icons/pi';
 import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import * as Y from 'yjs';
 
 import { postExecuteResult, postQuizInfo } from '@/apis/gameApi';
 import { getNickname } from '@/apis/roomApi';
@@ -20,10 +19,10 @@ import { ExecuteResult, QuizInfo } from '@/types/inGame';
 const InGame = () => {
   const location = useLocation();
   const { title, nickname }: { title: string; nickname: string } = location.state;
-  const [ydoc, setYdoc] = useState<Y.Doc | null>(new Y.Doc());
   const [provider, setProvider] = useState<WebsocketProvider | undefined>(undefined);
   const [userInGame, setUserInGame] = useState<string[]>([]);
   const [viewer, setViewer] = useState<string>(`ROOMNAME${title}${nickname}`);
+  // const [viewer, setViewer] = useState<string>(nickname);
   const [quizNumber, setQuizNumber] = useState<number>(1);
   const [quizInfo, setQuizInfo] = useState<QuizInfo>(null);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
@@ -37,7 +36,6 @@ const InGame = () => {
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
 
   const handleProvider = (provider: WebsocketProvider) => {
-    setYdoc(new Y.Doc());
     setProvider(provider);
   };
 
@@ -86,6 +84,7 @@ const InGame = () => {
 
   const handleSetViewer = (viewer: string) => {
     setViewer(`ROOMNAME${title}${viewer}`);
+    // setViewer(`${viewer}`);
   };
 
   useEffect(() => {
@@ -124,7 +123,7 @@ const InGame = () => {
           </OptionSection>
           <MainSection>
             <QuizSection>
-              <QuizHeader roomName={title} title={quizInfo.title} timer={{ mm: 1, ss: 22 }} />
+              <QuizHeader roomName={title} title={quizInfo.title} timer={{ mm: 20, ss: 22 }} />
               <QuizMain>
                 <QuizLeft>
                   <QuizFrame quizInfo={quizInfo} />
@@ -132,7 +131,6 @@ const InGame = () => {
                 <QuizRight>
                   <EditorFrame>
                     <EditorCodeMirror
-                      ydoc={ydoc}
                       provider={provider}
                       handleProvider={handleProvider}
                       title={title}

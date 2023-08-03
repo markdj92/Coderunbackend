@@ -54,7 +54,12 @@ const Lobby = () => {
     e.preventDefault();
 
     socket.emit('create-room', roomInfo, (response: RoomResponse) => {
-      if (!response.success) return alert(response.payload);
+      if (!response.success) {
+        return alert(response.payload.message);
+      }
+      if (!response.payload.roomInfo) {
+        return alert('서버 문제가 발생했습니다.');
+      }
       if (roomInfo.mode === 'STUDY') {
         navigate(`/room/${roomInfo.title}`, {
           state: { ...response.payload.roomInfo, nickname },
