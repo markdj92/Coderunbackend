@@ -95,6 +95,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         const room_id = await this.roomService.getRoomIdFromTitle(roomCreateDto.title);
         socket.room_id = room_id;
         const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
+        if (roomAndUserInfo == null || false || undefined) {
+            return { success: false, payload: { message: "방을 생성 할 수 없습니다. 다시 시도해주세요." }};    
+        }
         return {success : true,  payload: { roomInfo : roomAndUserInfo}}
     }
 
