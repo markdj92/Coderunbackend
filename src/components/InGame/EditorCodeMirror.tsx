@@ -4,7 +4,7 @@ import { indentUnit, foldGutter } from '@codemirror/language';
 import { EditorState } from '@codemirror/state';
 import { keymap, EditorView, placeholder } from '@codemirror/view';
 import { basicSetup } from 'codemirror';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { yCollab, yUndoManagerKeymap } from 'y-codemirror.next';
 import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
@@ -21,69 +21,37 @@ interface Props {
   isSubmit: boolean;
 }
 
-const EditorCodeMirror: React.FC<Props> = ({
-  provider,
-  handleProvider,
-  // title,
-  viewer,
-  nickname,
-  isSubmit,
-}) => {
-  const roomName = `${viewer}`;
+const EditorCodeMirror: React.FC<Props> = ({ viewer, nickname, isSubmit }) => {
   const editor = useRef(null);
 
-  const [ydoc, setYdoc] = useState<null | Y.Doc>(null);
+  const ydoc = useRef(new Y.Doc());
+  const provider = useRef<WebsocketProvider | null>(null);
+
+  const ytext = ydoc.current.getText('codemirror');
 
   useEffect(() => {
-    setYdoc(new Y.Doc());
-  }, []);
-
-  const [ytext, setYtext] = useState(ydoc.getText('codemirror'));
+    ydoc.current.getText('codemirror').delete(0, ydoc.current.getText('codemirror').length);
+  }, [viewer]);
 
   useEffect(() => {
-    if (!ydoc) return;
-    handleProvider(
-      new WebsocketProvider(
-        'ws://localhost:8000',
-        roomName,
-        ydoc,
-        // { params: { auth: editorName } } // Specify a query-string that will be url-encoded and attached to the `serverUrl`
-      ),
-    );
-  }, [ydoc]);
+    provider.current = new WebsocketProvider('ws://localhost:8000', viewer, ydoc.current);
 
-  useEffect(() => {
-    if (!provider || !ydoc) return;
-    provider.on('status', (event: any) => {
-      console.error(event.status);
-    });
-    setYtext(ydoc.getText('codemirror'));
-  }, [provider]);
-
-  useEffect(() => {
-    if (!ytext) return;
-    if (!provider) return;
-    provider.awareness.setLocalStateField('user', {
+    provider.current?.awareness.setLocalStateField('user', {
       name: nickname,
       color: userColor.color,
       colorLight: userColor.light,
-      roomName: roomName,
-      clientID: provider.awareness.clientID,
+      roomName: viewer,
+      clientID: provider.current.awareness.clientID,
     });
-  }, [ytext]);
-
-  useEffect(() => {
-    if (!provider) return;
 
     const editorPlaceHolder = `print("hello codewarts")  # 디폴트 언어는 python입니다`;
 
-    /* editor instance 생성; state, view 생성 */
     const state = EditorState.create({
       doc: ytext.toString(),
       extensions: [
         basicSetup,
         python(),
-        yCollab(ytext, provider.awareness),
+        yCollab(ytext, provider.current.awareness),
         keymap.of([...yUndoManagerKeymap, indentWithTab]),
         keymap.of(standardKeymap),
         keymap.of(defaultKeymap),
@@ -91,19 +59,20 @@ const EditorCodeMirror: React.FC<Props> = ({
         foldGutter(),
         placeholder(editorPlaceHolder),
         EditorView.lineWrapping,
-        EditorView.contentAttributes.of({ contenteditable: !isSubmit }),
+        EditorView.contentAttributes.of({ contenteditable: isSubmit ? 'true' : 'false' }),
       ],
     });
-
-    if (!editor.current) return;
 
     const view = new EditorView({
       state: state,
       parent: editor.current || undefined,
     });
 
-    return () => view?.destroy();
-  }, [ydoc, provider, viewer]);
+    return () => {
+      view?.destroy();
+      provider.current?.destroy();
+    };
+  }, [viewer]);
 
   return (
     <div>
