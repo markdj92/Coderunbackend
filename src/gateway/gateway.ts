@@ -60,7 +60,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         const check = await this.roomService.checkWrongDisconnection(socket.decoded.email);
         if (!check) {
             const result = await this.roomService.changeRoomStatusForLeave(socket.room_id, socket.user_id);
-            if(result === "Success"){
+            if(result){
                 const title = await this.roomService.getTitleFromRoomId(socket.room_id);
                 socket.leave(await title);
                 const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
@@ -301,5 +301,20 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         socket.emit('solved', { success: finish, payload: { result: result } });  
     }
 
+    @SubscribeMessage('forceLeave')
+    async handleForceLeave(
+        @MessageBody('title') title: string, @MessageBody('index') index: number,
+        @ConnectedSocket() socket: ExtendedSocket) {
+        
+        const userId = this.roomService.getUserIdFromIndex(title, index);
+        const result = await this.roomService.changeRoomStatusForLeave(socket.room_id, await userId);
+        if (!result) {
+            return { success: false, payload: { message: "강퇴하는데 오류가 생겼습니다. 다시 시도해주세요." } };
+        }
+        let roomAndUserInfo: RoomStatusChangeDto | boolean;
+        roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
+        this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
+        return { success: true, payload: { roomInfo: roomAndUserInfo } };
+    }
 
 }
