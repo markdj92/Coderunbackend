@@ -20,7 +20,6 @@ interface Props {
   setViewer: (viewer: string) => void;
   nickname: string;
   isSubmit: boolean;
-  handleRun: () => void;
 }
 
 const EditorCodeMirror: React.FC<Props> = ({ viewer, nickname, isSubmit }) => {
