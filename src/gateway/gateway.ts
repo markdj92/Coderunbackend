@@ -19,6 +19,7 @@ import { jwtSocketIoMiddleware } from './jwt-socket-io.middleware';
 import { CodingTestService } from 'src/codingtest/codingtest.service';
 import { CompileResultDto } from 'src/codingtest/dto/compileresult.dto';
 import { CodeSubmission, ExtendedSocket, JoinRoomPayload, ResponsePayload } from './interface'
+import { userInfo } from 'os';
 
 
 
@@ -128,11 +129,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         else {
             const room_id = await this.roomService.getRoomIdFromTitle(joinRoomPayload.title);
             socket.join(await joinRoomPayload.title);
-            const user_id = await this.userService.userInfoFromEmail(socket.decoded.email);
-            socket.user_id = user_id;
             socket.room_id = room_id;
 
-            await this.roomService.changeRoomStatusForJoin(room_id, user_id);
+            await this.roomService.changeRoomStatusForJoin(room_id, socket.user_id);
             
             roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
             this.nsp.to(joinRoomPayload.title).emit('room-status-changed', roomAndUserInfo);
@@ -263,6 +262,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     async handleSubmitCode(
         @MessageBody() codeSubmission: CodeSubmission,
         @ConnectedSocket() socket: ExtendedSocket) {
+        
         const userOutputResult = []; 
         const problem = await this.codingService.getProblemInput(codeSubmission.problemNumber);
         let result; 
@@ -288,7 +288,12 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
             await this.nsp.to(codeSubmission.title).emit('finishedGame', codeSubmission.title);
         }
 
-        return { success: true, payload: { result: result } };  
+        let roomStatusChangeDto = new RoomStatusChangeDto(); 
+        const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id); 
+        if (typeof roomAndUserInfo !== 'boolean') {
+            roomStatusChangeDto = roomAndUserInfo;
+        }
+        return { success: true, payload: { result: result, user_info: roomStatusChangeDto.user_info } };  
     }
 
     @SubscribeMessage('forceLeave')
