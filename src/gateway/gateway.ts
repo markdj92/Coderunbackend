@@ -307,4 +307,28 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
      
     }
 
+
+    @SubscribeMessage('timer')
+    async handleTimer(
+    @MessageBody('title') title: string,
+    @ConnectedSocket() socket: ExtendedSocket) {    
+        
+    let timer = 15;
+    const interval = setInterval(async () => {
+      if (timer > 0) {
+        this.nsp.to(title).emit('timer', timer);
+        timer--;
+      } else {
+          const reviewOrnot = await this.roomService.checkReviewOrNot(title);
+          if (reviewOrnot === true) {
+              this.nsp.to(title).emit('timeout', { success: true , review : true});
+          } else {
+             this.nsp.to(title).emit('timeout', { success: true , review : false});
+          }
+        clearInterval(interval);
+      }
+    }, 1000);
+  }
+
+
 }

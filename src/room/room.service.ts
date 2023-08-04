@@ -437,4 +437,10 @@ export class RoomService {
     async getRoomListByLevelFilter(page: number, level: number) {
         return await this.getRoomList(page, level);
     }
+
+    async checkReviewOrNot(title: string) {
+        const roomInfo = await this.roomAndUserModel.findOne({ title: title }).exec();
+        const reviews = (await roomInfo).review;
+        return reviews.some((review) => review === true);
+    }
 }
