@@ -281,7 +281,15 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
                 await this.codingService.saveSolvedInfo(socket.decoded.email, codeSubmission.title);
                 quiz_result = true;
             }
+        } else {
+            const compileResult = new CompileResultDto;
+            compileResult.output = "0";
+            compileResult.memory = "0";
+            compileResult.statuscode = "0";
+            compileResult.cputime = "0";
+            result = compileResult;
         }
+
         await this.codingService.saveSubmitInfo(socket.decoded.email, codeSubmission.title);
         const finish = await this.codingService.checkFinish(codeSubmission.title);
 
