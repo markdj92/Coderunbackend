@@ -1,8 +1,8 @@
 import { styled } from 'styled-components';
 
-import { EMPTY, LOCK, userInfo } from '@/types/room';
+import { BadgeStatus, UserInfo } from '@/types/room';
 
-const User = ({ user }: { user: userInfo | EMPTY | LOCK }) => {
+const User = ({ user }: { user: UserInfo | BadgeStatus }) => {
   if (user === 'EMPTY' || user === 'LOCK') return;
   const isReview: boolean = user.review;
   return <UserCard status={isReview ? 'true' : 'false'}>{user.nickname}</UserCard>;
