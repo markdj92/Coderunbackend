@@ -248,17 +248,15 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     @SubscribeMessage('quick-join')
     async handleQuickJoinRoom(
     @ConnectedSocket() socket: ExtendedSocket): 
-    Promise<{ success: boolean }> {
+        Promise<{ success: boolean, payload: { roomInfo: string } }> {
 
         const email = socket.decoded.email; 
         const roomInfo = await this.roomService.findRoomForQuickJoin();
 
         if (!roomInfo) {
-            return { success: false }; 
-        } 
-        const userSocketid = await this.authService.getSocketIdByuserId(socket.user_id);
-        this.nsp.to(await userSocketid).emit('readyQuickJoin', roomInfo.title);
-        return { success: true }; 
+            return { success: false, payload: { roomInfo: "입장할 수 없는 방입니다." } };
+        }
+        return { success: true, payload: { roomInfo: roomInfo.title }}; 
     }
 
     @SubscribeMessage('submitCode')
