@@ -254,7 +254,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         const roomInfo = await this.roomService.findRoomForQuickJoin();
 
         if (!roomInfo) {
-            return { success: false, payload: { roomInfo: "입장할 수 없는 방입니다." } };
+            return { success: false, payload: { roomInfo: "입장할 수 있는 방이 없습니다." } };
         }
         return { success: true, payload: { roomInfo: roomInfo.title }}; 
     }
@@ -266,6 +266,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         const userOutputResult = []; 
         const problem = await this.codingService.getProblemInput(codeSubmission.problemNumber);
         let result; 
+
          for (const index of problem.input) {
             result = await this.codingService.executeCode(codeSubmission.script, codeSubmission.language, codeSubmission.versionIndex, index);
             if (!(result instanceof CompileResultDto)) {
