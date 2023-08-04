@@ -11,7 +11,7 @@ import Timer from '@/components/Result/Timer';
 import User from '@/components/Result/User';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomResponse } from '@/types/lobby';
-import { userInfo } from '@/types/room';
+import { BadgeStatus, UserInfo } from '@/types/room';
 
 const Result = () => {
   useSocketConnect();
@@ -34,9 +34,9 @@ const Result = () => {
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
 
   const [roomName, setRoomName] = useState('');
-  const [userInfos, setUserInfos] = useState<userInfo[]>();
-  const [solvedUsers, setSolvedUsers] = useState<userInfo[]>();
-  const [unsolvedUsers, setUnsolvedUsers] = useState<userInfo[]>();
+  const [userInfos, setUserInfos] = useState<UserInfo[]>();
+  const [solvedUsers, setSolvedUsers] = useState<UserInfo[]>();
+  const [unsolvedUsers, setUnsolvedUsers] = useState<UserInfo[]>();
 
   const [ableReview, setAbleReview] = useState<boolean>(false);
   const [review, setReview] = useState<boolean>(false);
@@ -50,13 +50,13 @@ const Result = () => {
 
       setSolvedUsers(
         user_info.filter(
-          (user: userInfo) =>
+          (user: UserInfo | BadgeStatus) =>
             user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && user.solved,
         ),
       );
       setUnsolvedUsers(
         user_info.filter(
-          (user: userInfo) =>
+          (user: UserInfo | BadgeStatus) =>
             user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && !user.solved,
         ),
       );
@@ -67,21 +67,21 @@ const Result = () => {
     setSolvedUsers(
       userInfos &&
         userInfos.filter(
-          (user: userInfo) =>
+          (user: UserInfo | BadgeStatus) =>
             user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && user.solved,
         ),
     );
     setUnsolvedUsers(
       userInfos &&
         userInfos.filter(
-          (user: userInfo) =>
+          (user: UserInfo | BadgeStatus) =>
             user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && !user.solved,
         ),
     );
     let reviewMembers = 0;
 
     userInfos &&
-      userInfos.forEach((user: userInfo) => {
+      userInfos.forEach((user: UserInfo | BadgeStatus) => {
         if (user === 'EMPTY' || user === 'LOCK') return;
         if (user.review) return (reviewMembers += 1);
       });

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { socket } from '@/apis/socketApi';
 import { Menu } from '@/components/public/ContextMenu';
-import { userInfo } from '@/types/room';
+import { UserInfo, BadgeStatus } from '@/types/room';
 
 const Badge = ({
   user,
@@ -14,7 +14,7 @@ const Badge = ({
   badgeNumber,
   title,
 }: {
-  user: userInfo;
+  user: UserInfo | BadgeStatus;
   isOwner: boolean;
   isMine: boolean;
   badgeNumber: number;
@@ -63,8 +63,7 @@ const Badge = ({
     socket.emit('lockunlock', { title, index: badgeNumber });
   };
 
-  if (typeof user !== 'string' && user.nickname === null) user.nickname = 'nowonjoo';
-  if (user === undefined || user === 'LOCK' || user === 'EMPTY')
+  if (user === 'EMPTY' || user === 'LOCK')
     return (
       <Container>
         <NonUserCard

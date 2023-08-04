@@ -1,21 +1,26 @@
 import styled from 'styled-components';
 
+import { UserInfo, BadgeStatus } from '@/types/room';
+
 const GameLiveBoard = ({
   userInGame = [],
   handleSetViewer,
 }: {
-  userInGame: string[];
+  userInGame: (UserInfo | BadgeStatus)[];
   handleSetViewer: (nickname: string) => void;
 }) => {
   return (
     <Container>
       <UserListSection>
         {userInGame &&
-          userInGame.map((user, index) => (
-            <UserCard key={index} onClick={() => handleSetViewer(user)}>
-              {user}
-            </UserCard>
-          ))}
+          userInGame.map((user, index) => {
+            if (user === 'EMPTY' || user === 'LOCK') return;
+            return (
+              <UserCard key={index} onClick={() => handleSetViewer(user.nickname)}>
+                {user.nickname}
+              </UserCard>
+            );
+          })}
       </UserListSection>
     </Container>
   );

@@ -10,7 +10,7 @@ import { socket } from '@/apis/socketApi';
 import Alert from '@/components/public/Alert';
 import Badge from '@/components/Room/Badge';
 import useSocketConnect from '@/hooks/useSocketConnect';
-import { RoomStatus, userInfo } from '@/types/room';
+import { BadgeStatus, RoomStatus, UserInfo } from '@/types/room';
 
 const Room = () => {
   const [isLeaveRoom, setIsLeaveRoom] = useState(false);
@@ -27,7 +27,7 @@ const Room = () => {
   const [myIndex, setMyIndex] = useState<number>(0);
   const [ownerIndex, setOwnerIndex] = useState<number>(0);
   const [maxPeople, setMaxPeople] = useState<number>(max_members);
-  const [userInfos, setUserInfos] = useState<userInfo[]>(user_info);
+  const [userInfos, setUserInfos] = useState<(UserInfo | BadgeStatus)[]>(user_info);
 
   const navigate = useNavigate();
 
@@ -45,7 +45,7 @@ const Room = () => {
       setPeople(member_count);
       let countReady = 0;
 
-      user_info.forEach((user: userInfo, index: number) => {
+      user_info.forEach((user: UserInfo | BadgeStatus, index: number) => {
         if (user === 'LOCK' || user === 'EMPTY') return;
         if (user.nickname === nickname) {
           setMyIndex(index);
@@ -65,7 +65,7 @@ const Room = () => {
     let countReady = 0;
     setRoomName(title);
     setPeople(member_count);
-    user_info.forEach((user: userInfo, index: number) => {
+    user_info.forEach((user: UserInfo | BadgeStatus, index: number) => {
       if (user === 'LOCK' || user === 'EMPTY') return;
       if (user.nickname === nickname) {
         setMyIndex(index);

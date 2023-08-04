@@ -1,16 +1,15 @@
-export type userInfos = { [key: number]: userInfo };
+export type UserInfos = { [key: number]: UserInfo };
 
-export type userInfo =
-  | {
-      level: number;
-      nickname: string;
-      owner: boolean;
-      solved: boolean;
-      status: boolean;
-      review: boolean;
-    }
-  | 'EMPTY'
-  | 'LOCK';
+export interface UserInfo {
+  level: number;
+  nickname: string;
+  owner: boolean;
+  solved: boolean;
+  status: boolean;
+  review: boolean;
+}
+
+export type BadgeStatus = 'EMPTY' | 'LOCK';
 
 export interface RoomInformation {
   title: string;
@@ -30,5 +29,5 @@ export interface RoomStatus {
   title: string;
   member_count: number;
   max_members: number;
-  user_info: userInfo[];
+  user_info: UserInfo[];
 }
