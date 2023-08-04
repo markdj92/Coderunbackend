@@ -217,6 +217,7 @@ export class RoomService {
         roomStatusChangeDto.member_count = room.member_count;
         roomStatusChangeDto.max_members = room.max_members;
         roomStatusChangeDto.user_info = userInfo;
+        roomStatusChangeDto.mode = room.mode;
 
         return roomStatusChangeDto;
     }
