@@ -270,7 +270,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
          for (const index of problem.input) {
             result = await this.codingService.executeCode(codeSubmission.script, codeSubmission.language, codeSubmission.versionIndex, index);
             if (!(result instanceof CompileResultDto)) {
-                return result;
+                return  { success: false, payload: { message: "제출을 실패했습니다. 다시 시도해주세요." }};
             }
             const resultOutput = result.output.replace(/\n/g, '');
             userOutputResult.push(resultOutput);
@@ -280,10 +280,15 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
             userOutputResult.every((value, index) => value == problem.output[index])) {
             await this.codingService.saveSolvedInfo(socket.decoded.email, codeSubmission.title);  
         }
+
         await this.codingService.saveSubmitInfo(socket.decoded.email, codeSubmission.title);
         const finish = await this.codingService.checkFinish(codeSubmission.title);
 
-        return { success: finish, payload: { result: result } };  
+        if (finish == true) {
+            await this.nsp.to(codeSubmission.title).emit('finishedGame', codeSubmission.title);
+        }
+
+        return { success: true, payload: { result: result } };  
     }
 
     @SubscribeMessage('forceLeave')
