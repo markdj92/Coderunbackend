@@ -96,7 +96,15 @@ const Lobby = () => {
   const handleSetting = () => {};
 
   const handleQuickStart = () => {
-    handlePrivateRoom();
+    socket.emit('quick-join', (response: RoomResponse) => {
+      if (!response.success) return alert(response.payload.roomInfo);
+      socket.emit('join-room', { title: response.payload.roomInfo }, (response: RoomResponse) => {
+        if (!response.payload?.roomInfo) return alert('방 입장 실패!');
+        navigate(`/room/${response.payload.roomInfo}`, {
+          state: { ...response.payload.roomInfo, nickname },
+        });
+      });
+    });
   };
 
   const handlePrivateRoom = () => {
