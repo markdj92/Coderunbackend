@@ -275,10 +275,11 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
             const resultOutput = result.output.replace(/\n/g, '');
             userOutputResult.push(resultOutput);
         }
-        
+        let quiz_result = false;
         if (userOutputResult.length == problem.output.length && 
             userOutputResult.every((value, index) => value == problem.output[index])) {
             await this.codingService.saveSolvedInfo(socket.decoded.email, codeSubmission.title);  
+            quiz_result = true;
         }
 
         await this.codingService.saveSubmitInfo(socket.decoded.email, codeSubmission.title);
@@ -293,7 +294,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         if (typeof roomAndUserInfo !== 'boolean') {
             roomStatusChangeDto = roomAndUserInfo;
         }
-        return { success: true, payload: { result: result, user_info: roomStatusChangeDto.user_info } };  
+        return { success: true, payload: { quiz_result: quiz_result, result: result, user_info: roomStatusChangeDto.user_info }};  
     }
 
     @SubscribeMessage('forceLeave')
