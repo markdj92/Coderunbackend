@@ -139,7 +139,14 @@ export class RoomService {
     }
 
     async memberCountDown(room_id : ObjectId) : Promise<{success : boolean}> {
-        const room = await this.roomModel.findOneAndUpdate({_id :room_id}, { $inc: { member_count: -1 }},  { new: true } );
+        const room = await this.roomModel.findOneAndUpdate({ _id: room_id }, { $inc: { member_count: -1 } }, { new: true });
+        if (room.ready === false) {
+            if(room.member_count < room.max_members  ){
+                room.ready = true;
+            }
+        }
+        room.save();
+        
         if (!room) {
             throw new Error(`No room found for id ${room_id}`);
         }
@@ -349,21 +356,21 @@ export class RoomService {
         return this.getRoomInfo(roomList._id);
     }
 
-    async findRoomForQuickJoin(email: string): Promise<{title: string, room_id: string} | null> {
-        const user_id = await this.userService.userInfoFromEmail(email);
-        //이메일을 통해 유저 정보를 얻음
-        const roomAndUser = await this.roomAndUserModel.findOne({
-            user_info: "EMPTY"
-        }).exec();
+    async findRoomForQuickJoin(): Promise<{ title: string, room_id: string } | null> {
         
-        if (roomAndUser && roomAndUser.title) {
-            return {
-                title: roomAndUser.title,
-                room_id: roomAndUser.room_id.toString()
-            };
-        } else {
-            return null;
-        }
+        const readyRoom = await this.roomModel.find({ ready: true }).exec();
+        
+        const roomAndUser = await readyRoom.map(async (room) => {
+            const check = await this.roomAndUserModel.findOne({ room_id: room._id, user_info: "EMPTY" }).exec();
+            if (check) {
+                return {
+                    title: room.title,
+                    room_id: room._id.toString()
+                }
+            }
+        });
+        const randomIndex = Math.floor(Math.random() * roomAndUser.length);
+        return roomAndUser[randomIndex];
     }
 
     async isUserInRoom(room_id : ObjectId, user_id : ObjectId) : Promise<boolean> {
