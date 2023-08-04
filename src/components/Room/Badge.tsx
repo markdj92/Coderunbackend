@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { socket } from '@/apis/socketApi';
 import { Menu } from '@/components/public/ContextMenu';
-import { userInfo } from '@/types/room';
+import { EMPTY, LOCK, userInfo } from '@/types/room';
 
 const Badge = ({
   user,
@@ -14,7 +14,7 @@ const Badge = ({
   badgeNumber,
   title,
 }: {
-  user: userInfo;
+  user: userInfo | LOCK | EMPTY;
   isOwner: boolean;
   isMine: boolean;
   badgeNumber: number;

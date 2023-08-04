@@ -10,7 +10,7 @@ import { socket } from '@/apis/socketApi';
 import Alert from '@/components/public/Alert';
 import Badge from '@/components/Room/Badge';
 import useSocketConnect from '@/hooks/useSocketConnect';
-import { RoomStatus, userInfo } from '@/types/room';
+import { EMPTY, LOCK, RoomStatus, userInfo } from '@/types/room';
 
 const Room = () => {
   const [isLeaveRoom, setIsLeaveRoom] = useState(false);
@@ -45,7 +45,7 @@ const Room = () => {
       setPeople(member_count);
       let countReady = 0;
 
-      user_info.forEach((user: userInfo, index: number) => {
+      user_info.forEach((user: userInfo | LOCK | EMPTY, index: number) => {
         if (user === 'LOCK' || user === 'EMPTY') return;
         if (user.nickname === nickname) {
           setMyIndex(index);
@@ -65,7 +65,7 @@ const Room = () => {
     let countReady = 0;
     setRoomName(title);
     setPeople(member_count);
-    user_info.forEach((user: userInfo, index: number) => {
+    user_info.forEach((user: userInfo | LOCK | EMPTY, index: number) => {
       if (user === 'LOCK' || user === 'EMPTY') return;
       if (user.nickname === nickname) {
         setMyIndex(index);

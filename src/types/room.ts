@@ -1,16 +1,16 @@
 export type userInfos = { [key: number]: userInfo };
 
-export type userInfo =
-  | {
-      level: number;
-      nickname: string;
-      owner: boolean;
-      solved: boolean;
-      status: boolean;
-      review: boolean;
-    }
-  | 'EMPTY'
-  | 'LOCK';
+export type userInfo = {
+  level: number;
+  nickname: string;
+  owner: boolean;
+  solved: boolean;
+  status: boolean;
+  review: boolean;
+};
+
+export type EMPTY = 'EMPTY';
+export type LOCK = 'LOCK';
 
 export interface RoomInformation {
   title: string;
