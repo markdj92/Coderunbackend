@@ -272,10 +272,10 @@ export class RoomService {
         }
     }
 
-    async changeOwner(room_id : ObjectId,user_id : ObjectId, index : number) : Promise<boolean> {
+    async changeOwner(room_id : ObjectId, user_id : ObjectId, index : number) : Promise<boolean> {
         const roomAndUserInfo = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
         const current_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());
-
+    
         if (current_index === -1) {
             throw new Error(`User with id ${user_id} not found in room ${room_id}`);
         }
@@ -289,7 +289,8 @@ export class RoomService {
         const result = await this.roomAndUserModel.findOneAndUpdate(
             { room_id : room_id }, 
             { $set : {
-                [`owner.${index}`] : true }
+                [`owner.${index}`] : true,
+                [`ready_status.${index}`] : false } // set the ready status of the new owner to false
             }
         )
         return true;
