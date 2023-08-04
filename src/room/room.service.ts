@@ -77,7 +77,7 @@ export class RoomService {
         await newInfoForRoom.save();
     }
 
-    async getRoomList(page: number): Promise<any> {
+    async getRoomList(page: number, level? : number): Promise<any> {
         const pageSize = 6;
         const totalCount = await this.roomModel.countDocuments({ready: true});
         let totalPage = Math.ceil(totalCount / pageSize);
@@ -87,11 +87,21 @@ export class RoomService {
             page = totalPage;
         }
 
-        const roomsDocuments = await this.roomModel.find({ready: true})
-            .sort('-createdAt')
-            .skip((page - 1) * pageSize)
-            .limit(pageSize)
-            .exec();
+        let roomsDocuments;
+        if (level !== undefined) {
+            roomsDocuments = await this.roomModel.find({ ready: true, level: level })
+                .sort('-createdAt')
+                .skip((page - 1) * pageSize)
+                .limit(pageSize)
+                .exec();
+        } else {
+            console.log("level is undefined");
+            roomsDocuments = await this.roomModel.find({ ready: true })
+                .sort('-createdAt')
+                .skip((page - 1) * pageSize)
+                .limit(pageSize)
+                .exec();
+        }
         
        const roomListDto = roomsDocuments.map((room) => {
             return {
@@ -422,5 +432,9 @@ export class RoomService {
     async getUserIdFromIndex(title: string, index: number) : Promise<any> {
         const userInfo = await this.roomAndUserModel.findOne({ title: title }, 'user_info').exec();
         return new Types.ObjectId(userInfo.user_info[index]);
+    }
+
+    async getRoomListByLevelFilter(page: number, level: number) {
+        return await this.getRoomList(page, level);
     }
 }
