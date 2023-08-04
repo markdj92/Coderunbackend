@@ -266,22 +266,22 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         const userOutputResult = []; 
         const problem = await this.codingService.getProblemInput(codeSubmission.problemNumber);
         let result; 
-
-         for (const index of problem.input) {
-            result = await this.codingService.executeCode(codeSubmission.script, codeSubmission.language, codeSubmission.versionIndex, index);
-            if (!(result instanceof CompileResultDto)) {
-                return  { success: false, payload: { message: "제출을 실패했습니다. 다시 시도해주세요." }};
-            }
-            const resultOutput = result.output.replace(/\n/g, '');
-            userOutputResult.push(resultOutput);
-        }
         let quiz_result = false;
-        if (userOutputResult.length == problem.output.length && 
-            userOutputResult.every((value, index) => value == problem.output[index])) {
-            await this.codingService.saveSolvedInfo(socket.decoded.email, codeSubmission.title);  
-            quiz_result = true;
+        if (codeSubmission.script !== "") {
+            for (const index of problem.input) {
+                result = await this.codingService.executeCode(codeSubmission.script, codeSubmission.language, codeSubmission.versionIndex, index);
+                if (!(result instanceof CompileResultDto)) {
+                    return { success: false, payload: { message: "제출을 실패했습니다. 다시 시도해주세요." } };
+                }
+                const resultOutput = result.output.replace(/\n/g, '');
+                userOutputResult.push(resultOutput);
+            }
+            if (userOutputResult.length == problem.output.length &&
+                userOutputResult.every((value, index) => value == problem.output[index])) {
+                await this.codingService.saveSolvedInfo(socket.decoded.email, codeSubmission.title);
+                quiz_result = true;
+            }
         }
-
         await this.codingService.saveSubmitInfo(socket.decoded.email, codeSubmission.title);
         const finish = await this.codingService.checkFinish(codeSubmission.title);
 
