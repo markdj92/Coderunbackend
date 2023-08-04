@@ -38,4 +38,10 @@ export class RoomController {
         return this.roomService.getNickNameltList(title);
     }
 
+    @UseGuards(AuthGuard('jwt'))
+    @Get('/levelFilter')
+    getRoomListByLevelFilter(@Query('page') page: number, @Query('level') level: number) {
+        return this.roomService.getRoomListByLevelFilter(page, level);
+    }
+
 }
