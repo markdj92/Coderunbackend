@@ -22,8 +22,12 @@ export class RoomController {
 
     @UseGuards(AuthGuard('jwt'))
     @Get('/')
-    getRoomList(@Req() req, @Query('page') page: number) {
-        return this.roomService.getRoomList(page);
+    getRoomList(@Req() req, @Query('page') page: number, @Query('level') level: number) {
+        if (level) {
+            return this.roomService.getRoomList(page,level);
+        } else {
+            return this.roomService.getRoomList(page);   
+        }
     }
     
     @UseGuards(AuthGuard('jwt'))
@@ -36,12 +40,6 @@ export class RoomController {
     @Post('/getNickname')
     getNickNameList(@Req() req, @Body('title') title: string) {
         return this.roomService.getNickNameltList(title);
-    }
-
-    @UseGuards(AuthGuard('jwt'))
-    @Get('/levelFilter')
-    getRoomListByLevelFilter(@Query('page') page: number, @Query('level') level: number) {
-        return this.roomService.getRoomListByLevelFilter(page, level);
     }
 
 }

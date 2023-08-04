@@ -434,11 +434,6 @@ export class RoomService {
         const userInfo = await this.roomAndUserModel.findOne({ title: title }, 'user_info').exec();
         return new Types.ObjectId(userInfo.user_info[index]);
     }
-
-    async getRoomListByLevelFilter(page: number, level: number) {
-        return await this.getRoomList(page, level);
-    }
-
     async checkReviewOrNot(title: string) {
         const roomInfo = await this.roomAndUserModel.findOne({ title: title }).exec();
         const reviews = (await roomInfo).review;
