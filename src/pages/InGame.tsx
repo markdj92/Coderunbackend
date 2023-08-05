@@ -1,11 +1,10 @@
 //@ts-nocheck
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BsFillMicFill, BsFillMicMuteFill } from 'react-icons/bs';
 import { PiSpeakerSimpleHighFill, PiSpeakerSimpleSlashFill } from 'react-icons/pi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { WebsocketProvider } from 'y-websocket';
-import * as Y from 'yjs';
 
 import { UserInfo, BadgeStatus } from '../types/room';
 
