@@ -131,6 +131,9 @@ const DropOption = styled.div`
   justify-content: flex-start;
   align-items: center;
   padding: 1.5rem 1rem;
+  &:hover div {
+    opacity: 1;
+  }
 `;
 
 const DropButtonBox = styled.div<{ active?: string }>`
