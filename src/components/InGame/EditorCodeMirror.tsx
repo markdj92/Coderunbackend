@@ -13,7 +13,6 @@ import * as Y from 'yjs';
 import { userColor } from '@/utils/userTagColors';
 
 interface Props {
-  ydoc: Y.Doc;
   provider: WebsocketProvider | null;
   ytext: Y.Text;
   setYtext: (ytext: Y.Text) => void;
@@ -24,7 +23,6 @@ interface Props {
 }
 
 const EditorCodeMirror: React.FC<Props> = ({
-  ydoc,
   viewer,
   ytext,
   nickname,
@@ -36,14 +34,16 @@ const EditorCodeMirror: React.FC<Props> = ({
   const editor = useRef(null);
 
   useEffect(() => {
-    if (!provider || !ydoc) return;
-    setYtext(ydoc.getText('codemirror'));
-  }, [provider]);
+    if (!viewer) return;
 
-  useEffect(() => {
-    if (!ydoc || !viewer) return;
-    ydoc.getText('codemirror').delete(0, ydoc.getText('codemirror').length);
-    handleProvider(new WebsocketProvider('ws://52.69.242.42:8000', viewer, ydoc));
+    if (provider) {
+      provider.disconnect();
+    }
+
+    const newDoc = new Y.Doc();
+    const newProvider = new WebsocketProvider('ws://localhost:8000', viewer, newDoc);
+    setYtext(newDoc.getText('codemirror'));
+    handleProvider(newProvider);
   }, [viewer]);
 
   useEffect(() => {
@@ -72,7 +72,7 @@ const EditorCodeMirror: React.FC<Props> = ({
         foldGutter(),
         placeholder(editorPlaceHolder),
         EditorView.lineWrapping,
-        EditorView.contentAttributes.of({ contenteditable: isSubmit ? 'true' : 'true' }),
+        EditorView.contentAttributes.of({ contenteditable: isSubmit ? 'false' : 'true' }),
       ],
     });
 
@@ -83,9 +83,8 @@ const EditorCodeMirror: React.FC<Props> = ({
 
     return () => {
       view?.destroy();
-      provider.destroy();
     };
-  }, [provider, viewer]);
+  }, [provider]);
 
   return (
     <div>
