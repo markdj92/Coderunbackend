@@ -203,8 +203,12 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     async handleReviewUser(
     @MessageBody('title') title : string,
     @ConnectedSocket() socket: ExtendedSocket
-    ): Promise<{success : boolean, payload : {roomInfo : RoomStatusChangeDto | boolean}} >{
-        await this.roomService.getResult(socket.room_id, socket.user_id);
+    ): Promise<{ success: boolean, payload: any} >{
+        const checkReuslt = await this.roomService.getResult(socket.room_id, socket.user_id);
+        
+        if (checkReuslt === false) {
+            return {success : false, payload: { message : "버튼을 클릭할 수 없습니다."}}
+        }
 
         const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
         await this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);

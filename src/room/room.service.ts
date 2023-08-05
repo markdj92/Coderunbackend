@@ -363,13 +363,16 @@ export class RoomService {
             }
         });
         
-        roomInfo.review[review_index] = true;
-        try {
-            await roomInfo.save();
-        } catch {
-            return false;
+        if (review_index !== -1) {
+            roomInfo.review[review_index] = !roomInfo.review[review_index];
+            try {
+                await roomInfo.save();
+                return true;
+            } catch {
+                return false;
+            }
         }
-        return true;
+        return false;
     }
     
  
