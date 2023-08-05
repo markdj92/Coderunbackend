@@ -7,14 +7,16 @@ const Alert = ({
   children,
   handleCloseAlert,
   handleAlert,
+  backDropOpacity,
 }: {
   title: string;
   children?: React.ReactNode;
   handleCloseAlert: () => void;
   handleAlert?: () => void;
+  backDropOpacity?: number;
 }) => {
   return (
-    <Modal handleHideModal={handleCloseAlert}>
+    <Modal handleHideModal={handleCloseAlert} backDropOpacity={backDropOpacity}>
       <MSG>{title}</MSG>
       {children}
       <Buttons>

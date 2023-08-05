@@ -1,11 +1,18 @@
 import styled from 'styled-components';
 
 type ModalProps = {
-  children: React.ReactNode;
+  children: React.ReactNode | string;
   handleHideModal: () => void;
+  backDropOpacity?: number;
+  isBlurEffect?: boolean;
 };
 
-const Modal = ({ children, handleHideModal }: ModalProps) => {
+const Modal = ({
+  children,
+  handleHideModal,
+  backDropOpacity = 0.8,
+  isBlurEffect = true,
+}: ModalProps) => {
   const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
       handleHideModal();
@@ -15,7 +22,11 @@ const Modal = ({ children, handleHideModal }: ModalProps) => {
 
   return (
     <>
-      <Backdrop onClick={() => {}} />
+      <Backdrop
+        backdropopacity={backDropOpacity}
+        isblur={isBlurEffect.toString()}
+        onClick={() => {}}
+      />
       <ModalOverlay>
         <CloseButton onClick={handleHideModal}>
           <svg
@@ -99,16 +110,16 @@ const ModalOverlay = styled.div`
   }
 `;
 
-const Backdrop = styled.div`
+const Backdrop = styled.div<{ backdropopacity: number; isblur: string }>`
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100vh;
   z-index: 20;
-  background-color: rgba(5, 4, 31, 0.8);
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
+  background-color: ${(props) => `rgba(5, 4, 31, ${props.backdropopacity})`};
+  -webkit-backdrop-filter: ${(props) => props.isblur === 'true' && 'blur(4px)'};
+  backdrop-filter: ${(props) => props.isblur === 'true' && 'blur(4px)'};
 `;
 
 export default Modal;
