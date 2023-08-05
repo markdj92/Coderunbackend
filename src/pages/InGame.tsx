@@ -31,12 +31,9 @@ const InGame = () => {
   const [alertTitle, setAlertTitle] = useState<string>('');
   const [alertContent, setAlertContent] = useState<string>('');
   const [alertHandle, setAlertHandle] = useState(() => {});
-  const ydoc = useRef<Y.Doc>(new Y.Doc());
   const [viewer, setViewer] = useState<string>(`ROOMNAME${title}${nickname}`);
-  const [provider, setProvider] = useState<WebsocketProvider>(
-    new WebsocketProvider('ws://52.69.242.42:8000', viewer, ydoc.current),
-  );
-  const [ytext, setYtext] = useState(ydoc.current.getText('codemirror'));
+  const [provider, setProvider] = useState<WebsocketProvider | undefined>(undefined);
+  const [ytext, setYtext] = useState<string>('');
 
   const [userInGame, setUserInGame] = useState<string[]>([]);
   const [quizNumber, setQuizNumber] = useState<number>(1);
@@ -153,8 +150,8 @@ const InGame = () => {
   };
 
   const handleFinishGame = () => {
-    setTimeout(goToResult, 5000);
-    notifyInfoMessage('5초 뒤 결과 페이지로 이동합니다.', 5000);
+    setTimeout(goToResult, 10000);
+    notifyInfoMessage('10초 뒤 결과 페이지로 이동합니다.', 10000);
   };
 
   const goToResult = () => {
@@ -224,7 +221,6 @@ const InGame = () => {
                 <QuizRight>
                   <EditorFrame>
                     <EditorCodeMirror
-                      ydoc={ydoc.current}
                       provider={provider}
                       isSubmit={isSubmit}
                       viewer={viewer}
