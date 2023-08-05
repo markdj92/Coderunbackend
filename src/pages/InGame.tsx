@@ -19,9 +19,11 @@ import QuizFrame from '@/components/InGame/QuizFrame';
 import QuizHeader from '@/components/InGame/QuizHeader';
 import RunFrame from '@/components/InGame/RunFrame';
 import Alert from '@/components/public/Alert';
+import { useToast } from '@/components/public/Toast';
 import { ExecuteResult, QuizInfo } from '@/types/inGame';
 
 const InGame = () => {
+  const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const { title, nickname }: { title: string; nickname: string } = location.state;
@@ -61,10 +63,29 @@ const InGame = () => {
     setIsMicrophone(!isMicrophone);
   };
 
+  const notifySuccessMessage = (message: string) =>
+    toast.success({
+      position: 'topCenter',
+      message,
+    });
+
+  const notifyErrorMessage = (message: string) =>
+    toast.error({
+      position: 'topCenter',
+      message,
+    });
+
+  const notifyInfoMessage = (message: string, duration = 3000) =>
+    toast.info({
+      position: 'topCenter',
+      message,
+      duration,
+    });
+
   const executeCode = async () => {
     const code = ytext.toString();
 
-    if (code === '') return alert('코드를 작성해주세요.');
+    if (code === '') return notifyErrorMessage('코드를 작성해주세요.');
     const executeData = {
       title: title,
       problemNumber: quizNumber,
@@ -95,13 +116,14 @@ const InGame = () => {
       setRunResult({ memory, cpuTime, output });
       setUserInGame(user_info);
       setIsSubmit(true);
+      notifySuccessMessage('제출에 성공했습니다.');
       socket.on('room-status-changed', (response) => {
         setUserInGame(response.payload.user_info);
       });
     } else if (response.payload.message) {
       alert(response.payload.message);
     } else {
-      alert('제출에 실패했습니다.');
+      notifyErrorMessage('제출에 실패했습니다.');
     }
   };
 
@@ -132,6 +154,7 @@ const InGame = () => {
 
   const handleFinishGame = () => {
     setTimeout(goToResult, 5000);
+    notifyInfoMessage('5초 뒤 결과 페이지로 이동합니다.', 5000);
   };
 
   const goToResult = () => {
