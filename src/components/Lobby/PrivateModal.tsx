@@ -31,9 +31,15 @@ const PrivateModal = ({ handleShowModal, roomName, nickname }: ModalProps) => {
         (response: RoomResponse) => {
           if (response.payload?.message) return setErrorMsg(response.payload.message);
           if (!response.payload?.roomInfo) return alert('방 입장 실패!');
-          navigate(`/room/${roomName}`, {
-            state: { ...response.payload.roomInfo, nickname },
-          });
+          if (response.payload?.roomInfo.mode === 'COOPERATIVE') {
+            navigate(`/cooproom/${roomName}`, {
+              state: { ...response.payload.roomInfo, nickname },
+            });
+          } else {
+            navigate(`/room/${roomName}`, {
+              state: { ...response.payload.roomInfo, nickname },
+            });
+          }
         },
       );
     },

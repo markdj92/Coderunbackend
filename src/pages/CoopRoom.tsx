@@ -136,22 +136,28 @@ const CoopRoom = () => {
           </OptionSection>
         </LeftSide>
         <MainSide>
+          <TeamChangeButtons>
+            <TeamButton team='blue'>BLUE</TeamButton>
+            <TeamButton team='red'>RED</TeamButton>
+          </TeamChangeButtons>
           <RedTeam />
           <BlueTeam />
-          {userInfos &&
-            Array.from({ length: 10 }).map((_, index) => {
-              return (
-                <Badge
-                  key={index}
-                  isMine={index === myIndex}
-                  isOwner={index === ownerIndex}
-                  isRoomAuth={myIndex === ownerIndex}
-                  user={userInfos[index]}
-                  title={roomName}
-                  badgeNumber={index}
-                />
-              );
-            })}
+          <Users>
+            {userInfos &&
+              Array.from({ length: 10 }).map((_, index) => {
+                return (
+                  <Badge
+                    key={index}
+                    isMine={index === myIndex}
+                    isOwner={index === ownerIndex}
+                    isRoomAuth={myIndex === ownerIndex}
+                    user={userInfos[index]}
+                    title={roomName}
+                    badgeNumber={index}
+                  />
+                );
+              })}
+          </Users>
         </MainSide>
         <RightSide>
           <RoomButtons>
@@ -211,6 +217,30 @@ const HeaderLogo = styled.div`
   padding: 2rem;
   font-weight: 500;
   cursor: pointer;
+`;
+const TeamChangeButtons = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 4rem;
+`;
+const TeamButton = styled.button<{ team: string }>`
+  transition: all 0.3s ease;
+
+  background-color: rgba(0, 0, 0, 0.4);
+  height: 3rem;
+  transform: sKewX(-30deg);
+  font-size: 30px;
+  padding: 10px;
+  &:hover {
+    filter: drop-shadow(0px 2px 8px ${(props) => (props.team === 'red' ? '#ff8484' : '#8497ff')});
+  }
+`;
+const Users = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  height: 90%;
 `;
 const RedTeam = styled.div`
   background: radial-gradient(rgba(228, 100, 100, 0.8), rgba(255, 255, 255, 0) 70%);

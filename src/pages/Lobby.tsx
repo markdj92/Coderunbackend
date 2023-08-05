@@ -47,6 +47,7 @@ const Lobby = () => {
   });
 
   const LEVEL_OPTIONS = ['ALL', '1', '2', '3', '4', '5'];
+  const [selectedLevel, setLevel] = useState(0);
 
   const handleChange = (e: { target: { name: string; value: string } }) => {
     if (e.target.name === 'password') {
@@ -148,9 +149,14 @@ const Lobby = () => {
           <RoomButtonBox>
             <Button onClick={handleShowCreateRoom} title='방 만들기' />
             <Button title='빠른 시작' onClick={handleQuickStart} />
-            <DropBox options={LEVEL_OPTIONS} />
+            <DropBox
+              options={LEVEL_OPTIONS}
+              selected={selectedLevel}
+              setSelected={(value) => setLevel(value)}
+            />
           </RoomButtonBox>
           <RoomButtonBox>
+            {nickname} 님 반갑습니다!
             <IconButton icon={IconSetting} alt='setting' onClick={handleSetting} />
             <IconButton icon={IconLogout} alt='setting' onClick={() => setIsLogout(true)} />
           </RoomButtonBox>
@@ -159,6 +165,7 @@ const Lobby = () => {
           nickname={nickname}
           onClickRoom={(title: string) => setPrivateRoomName(title)}
           handlePrivate={handlePrivateRoom}
+          level={+selectedLevel}
         />
       </MainFrame>
       <RightFrame>
@@ -217,6 +224,9 @@ const HeaderSection = styled.div`
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+
+  font-size: 20px;
+  font-weight: 800;
 `;
 
 const RoomButtonBox = styled.div`

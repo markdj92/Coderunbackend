@@ -27,9 +27,15 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props)
     (roomName: string) => {
       socket.emit('join-room', { title: roomName }, (response: RoomResponse) => {
         if (!response.payload?.roomInfo) return alert('방 입장 실패!');
-        navigate(`/room/${roomName}`, {
-          state: { ...response.payload.roomInfo, nickname },
-        });
+        if (response.payload?.roomInfo.mode === 'COOPERATIVE') {
+          navigate(`/cooproom/${roomName}`, {
+            state: { ...response.payload.roomInfo, nickname },
+          });
+        } else {
+          navigate(`/room/${roomName}`, {
+            state: { ...response.payload.roomInfo, nickname },
+          });
+        }
       });
     },
     [navigate],
@@ -54,7 +60,9 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props)
     >
       <Background
         title={<Title title={roomInfo.title} status={roomInfo.status} host={roomInfo.master} />}
-        mode={<DetailForm title='Mode' contents={roomInfo.mode} />}
+        mode={
+          <DetailForm title='Mode' contents={roomInfo.mode === 'COOPERATIVE' ? 'CO-OP' : 'STUDY'} />
+        }
         level={<DetailForm title='Level' contents={<LevelForm level={roomInfo.level} />} />}
         members={
           <DetailForm

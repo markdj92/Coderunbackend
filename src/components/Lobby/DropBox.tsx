@@ -5,19 +5,20 @@ import ArrowIcon from '/icon/lobby/dropArrow.png';
 
 interface Props {
   options: string[];
+  selected: number;
+  setSelected: (obtion: number) => void;
 }
 
-const DropBox = ({ options }: Props) => {
+const DropBox = ({ options, selected, setSelected }: Props) => {
   const [active, setActive] = useState('false');
   const [isShown, setIsShown] = useState(false);
-  const [selected, setSelected] = useState(options[0]);
 
   const handleOnClick = () => {
     setIsShown(!isShown);
     setActive('false');
   };
 
-  const handleSelect = (option: string) => {
+  const handleSelect = (option: number) => {
     setIsShown(!isShown);
     setSelected(option);
     setActive('false');
@@ -29,7 +30,10 @@ const DropBox = ({ options }: Props) => {
         <>
           <DropOpenBox>
             <DropSelectedOption>
-              <DropBoxText>Lv. {selected}</DropBoxText>
+              <DropBoxText>
+                {selected === 0 ? '' : 'Lv.'}
+                {options[selected]}
+              </DropBoxText>
               <DropBoxIcon>
                 <img src={ArrowIcon} alt='dropbox_icon' />
               </DropBoxIcon>
@@ -37,7 +41,7 @@ const DropBox = ({ options }: Props) => {
             {options.map((option, index) => (
               <DropOption
                 key={index}
-                onClick={() => handleSelect(option)}
+                onClick={() => handleSelect(index)}
                 onMouseOver={() => setActive('true')}
                 onMouseOut={() => setActive('false')}
               >
@@ -57,7 +61,10 @@ const DropBox = ({ options }: Props) => {
           active={active}
         >
           <DropBoxInSection>
-            <DropBoxText>Lv. {selected}</DropBoxText>
+            <DropBoxText>
+              {selected === 0 ? '' : 'Lv.'}
+              {options[selected]}
+            </DropBoxText>
             <DropBoxIcon>
               <img src={ArrowIcon} alt='dropbox_icon' />
             </DropBoxIcon>
