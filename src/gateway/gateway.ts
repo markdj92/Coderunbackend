@@ -89,21 +89,23 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         if (!dup_check) {
             return { success: false, payload: { message: "중복된 방제입니다." } };
         }
-        const room = await this.roomService.createRoom(roomCreateDto, socket.decoded.email);
+        const room = await this.roomService.createRoom(roomCreateDto, socket.decoded.email, socket.user_id);
 
         if (!room) {
             this.logger.log(`Room creation failed : ${socket.decoded.email}`);
             return { success: false, payload: { message: "방을 생성 할 수 없습니다. 다시 시도해주세요." } };
         }
-
         await room.save(); 
         socket.join(room.title); 
         const room_id = await this.roomService.getRoomIdFromTitle(roomCreateDto.title);
         socket.room_id = room_id;
+
         const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
         if (roomAndUserInfo == null || false || undefined) {
             return { success: false, payload: { message: "방을 생성 할 수 없습니다. 다시 시도해주세요." }};    
         }
+        
+        this.nsp.to(roomCreateDto.title).emit('room-status-changed', roomAndUserInfo);
         return {success : true,  payload: { roomInfo : roomAndUserInfo}}
     }
 

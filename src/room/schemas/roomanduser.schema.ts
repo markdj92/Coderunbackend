@@ -11,6 +11,9 @@ export class RoomAndUser extends Document {
   @Prop({ required: true, type: MongooseSchema.Types.ObjectId })
   room_id: MongooseSchema.Types.ObjectId;
 
+  @Prop({ required: true, type: String })
+  mode: string;
+  
   @Prop({ required: true, type: [String] })
   user_info: string[] ;
 
@@ -28,6 +31,9 @@ export class RoomAndUser extends Document {
   
   @Prop({ required: true, type: [Boolean], default : false})
   review : boolean[];
+  
+  @Prop({ type: [String], default : null})
+  team: string[];
   
 }
 
