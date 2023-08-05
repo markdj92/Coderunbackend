@@ -104,7 +104,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         if (roomAndUserInfo == null || false || undefined) {
             return { success: false, payload: { message: "방을 생성 할 수 없습니다. 다시 시도해주세요." }};    
         }
-        
+
         this.nsp.to(roomCreateDto.title).emit('room-status-changed', roomAndUserInfo);
         return {success : true,  payload: { roomInfo : roomAndUserInfo}}
     }
@@ -240,8 +240,17 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     async handleStart(
     @MessageBody('title') title : string,
     @ConnectedSocket() socket: ExtendedSocket
-    ){
-        await this.nsp.to(title).emit('start', { "title" : title });
+    ) {
+         const roomInfo = this.roomService.getRoomById(socket.room_id);
+        if ((await roomInfo).mode === "COOPERATIVE") {
+            const balance = await this.roomService.checkBalanceTeam(socket.room_id);
+            if (balance === false) {
+                console.log('각 팀의 인원수가 일치하지 않습니다.');
+                return { success: false, payload: { message: "각 팀의 인원수가 일치해야합니다." } };
+            }
+        }
+        await this.nsp.to(title).emit('start', { "title": title });
+        return { success: true, payload: { message: "게임이 시작되었습니다." } };
     }
 
 

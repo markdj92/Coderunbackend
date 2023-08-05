@@ -438,7 +438,7 @@ export class RoomService {
     return false;
     
     }
-    async getRoomById(room_id: string): Promise<Room> {
+    async getRoomById(room_id: ObjectId): Promise<Room> {
         const room = await this.roomModel.findById(room_id).exec();
  
         return room;
@@ -484,4 +484,28 @@ export class RoomService {
         const reviews = (await roomInfo).review;
         return reviews.some((review) => review === true);
     }
+
+    async checkBalanceTeam(roomId: ObjectId) {
+        const roomInfo = await this.roomAndUserModel.findOne({ room_id: roomId }).exec();
+        let red = 0;
+        let blue = 0;
+        roomInfo.user_info.forEach((user, index) => {
+            if (index < 5) {
+                if (user !== EmptyOrLock.EMPTY && user !== EmptyOrLock.LOCK) {
+                    red += 1;
+                }
+            } else {
+                if (user !== EmptyOrLock.EMPTY && user !== EmptyOrLock.LOCK) {
+                    blue += 1;
+                }
+            }
+        });
+        if (red === blue) {
+            return true;
+        }
+        return false;
+    }
 }
+
+
+
