@@ -205,7 +205,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     @ConnectedSocket() socket: ExtendedSocket
     ): Promise<{ success: boolean, payload: any} >{
         const checkReuslt = await this.roomService.getResult(socket.room_id, socket.user_id);
-        
+
         if (checkReuslt === false) {
             return {success : false, payload: { message : "버튼을 클릭할 수 없습니다."}}
         }
@@ -338,6 +338,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     @ConnectedSocket() socket: ExtendedSocket) {    
     
         const socketId = await this.authService.getSocketIdByuserId(socket.user_id);
+        const roomInfo = await this.roomService.getRoomById(socket.room_id);
 
         let timer = 15;
         const interval = setInterval(async () => {
@@ -350,7 +351,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
             if (reviewOrnot === true) {
                 this.nsp.to(socketId).emit('timeout', { success: true , review : true});
             } else {
-                this.nsp.to(socketId).emit('timeout', { success: true , review : false});
+                this.nsp.to(socketId).emit('timeout', { success: true , review : false, roomInfo : roomInfo});
             }
         }
         }, 1000);
