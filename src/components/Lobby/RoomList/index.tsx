@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { FaFilter } from 'react-icons/fa';
 import { TbRefresh } from 'react-icons/tb';
 import styled from 'styled-components';
 
@@ -13,10 +12,12 @@ const RoomList = ({
   nickname,
   handlePrivate,
   onClickRoom,
+  level,
 }: {
   nickname: string;
   handlePrivate: () => void;
   onClickRoom: (title: string) => void;
+  level: number;
 }) => {
   const [roomList, setRoomList] = useState<RoomInformation[]>([]);
   const [page, setPage] = useState<number>(1);
@@ -24,12 +25,12 @@ const RoomList = ({
 
   useEffect(() => {
     handleRefresh();
-  }, [page]);
+  }, [level, page]);
 
   const handleRefresh = async () => {
     try {
-      const response = await getRoomList({ page });
-      if (response.data.rooms.length > 0) setRoomList(response.data.rooms);
+      const response = await getRoomList({ page, level });
+      setRoomList(response.data.rooms);
       setTotalPage(response.data.totalPage);
       if (page > response.data.totalPage) setPage(response.data.totalPage);
       else setPage(page);
@@ -41,10 +42,6 @@ const RoomList = ({
   return (
     <Container>
       <HeaderFrame>
-        <HeaderLeftBox>
-          <FaFilter size={'1.5rem'} style={{ marginRight: '0.5rem' }} />
-          <div>난이도 설정</div>
-        </HeaderLeftBox>
         <Arrows size={'2rem'} totalPage={totalPage} page={page} setPage={setPage} />
         <HeaderRightBox>
           <button onClick={handleRefresh}>
@@ -81,12 +78,6 @@ const HeaderFrame = styled.div`
   width: 100%;
   height: 10%;
   position: relative;
-`;
-
-const HeaderLeftBox = styled.div`
-  display: flex;
-  position: absolute;
-  left: 1rem;
 `;
 
 const HeaderRightBox = styled.div`
