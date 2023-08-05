@@ -169,6 +169,7 @@ const Backdrop = styled.div`
 
 const DropBoxIcon = styled.div`
   img {
+    filter: opacity(0.5) drop-shadow(0px 0px 0px white);
   }
 `;
 
