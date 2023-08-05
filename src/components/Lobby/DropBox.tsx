@@ -2,6 +2,9 @@ import { useState } from 'react';
 import styled from 'styled-components';
 
 import ArrowIcon from '/icon/lobby/dropArrow.png';
+import ArrowUpperIcon from '/icon/lobby/upperArrow.png';
+
+import StarBox from './StarBox';
 
 interface Props {
   options: string[];
@@ -26,57 +29,57 @@ const DropBox = ({ options, selected, setSelected }: Props) => {
 
   return (
     <Container>
-      {isShown === true ? (
-        <>
-          <DropOpenBox>
-            <DropSelectedOption>
-              <DropBoxText>
-                {selected === 0 ? '' : 'Lv.'}
-                {options[selected]}
-              </DropBoxText>
-              <DropBoxIcon>
-                <img src={ArrowIcon} alt='dropbox_icon' />
-              </DropBoxIcon>
-            </DropSelectedOption>
-            {options.map((option, index) => (
+      <ShowDropbox isshown={isShown.toString()}>
+        {isShown && <Backdrop onClick={handleOnClick} />}
+        <DropOpenBox>
+          <DropSelectedOption onClick={() => setIsShown(!isShown)}>
+            <DropBoxText>
+              {selected === 0 ? '' : 'Lv.'}
+              {options[selected]}
+            </DropBoxText>
+            <DropBoxIcon>
+              <img src={ArrowUpperIcon} alt='dropbox_upper_icon' />
+            </DropBoxIcon>
+          </DropSelectedOption>
+          {isShown &&
+            Array.from({ length: 6 }).map((_, index) => (
               <DropOption
                 key={index}
                 onClick={() => handleSelect(index)}
                 onMouseOver={() => setActive('true')}
                 onMouseOut={() => setActive('false')}
               >
-                <DropBoxInSection>
-                  <DropBoxText>{option}</DropBoxText>
+                <DropBoxInSection opacity={selected === index ? '1' : '0.3'}>
+                  {index === 0 ? (
+                    <DropBoxText>ALL</DropBoxText>
+                  ) : (
+                    <StarBox level={index} isOpacity={false} />
+                  )}
                 </DropBoxInSection>
               </DropOption>
             ))}
-          </DropOpenBox>
-          <Backdrop onClick={handleOnClick} />
-        </>
-      ) : (
-        <DropButtonBox
-          onMouseOver={() => setActive('true')}
-          onMouseOut={() => setActive('false')}
-          onClick={handleOnClick}
-          active={active}
-        >
-          <DropBoxInSection>
-            <DropBoxText>
-              {selected === 0 ? '' : 'Lv.'}
-              {options[selected]}
-            </DropBoxText>
-            <DropBoxIcon>
-              <img src={ArrowIcon} alt='dropbox_icon' />
-            </DropBoxIcon>
-          </DropBoxInSection>
-        </DropButtonBox>
-      )}
+        </DropOpenBox>
+      </ShowDropbox>
+      <DropButtonBox
+        onMouseOver={() => setActive('true')}
+        onMouseOut={() => setActive('false')}
+        onClick={handleOnClick}
+        active={active}
+      >
+        <DropBoxText>
+          {selected === 0 ? '' : 'Lv.'}
+          {options[selected]}
+        </DropBoxText>
+        <DropBoxIcon>
+          <img src={ArrowIcon} alt='dropbox_icon' />
+        </DropBoxIcon>
+      </DropButtonBox>
     </Container>
   );
 };
 
 const Container = styled.div`
-  z-index: 1;
+  position: relative;
   width: 144px;
   height: 60px;
   * {
@@ -86,8 +89,6 @@ const Container = styled.div`
 `;
 
 const DropOpenBox = styled.div`
-  position: relative;
-  z-index: 15;
   width: 144px;
   border-radius: 8px;
   border: 2px solid rgba(180, 176, 255, 0.2);
@@ -95,12 +96,21 @@ const DropOpenBox = styled.div`
   box-shadow: 2px 4px 12px 0px rgba(0, 0, 0, 0.25);
 `;
 
-const DropBoxInSection = styled.div`
+const ShowDropbox = styled.div<{ isshown: string }>`
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 15;
+  opacity: ${(props) => (props.isshown === 'true' ? '1' : '0')};
+`;
+
+const DropBoxInSection = styled.div<{ opacity: string }>`
   display: flex;
-  flex-direction: row;
-  align-items: space-between;
+  align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 5px;
+  position: absolute;
+  opacity: ${(props) => props.opacity};
 `;
 
 const DropSelectedOption = styled.div`
@@ -113,23 +123,29 @@ const DropSelectedOption = styled.div`
 `;
 
 const DropOption = styled.div`
+  position: relative;
   width: 100%;
   height: 40px;
   display: flex;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: flex-start;
   align-items: center;
+  padding: 1.5rem 1rem;
 `;
 
 const DropButtonBox = styled.div<{ active?: string }>`
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   border-radius: 8px;
   border: 1px solid rgba(136, 131, 255, 0.2);
   background: ${(props) => (props.active === 'true' ? '#4640C6' : 'rgba(70, 64, 198, 0.2)')};
-
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 10px;
 `;
 
 const DropBoxText = styled.div`
@@ -148,10 +164,12 @@ const Backdrop = styled.div`
   left: 0;
   width: 100%;
   height: 100vh;
-  z-index: 3;
   background-color: transparent;
 `;
 
-const DropBoxIcon = styled.div``;
+const DropBoxIcon = styled.div`
+  img {
+  }
+`;
 
 export default DropBox;
