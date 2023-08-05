@@ -338,7 +338,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     @ConnectedSocket() socket: ExtendedSocket) {    
     
         const socketId = await this.authService.getSocketIdByuserId(socket.user_id);
-        const roomInfo = await this.roomService.getRoomById(socket.room_id);
+        const roomInfo = await this.roomService.getRoomInfo(socket.room_id);
 
         let timer = 15;
         const interval = setInterval(async () => {
@@ -349,7 +349,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
             clearInterval(interval);
             const reviewOrnot = await this.roomService.checkReviewOrNot(title);
             if (reviewOrnot === true) {
-                this.nsp.to(socketId).emit('timeout', { success: true , review : true});
+                this.nsp.to(socketId).emit('timeout', { success: true , review : true , roomInfo : null});
             } else {
                 this.nsp.to(socketId).emit('timeout', { success: true , review : false, roomInfo : roomInfo});
             }
