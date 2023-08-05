@@ -11,7 +11,7 @@ export class IsPasswordRequiredConstraint implements ValidatorConstraintInterfac
     validate(value: any, args: ValidationArguments) {
         const { status, password } = args.object as RoomCreateDto;
         if (status === RoomStatus.PRIVATE && !password) {
-            return false; // password must be defined if status is PRIVATE
+            return false; 
         }
         return true; 
     }
@@ -30,6 +30,12 @@ export enum EmptyOrLock {
     EMPTY = "EMPTY",
     LOCK = "LOCK"
 }
+
+export enum Team {
+    RED = "RED",
+    BLUE = "BLUE"
+}
+
 
 export class RoomCreateDto {
 
@@ -92,7 +98,14 @@ export class RoomAndUserDto {
 
     @IsNotEmpty()
     @ApiProperty()
-    review : boolean[];
+    review: boolean[];
+    
+    @IsEnum(Team)
+    team: Team[];
+
+    @IsNotEmpty()
+    @IsEnum(RoomMode)
+    mode : RoomMode;
 }
 
 export class UserInfoDto {
@@ -122,7 +135,9 @@ export class UserInfoDto {
 
     @IsNotEmpty()
     @ApiProperty()
-    review : boolean;
+    review: boolean;
+    
+    team: string;
 }
 
 export class RoomStatusChangeDto {

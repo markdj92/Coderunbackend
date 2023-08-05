@@ -1,7 +1,7 @@
 import { IsEmail } from 'class-validator';
 import { RoomAndUser } from './schemas/roomanduser.schema';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { RoomCreateDto, RoomAndUserDto, EmptyOrLock, UserInfoDto, RoomStatusChangeDto } from './dto/room.dto';
+import { RoomCreateDto, RoomAndUserDto, EmptyOrLock, UserInfoDto, RoomStatusChangeDto, Team } from './dto/room.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Room } from './schemas/room.schema'
 import mongoose, { Model,Mongoose,ObjectId,ObjectIdSchemaDefinition,Types } from 'mongoose';
@@ -26,7 +26,7 @@ export class RoomService {
         return true;
     }
 
-    async createRoom(room :RoomCreateDto, email : string) : Promise<Room> {
+    async createRoom(room :RoomCreateDto, email : string, userId : ObjectId) : Promise<Room> {
         let newRoom;
         const found = await this.roomModel.findOne({ title: room.title });
         
@@ -37,38 +37,59 @@ export class RoomService {
         else{
             newRoom = new this.roomModel({...room});
         }
-        const user = await this.authModel.findOne({email: email}).exec();
 
         // 방 만들땐, 방장의 id 와 나머지는 널 값으러 채워야함. 
         const roomAndUserDto = new RoomAndUserDto();
         roomAndUserDto.title = room.title;
         roomAndUserDto.room_id = newRoom._id;
         const max_member_number = room.max_members;
+        roomAndUserDto.mode = room.mode;
 
-        const infoArray = Array.from({length : 10}, (_,index) => {
-            if (index === 0) return user._id.toString();
-            if (index < max_member_number) return EmptyOrLock.EMPTY;
-            else return EmptyOrLock.LOCK;
-        })
+        let infoArray;
+        if (room.mode === "COOPERATIVE") {
+            const redTeamSize = Math.ceil(max_member_number / 2);
+            const blueTeamSize = Math.floor(max_member_number / 2);
 
+            infoArray = Array.from({ length: 10 }, (_, index) => {
+                if(index === 0) return userId.toString();
+                if (index < redTeamSize) return EmptyOrLock.EMPTY;
+                if (5 <= index && index < (5 + blueTeamSize)) return EmptyOrLock.EMPTY;
+                else return EmptyOrLock.LOCK;
+            }) 
+        } else {
+            infoArray = Array.from({ length: 10 }, (_, index) => {
+                if (index === 0) return userId.toString();
+                if (index < max_member_number) return EmptyOrLock.EMPTY;
+                else return EmptyOrLock.LOCK;
+            })
+        }
         roomAndUserDto.user_info = infoArray;
-
         const AllFalseStatusArray = Array.from({length : 10}, (_,index) => {
             if (index < 10) return false;
         })
-
         const ownerArray = Array.from({length : 10}, (_,index) => {
             if (index === 0) return true;
             if (index < 10) return false;
         })
-
         roomAndUserDto.ready_status = AllFalseStatusArray;
         roomAndUserDto.owner = ownerArray;
         roomAndUserDto.submit = AllFalseStatusArray;
         roomAndUserDto.solved = AllFalseStatusArray; 
         roomAndUserDto.review = AllFalseStatusArray;
-        await this.saveRoomAndUser(roomAndUserDto);
 
+        let teamArray;
+        if (room.mode === "COOPERATIVE") {
+            teamArray = Array.from({length : 10}, (_,index) => {
+                if (index < 5) return Team.RED;
+                else return Team.BLUE;
+            })
+        } else {
+            teamArray = Array.from({length : 10}, (_,index) => {
+                if (index < 10) return null;
+            })
+        }
+        roomAndUserDto.team = teamArray;
+        await this.saveRoomAndUser(roomAndUserDto);
         return newRoom.save();
     }
 
@@ -176,9 +197,32 @@ export class RoomService {
             // Handle the case where roomanduser is undefined
             throw new Error(`No RoomAndUser found for room id ${room_id}`);
         }
-        
-        // 방 정보에서 첫번째로 empty인 부분을 찾음
-        const empty_index = roomAndUserInfo.user_info.indexOf("EMPTY");
+
+        let empty_index;
+
+        if (roomAndUserInfo.mode === "COOPERATIVE") {
+            const userInfo = roomAndUserInfo.user_info;
+            const redTeam = userInfo.slice(0, 5);
+            const blueTeam = userInfo.slice(5, 10);
+
+            const redEmptyIndex = redTeam.filter(x => x === "EMPTY").length;
+            const blueEmptyIndex = blueTeam.filter(x => x === "EMPTY").length;
+
+            const redLockIndex = redTeam.filter(x => x === "LOCK").length;
+            const blueLockIndex = blueTeam.filter(x => x === "LOCK").length;
+
+            const redPeople = 5 - redLockIndex;
+            const bluePeople = 5 - blueLockIndex;
+
+            if(redPeople-redEmptyIndex > bluePeople-blueEmptyIndex){
+                empty_index = blueTeam.indexOf("EMPTY");
+                empty_index += 5;
+            } else {
+                empty_index = redTeam.indexOf("EMPTY");
+            }
+        } else {
+            empty_index = roomAndUserInfo.user_info.indexOf("EMPTY");
+        }
 
         await this.roomAndUserModel.findOneAndUpdate(
             { room_id: room_id },
@@ -218,6 +262,7 @@ export class RoomService {
                 userInfoDto.solved = roomanduser.solved[index];
                 userInfoDto.submit = roomanduser.submit[index];
                 userInfoDto.review = roomanduser.review[index];
+                userInfoDto.team = roomanduser.team[index];
                 return userInfoDto;
               }
             })
@@ -318,13 +363,16 @@ export class RoomService {
             }
         });
         
-        roomInfo.review[review_index] = true;
-        try {
-            await roomInfo.save();
-        } catch {
-            return false;
+        if (review_index !== -1) {
+            roomInfo.review[review_index] = !roomInfo.review[review_index];
+            try {
+                await roomInfo.save();
+                return true;
+            } catch {
+                return false;
+            }
         }
-        return true;
+        return false;
     }
     
  
@@ -393,7 +441,7 @@ export class RoomService {
     return false;
     
     }
-    async getRoomById(room_id: string): Promise<Room> {
+    async getRoomById(room_id: ObjectId): Promise<Room> {
         const room = await this.roomModel.findById(room_id).exec();
  
         return room;
@@ -439,4 +487,28 @@ export class RoomService {
         const reviews = (await roomInfo).review;
         return reviews.some((review) => review === true);
     }
+
+    async checkBalanceTeam(roomId: ObjectId) {
+        const roomInfo = await this.roomAndUserModel.findOne({ room_id: roomId }).exec();
+        let red = 0;
+        let blue = 0;
+        roomInfo.user_info.forEach((user, index) => {
+            if (index < 5) {
+                if (user !== EmptyOrLock.EMPTY && user !== EmptyOrLock.LOCK) {
+                    red += 1;
+                }
+            } else {
+                if (user !== EmptyOrLock.EMPTY && user !== EmptyOrLock.LOCK) {
+                    blue += 1;
+                }
+            }
+        });
+        if (red === blue) {
+            return true;
+        }
+        return false;
+    }
 }
+
+
+
