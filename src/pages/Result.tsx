@@ -10,26 +10,14 @@ import Header from '@/components/Result/Header';
 import Timer from '@/components/Result/Timer';
 import User from '@/components/Result/User';
 import useSocketConnect from '@/hooks/useSocketConnect';
-import { RoomResponse } from '@/types/lobby';
-import { BadgeStatus, UserInfo } from '@/types/room';
+import { BadgeStatus, RoomStatus, UserInfo } from '@/types/room';
 
 const Result = () => {
   useSocketConnect();
   const location = useLocation();
-  const { title } = location.state;
-
-  const onResultPage = async () => {
-    try {
-      const response = await postResult(title);
-
-      setRoomName(response.data.title);
-      setUserInfos(response.data.user_info);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const navigate = useNavigate();
+  const { title, nickname } = location.state;
+
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
 
@@ -38,13 +26,16 @@ const Result = () => {
   const [solvedUsers, setSolvedUsers] = useState<UserInfo[]>();
   const [unsolvedUsers, setUnsolvedUsers] = useState<UserInfo[]>();
 
-  const [ableReview, setAbleReview] = useState<boolean>(false);
   const [review, setReview] = useState<boolean>(false);
+  const [seconds, setSeconds] = useState<number>(0);
 
   useEffect(() => {
-    const resultHandler = (response: RoomResponse) => {
-      const { payload } = response;
-      const { title, user_info } = payload.roomInfo;
+    socket.emit('timer', { title });
+  }, []);
+
+  useEffect(() => {
+    const resultHandler = (response: RoomStatus) => {
+      const { title, user_info } = response;
       setUserInfos(user_info);
       setRoomName(title);
 
@@ -60,6 +51,17 @@ const Result = () => {
             user !== undefined && user !== 'EMPTY' && user !== 'LOCK' && !user.solved,
         ),
       );
+    };
+
+    const onResultPage = async () => {
+      try {
+        const response = await postResult(title);
+
+        setRoomName(response.data.title);
+        setUserInfos(response.data.user_info);
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     onResultPage();
@@ -86,11 +88,27 @@ const Result = () => {
         if (user.review) return (reviewMembers += 1);
       });
 
-    if (reviewMembers === 0) setAbleReview(false);
-    else setAbleReview(true);
     socket.on('room-status-changed', resultHandler);
+    socket.on('timer', (response) => {
+      setSeconds(response);
+    });
+
+    socket.on('timeout', (response) => {
+      if (response.success) {
+        if (response.review) {
+          alert('리뷰하러가기');
+          navigate('/review', { state: { nickname } });
+        } else {
+          navigate(`/room/${title}`, { state: { nickname } });
+        }
+      } else {
+        navigate('/lobby', { state: { nickname } });
+      }
+    });
     return () => {
       socket.off('room-status-changed');
+      socket.off('timer');
+      socket.off('timeout');
     };
   }, [userInfos]);
 
@@ -100,6 +118,7 @@ const Result = () => {
   const handleMicrophone = () => {
     setIsMicrophone(!isMicrophone);
   };
+
   const handleLeaveRoom = () => {
     const answer = confirm('정말 나가시겠습니까?');
     if (answer) {
@@ -145,7 +164,7 @@ const Result = () => {
           </UnSolvedSection>
         </SolvedResult>
         <Review>
-          <Timer roomName={roomName} reviewStatus={ableReview} />
+          <Timer seconds={seconds} />
           <ReviewButton onClick={onReview} status={review ? 'true' : 'false'}>
             review
           </ReviewButton>
