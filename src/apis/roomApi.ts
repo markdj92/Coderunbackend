@@ -15,7 +15,7 @@ const axiosConfig = {
 export const roomInstance = axios.create(axiosConfig);
 
 export const getRoomList = ({ page, level }: { page: number; level?: number }) => {
-  return roomInstance.get(`?page=${page}${!!level && '&level=' + level}`);
+  return roomInstance.get(`?page=${page}${!!level ? '&level=' + level : ''}`);
 };
 
 export const getNickname = ({ title }: { title: string }) => {
