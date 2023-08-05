@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import StarIcon from '/icon/lobby/star.png';
+import StarBox from '@/components/Lobby/StarBox';
 
 interface props {
   level: number;
@@ -9,11 +9,7 @@ interface props {
 const LevelForm = ({ level }: props) => {
   return (
     <Container>
-      {Array.from({ length: level }).map((_, idx) => (
-        <StarBox key={idx} opacity={((idx + 1) / 5).toString()}>
-          <img src={StarIcon} alt='' />
-        </StarBox>
-      ))}
+      <StarBox level={level} />
     </Container>
   );
 };
@@ -24,16 +20,6 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   gap: 4px;
-`;
-
-const StarBox = styled.div<{ opacity: string }>`
-  width: 12px;
-  height: 12px;
-  object-fit: cover;
-  opacity: ${(props) => props.opacity};
-  img {
-    width: 100%;
-  }
 `;
 
 export default LevelForm;
