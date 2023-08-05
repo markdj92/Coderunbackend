@@ -1,18 +1,13 @@
 {
     "configurations": [
         {
-            "type": "node-terminal",
-            "name": "Run Script: start",
+            "type": "node",
             "request": "launch",
-            "command": "npm run start",
-            "cwd": "${workspaceFolder}/codemirror-server/.server.js"
-        },
-        {
-            "type": "node-terminal",
-            "name": "Run Script: start",
-            "request": "launch",
-            "command": "npm run start",
-            "cwd": "${workspaceFolder}/codemirror-server"
+            "name": "Launch Program",
+            "program": "/Users/minjilee/Documents/GitHub/CodeLearn-Backend/codemirror-server/dist/src/server.js",
+            "cwd": "/Users/minjilee/Documents/GitHub/CodeLearn-Backend/codemirror-server/dist/src",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run", "start"]
         }
     ]
 }
