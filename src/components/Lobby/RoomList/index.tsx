@@ -68,6 +68,8 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   font-size: 1.5rem;
+  display: flex;
+  flex-direction: column;
 `;
 
 const HeaderFrame = styled.div`
@@ -96,6 +98,7 @@ const ContentFrame = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 56px 20px;
+  justify-content: center;
 `;
 
 export default RoomList;
