@@ -10,6 +10,16 @@ const theme = {
     SubColor: '#A1F4FF',
     Error: '#FF5C5C',
     Divider: '#474754',
+    FocusShadow: '#59FFF5CC',
+    ErrorShadow: '#FF5C5CCC',
+    NonFocused: '#6BD9A4', //#6BD9A480
+  },
+  font: {
+    Title: "'IBM Plex Sans KR', sans-serif",
+    Content: "'Noto Sans KR', sans-serif",
+  },
+  size: {
+    border: '6px solid',
   },
 };
 
