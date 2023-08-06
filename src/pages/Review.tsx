@@ -9,6 +9,7 @@ import * as Y from 'yjs';
 
 import { postExecuteResult, postQuizInfo } from '@/apis/gameApi';
 import { socket } from '@/apis/socketApi';
+import CanvasBoard from '@/components/InGame/CanvasBoard';
 import EditorCodeMirror from '@/components/InGame/EditorCodeMirror';
 import GameLiveBoard from '@/components/InGame/GameLiveBoard';
 import GameNavbar from '@/components/InGame/GameNavbar';
@@ -223,6 +224,7 @@ const Review = () => {
             </QuizSection>
           </MainSection>
         </GameFrame>
+        <CanvasBoard roomKey={viewer} />
         {isReviewer && <ReviewBottom handleRun={executeCode} handleSubmit={handleDoneReviewer} />}
       </MainFrame>
     </Container>
