@@ -116,7 +116,6 @@ export class RoomService {
                 .limit(pageSize)
                 .exec();
         } else {
-            console.log("level is undefined");
             roomsDocuments = await this.roomModel.find({ ready: true })
                 .sort('-createdAt')
                 .skip((page - 1) * pageSize)
@@ -276,7 +275,6 @@ export class RoomService {
         roomStatusChangeDto.user_info = userInfo;
         roomStatusChangeDto.mode = room.mode;
         roomStatusChangeDto.problem_number = roomanduser.problem_number;
-
         return roomStatusChangeDto;
     }
 

@@ -52,35 +52,38 @@ export class CodingTestService {
     }
   }
 
-  async getRandomProblem(title : string) {
-  
-    const roomInfo = await this.roomModel.findOne({ title: title }).exec();
+  async getRandomProblem(title: string) {
+
+  const roomInfo = await this.roomModel.findOne({ title: title }).exec();
+
     if (!roomInfo) {
       // 방을 찾을 수 없는 경우에 대한 처리
       return null;
     }
+    
     const count = await this.problemModel.find({ level: roomInfo.level }).countDocuments();
     const roomAndUser = await this.roomAndUserModel.findOne({ title: title }).exec();
 
-    if (roomInfo.mode === "STUDY" && roomAndUser.problem_number.length === 0 ) {
+    if (await roomInfo.mode === "STUDY" && roomAndUser.problem_number.length === 0) {
       const random = Math.floor(Math.random() * count);
       const document = await this.problemModel.findOne({ level: roomInfo.level }).skip(random).exec();
-      await roomAndUser.problem_number.push(document.number);
-      roomAndUser.save();
-      return [document];
+      await this.roomAndUserModel.findOneAndUpdate(
+        { title: title },
+        { $push: { problem_number: document.number } },
+        { new: true, upsert: false }
+      );
     }
-    else if (roomInfo.mode === "COOPERATIVE" && roomAndUser.problem_number.length === 0) {
+    else if (await roomInfo.mode === "COOPERATIVE" && roomAndUser.problem_number.length === 0) {
       const problems = await this.problemModel.find({ level: roomInfo.level }).limit((roomInfo.member_count)/2).exec();
-      for (let i = 0; i < problems.length; i++) {
-        await roomAndUser.problem_number.push(problems[i].number);
-      }
-      return problems; 
-    }
-    else {
-      const problems = this.getProblem(roomAndUser.problem_number);
-      return problems;
+      const numbers = problems.map(problem => problem.number);
+      await this.roomAndUserModel.findOneAndUpdate(
+        { title: title },
+        { $push: { problem_number: { $each: numbers } } },
+        { new: true, upsert: false }
+      );
     }
 }
+
 
   async getProblemInput(index : number) {
     const problem = await this.problemModel.findOne({ number: index });
@@ -129,10 +132,13 @@ export class CodingTestService {
   }
 
 
-  async getProblem(problem: number[]) {
+  async getProblem(title: string) {
+    
+    const roomInfo = await this.roomAndUserModel.findOne({ title: title }).exec();
+    const problem_array = roomInfo.problem_number;
     let problems = [];
-    for (let i = 0; i < problem.length; i++) {
-      problems.push(this.problemModel.findOne({ number: problem[i] }).exec());
+    for (let i = 0; i < problem_array.length; i++) {
+      problems.push(this.problemModel.findOne({ number: problem_array[i] }).exec());
     }
     const result = await Promise.all(problems);
     return result;
