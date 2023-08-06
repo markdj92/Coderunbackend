@@ -24,14 +24,6 @@ import { RoomResponse } from '@/types/lobby';
 
 const Lobby = () => {
   useSocketConnect();
-  const { value: roomInfo, setValue: setRoomInfo } = useInput({
-    title: '',
-    password: '',
-    status: 'PUBLIC',
-    max_members: 2,
-    level: 1,
-    mode: 'STUDY',
-  });
   const navigate = useNavigate();
   const location = useLocation();
   if (!location.state) {
