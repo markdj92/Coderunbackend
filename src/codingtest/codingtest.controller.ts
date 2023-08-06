@@ -34,8 +34,11 @@ export class CodingtestController {
 
     @Post('/')
     async getProblem(@Body('title') title: string) {
-        return await this.codingTestService.getProblem(title);
+        const problem = await this.codingTestService.getProblem(title);
+        return [problem];
     }
+
+    // async 
 
     // //FOR TESTING
     // @Get('testing')
