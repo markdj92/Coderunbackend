@@ -243,10 +243,15 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     
     @SubscribeMessage('start')
     async handleStart(
-    @MessageBody('title') title : string,
-    @ConnectedSocket() socket: ExtendedSocket
+        @MessageBody('title') title: string,
+        @ConnectedSocket() socket: ExtendedSocket
     ) {
         const roomInfo = this.roomService.getRoomById(socket.room_id);
+        const roomAndUserInfo = await this.roomService.getRoomInfo(socket.room_id);
+        let userInfo;
+        if (roomAndUserInfo instanceof TeamDto) {
+            userInfo = roomAndUserInfo.user_info;
+        }
         await this.codingService.getRandomProblem(title);
         if ((await roomInfo).mode === "COOPERATIVE") {
             const balance = await this.roomService.checkBalanceTeam(socket.room_id);
@@ -256,7 +261,12 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
             }
         }
         await this.nsp.to(title).emit('start', { "title": title });
-        return { success: true, payload: { message: "게임이 시작되었습니다." } };
+        if (roomAndUserInfo instanceof TeamDto) {
+            console.log(userInfo);
+            return { success: true, payload: { userInfo: userInfo, message: "게임이 시작되었습니다." } };
+        } else {
+            return { success: true, payload: { message: "게임이 시작되었습니다." } };
+        }
     }
 
 
