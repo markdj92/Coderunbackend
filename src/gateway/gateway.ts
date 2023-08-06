@@ -322,9 +322,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
         if (finish.success == true) {
             if (finish.mode !== "STUDY") {
-                await this.nsp.to(codeSubmission.title).emit('finishedGame', codeSubmission.title, finish.mode);
+                await this.nsp.to(codeSubmission.title).emit('finishedGame', { title : codeSubmission.title, winner : finish.mode });
             } else {
-                await this.nsp.to(codeSubmission.title).emit('finishedGame', codeSubmission.title);
+                await this.nsp.to(codeSubmission.title).emit('finishedGame', { title : codeSubmission.title });
             }
         }
 
