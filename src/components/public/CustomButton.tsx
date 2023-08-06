@@ -27,7 +27,7 @@ const DisableContainer = styled.button`
   align-items: center;
   gap: 10px;
   border-radius: 12px;
-  border: 1px solid ${(props) => props.theme.color.DarkGray};
+  border: 2px solid ${(props) => props.theme.color.DarkGray};
   background: rgba(70, 70, 70, 0.2);
   cursor: default;
 `;
@@ -40,8 +40,8 @@ const Container = styled.button`
 
   transition: all ease 0.3s;
   border-radius: 12px;
-  border: 1px solid ${(props) => props.theme.color.MainKeyColor};
-  background: rgba(70, 70, 70, 0.2);
+  border: 2px solid ${(props) => props.theme.color.MainKeyColor};
+  background: rgba(70, 70, 70, 0.12);
 
   &:hover {
     background: rgba(0, 0, 0, 0.12);
@@ -58,7 +58,7 @@ const TitleBox = styled.div<{ disabled: boolean }>`
   font-family: ${(props) => props.theme.font.Content};
   font-size: 20px;
   font-style: normal;
-  font-weight: 500;
+  font-weight: 700;
   line-height: 20px; /* 100% */
 `;
 
