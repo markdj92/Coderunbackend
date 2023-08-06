@@ -67,13 +67,18 @@ export class CodingTestService {
       const document = await this.problemModel.findOne({ level: roomInfo.level }).skip(random).exec();
       await roomAndUser.problem_number.push(document.number);
       roomAndUser.save();
-      return document;
-    } else if (roomInfo.mode === "COOPERATIVE" && roomAndUser.problem_number.length === 0){
+      return [document];
+    }
+    else if (roomInfo.mode === "COOPERATIVE" && roomAndUser.problem_number.length === 0) {
       const problems = await this.problemModel.find({ level: roomInfo.level }).limit((roomInfo.member_count)/2).exec();
       for (let i = 0; i < problems.length; i++) {
         await roomAndUser.problem_number.push(problems[i].number);
       }
       return problems; 
+    }
+    else {
+      const problems = this.getProblem(roomAndUser.problem_number);
+      return problems;
     }
 }
 
@@ -124,14 +129,14 @@ export class CodingTestService {
   }
 
 
-  async getProblem(problem : number[]) {
-    const problems = [];
+  async getProblem(problem: number[]) {
+    let problems = [];
     for (let i = 0; i < problem.length; i++) {
       problems.push(this.problemModel.findOne({ number: problem[i] }).exec());
     }
-    return await Promise.all(problems);
-}
-
+    const result = await Promise.all(problems);
+    return result;
+  }
   // for testing about saving data with json struct
   async insertProblemToDB() {
    

@@ -35,7 +35,7 @@ export class CodingtestController {
    @Post('/')
     async getRandomProblem(@Body('title') title: string) {
         const problem = await this.codingTestService.getRandomProblem(title);
-        return [problem];
+        return problem;
     }
 
     @Post('/getProblem')
