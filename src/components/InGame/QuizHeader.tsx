@@ -7,11 +7,11 @@ const QuizHeader = ({
   timer,
 }: {
   roomName: string;
-  title: string;
-  timer: { mm: number; ss: number };
+  title?: string;
+  timer?: { mm: number; ss: number };
 }) => {
-  const [minutes, setMinutes] = useState<number>(timer.mm);
-  const [seconds, setSeconds] = useState<number>(timer.ss);
+  const [minutes, setMinutes] = useState<number>(timer ? timer.mm : 0);
+  const [seconds, setSeconds] = useState<number>(timer ? timer.ss : 0);
   const navigate = useNavigate();
   useEffect(() => {
     const countdown = setInterval(() => {
