@@ -16,9 +16,9 @@ export class RoomService {
         @InjectModel(Room.name) private readonly roomModel: Model<Room>,
         @InjectModel(RoomAndUser.name) private readonly roomAndUserModel: Model<RoomAndUser>,
         @InjectModel(Auth.name) private readonly authModel: Model<Auth>,
-    ) {}
+    ) { }
     
-    async duplicationCheck(title: string) : Promise<Boolean>{
+    async duplicationCheck(title: string): Promise<Boolean> {
         const check = await this.roomAndUserModel.findOne({ title: title }).exec();
         if (check) {
             return false;
@@ -26,16 +26,16 @@ export class RoomService {
         return true;
     }
 
-    async createRoom(room :RoomCreateDto, email : string, userId : ObjectId) : Promise<Room> {
+    async createRoom(room: RoomCreateDto, email: string, userId: ObjectId): Promise<Room> {
         let newRoom;
         const found = await this.roomModel.findOne({ title: room.title });
         
-        if(room.status == "PRIVATE"){
+        if (room.status == "PRIVATE") {
             const hashedPassword = await bcrypt.hash(room.password, 10);
-            newRoom = new this.roomModel({...room, password : hashedPassword});
+            newRoom = new this.roomModel({ ...room, password: hashedPassword });
         }
-        else{
-            newRoom = new this.roomModel({...room});
+        else {
+            newRoom = new this.roomModel({ ...room });
         }
 
         // 방 만들땐, 방장의 id 와 나머지는 널 값으러 채워야함. 
@@ -51,11 +51,11 @@ export class RoomService {
             const blueTeamSize = Math.floor(max_member_number / 2);
 
             infoArray = Array.from({ length: 10 }, (_, index) => {
-                if(index === 0) return userId.toString();
+                if (index === 0) return userId.toString();
                 if (index < redTeamSize) return EmptyOrLock.EMPTY;
                 if (5 <= index && index < (5 + blueTeamSize)) return EmptyOrLock.EMPTY;
                 else return EmptyOrLock.LOCK;
-            }) 
+            })
         } else {
             infoArray = Array.from({ length: 10 }, (_, index) => {
                 if (index === 0) return userId.toString();
@@ -64,27 +64,27 @@ export class RoomService {
             })
         }
         roomAndUserDto.user_info = infoArray;
-        const AllFalseStatusArray = Array.from({length : 10}, (_,index) => {
+        const AllFalseStatusArray = Array.from({ length: 10 }, (_, index) => {
             if (index < 10) return false;
         })
-        const ownerArray = Array.from({length : 10}, (_,index) => {
+        const ownerArray = Array.from({ length: 10 }, (_, index) => {
             if (index === 0) return true;
             if (index < 10) return false;
         })
         roomAndUserDto.ready_status = AllFalseStatusArray;
         roomAndUserDto.owner = ownerArray;
         roomAndUserDto.submit = AllFalseStatusArray;
-        roomAndUserDto.solved = AllFalseStatusArray; 
+        roomAndUserDto.solved = AllFalseStatusArray;
         roomAndUserDto.review = AllFalseStatusArray;
 
         let teamArray;
         if (room.mode === "COOPERATIVE") {
-            teamArray = Array.from({length : 10}, (_,index) => {
+            teamArray = Array.from({ length: 10 }, (_, index) => {
                 if (index < 5) return Team.RED;
                 else return Team.BLUE;
             })
         } else {
-            teamArray = Array.from({length : 10}, (_,index) => {
+            teamArray = Array.from({ length: 10 }, (_, index) => {
                 if (index < 10) return null;
             })
         }
@@ -93,14 +93,14 @@ export class RoomService {
         return newRoom.save();
     }
 
-    async saveRoomAndUser(info : RoomAndUserDto) : Promise <void> {
-        const newInfoForRoom = new this.roomAndUserModel({...info});
+    async saveRoomAndUser(info: RoomAndUserDto): Promise<void> {
+        const newInfoForRoom = new this.roomAndUserModel({ ...info });
         await newInfoForRoom.save();
     }
 
-    async getRoomList(page: number, level? : number): Promise<any> {
+    async getRoomList(page: number, level?: number): Promise<any> {
         const pageSize = 6;
-        const totalCount = await this.roomModel.countDocuments({ready: true});
+        const totalCount = await this.roomModel.countDocuments({ ready: true });
         let totalPage = Math.ceil(totalCount / pageSize);
         totalPage = totalPage > 0 ? totalPage : 1;
 
@@ -124,7 +124,7 @@ export class RoomService {
                 .exec();
         }
         
-       const roomListDto = roomsDocuments.map((room) => {
+        const roomListDto = roomsDocuments.map((room) => {
             return {
                 title: room.title,
                 member_count: room.member_count,
@@ -135,44 +135,44 @@ export class RoomService {
             };
         });
         return {
-            rooms : roomListDto,
+            rooms: roomListDto,
             totalPage
         };
     }
     
-    async getRoomIdFromTitle(title : string) : Promise<ObjectId | null> {
-        const room = await this.roomModel.findOne({title: title}).exec();
+    async getRoomIdFromTitle(title: string): Promise<ObjectId | null> {
+        const room = await this.roomModel.findOne({ title: title }).exec();
         
         return room._id;
     }
 
-    async getTitleFromRoomId(roomID : ObjectId) : Promise<string> {
-        const roomInfo = await this.roomModel.findOne({_id: roomID}).exec();
-        if(!!roomInfo) {
+    async getTitleFromRoomId(roomID: ObjectId): Promise<string> {
+        const roomInfo = await this.roomModel.findOne({ _id: roomID }).exec();
+        if (!!roomInfo) {
             return roomInfo.title;
         }
         return null;
     }
 
-    async checkRoomCondition(title_name : string) : Promise<boolean> {
-        const room = await this.roomModel.findOne({title : title_name}).exec();
-        if (room && room.member_count < room.max_members && room.ready === true){
+    async checkRoomCondition(title_name: string): Promise<boolean> {
+        const room = await this.roomModel.findOne({ title: title_name }).exec();
+        if (room && room.member_count < room.max_members && room.ready === true) {
             return true;
         }
         return false;
     }
 
-    async memberCountUp(room_id : ObjectId) : Promise<void> {
-        const room = await this.roomModel.findOneAndUpdate({_id :room_id}, { $inc: { member_count: 1 }},  { new: true } );
-        if(room.member_count === room.max_members){
-            await this.roomModel.findOneAndUpdate({_id :room_id}, {ready : false});
+    async memberCountUp(room_id: ObjectId): Promise<void> {
+        const room = await this.roomModel.findOneAndUpdate({ _id: room_id }, { $inc: { member_count: 1 } }, { new: true });
+        if (room.member_count === room.max_members) {
+            await this.roomModel.findOneAndUpdate({ _id: room_id }, { ready: false });
         }
     }
 
-    async memberCountDown(room_id : ObjectId) : Promise<{success : boolean}> {
+    async memberCountDown(room_id: ObjectId): Promise<{ success: boolean }> {
         const room = await this.roomModel.findOneAndUpdate({ _id: room_id }, { $inc: { member_count: -1 } }, { new: true });
         if (room.ready === false) {
-            if(room.member_count < room.max_members  ){
+            if (room.member_count < room.max_members) {
                 room.ready = true;
             }
         }
@@ -181,17 +181,17 @@ export class RoomService {
         if (!room) {
             throw new Error(`No room found for id ${room_id}`);
         }
-        if(room.member_count === 0 ){
-            await this.roomAndUserModel.deleteOne({room_id :room_id});
-            await this.roomModel.findOneAndUpdate({_id :room_id}, {ready : false});
+        if (room.member_count === 0) {
+            await this.roomAndUserModel.deleteOne({ room_id: room_id });
+            await this.roomModel.findOneAndUpdate({ _id: room_id }, { ready: false });
         }
-        return {success : true};
+        return { success: true };
     }
 
-    async changeRoomStatusForJoin(room_id : ObjectId, user_id : ObjectId) : Promise<void> {
+    async changeRoomStatusForJoin(room_id: ObjectId, user_id: ObjectId): Promise<void> {
 
         // 해당 방에 대한 정보를 얻음
-        const roomAndUserInfo = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
+        const roomAndUserInfo = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
 
         if (!roomAndUserInfo) {
             // Handle the case where roomanduser is undefined
@@ -214,7 +214,7 @@ export class RoomService {
             const redPeople = 5 - redLockIndex;
             const bluePeople = 5 - blueLockIndex;
 
-            if(redPeople-redEmptyIndex > bluePeople-blueEmptyIndex){
+            if (redPeople - redEmptyIndex > bluePeople - blueEmptyIndex) {
                 empty_index = blueTeam.indexOf("EMPTY");
                 empty_index += 5;
             } else {
@@ -226,47 +226,49 @@ export class RoomService {
 
         await this.roomAndUserModel.findOneAndUpdate(
             { room_id: room_id },
-            { $set: { 
-                [`user_info.${empty_index}`]:  user_id.toString(),
-                [`ready_status.${empty_index}`]:  false
-            }  },
+            {
+                $set: {
+                    [`user_info.${empty_index}`]: user_id.toString(),
+                    [`ready_status.${empty_index}`]: false
+                }
+            },
         )
         await this.memberCountUp(room_id);
     }
 
-    async getRoomInfo(room_id : ObjectId) : Promise<RoomStatusChangeDto | boolean> {
+    async getRoomInfo(room_id: ObjectId): Promise<RoomStatusChangeDto | boolean> {
         // room 의 변경사항이 생겼을 때, 사용할 dto 
         const roomStatusChangeDto = new RoomStatusChangeDto;
-        const room = await this.roomModel.findOne({_id : room_id}).exec();
-        const roomanduser = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
+        const room = await this.roomModel.findOne({ _id: room_id }).exec();
+        const roomanduser = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
 
         if (!roomanduser) {
-        // Handle the case where roomanduser is undefined
+            // Handle the case where roomanduser is undefined
             return false;
         }
 
         const userInfo = await Promise.all(
             roomanduser.user_info.map(async (userID, index) => {
 
-              if (userID === "EMPTY" || userID === "LOCK") {
-                return userID as EmptyOrLock;
-              } else {
-                const user = await this.authModel.findOne({_id : userID});
+                if (userID === "EMPTY" || userID === "LOCK") {
+                    return userID as EmptyOrLock;
+                } else {
+                    const user = await this.authModel.findOne({ _id: userID });
                 
-                const userInfoDto = new UserInfoDto;
+                    const userInfoDto = new UserInfoDto;
 
-                userInfoDto.nickname = user.nickname;
-                userInfoDto.level = user.level;
-                userInfoDto.status = roomanduser.ready_status[index];
-                userInfoDto.owner = roomanduser.owner[index];
-                userInfoDto.solved = roomanduser.solved[index];
-                userInfoDto.submit = roomanduser.submit[index];
-                userInfoDto.review = roomanduser.review[index];
-                userInfoDto.team = roomanduser.team[index];
-                return userInfoDto;
-              }
+                    userInfoDto.nickname = user.nickname;
+                    userInfoDto.level = user.level;
+                    userInfoDto.status = roomanduser.ready_status[index];
+                    userInfoDto.owner = roomanduser.owner[index];
+                    userInfoDto.solved = roomanduser.solved[index];
+                    userInfoDto.submit = roomanduser.submit[index];
+                    userInfoDto.review = roomanduser.review[index];
+                    userInfoDto.team = roomanduser.team[index];
+                    return userInfoDto;
+                }
             })
-          );
+        );
 
         roomStatusChangeDto.title = room.title;
         roomStatusChangeDto.member_count = room.member_count;
@@ -277,22 +279,22 @@ export class RoomService {
         return roomStatusChangeDto;
     }
 
-    async changeRoomStatusForLeave (room_id : ObjectId, user_id : ObjectId) : Promise<Boolean | string> {
+    async changeRoomStatusForLeave(room_id: ObjectId, user_id: ObjectId): Promise<Boolean | string> {
         // 디비에 해당 유저를 empty 로 바꾸고
         // 방 인원수도 바꿔줌.
         // 해당 방에 대한 정보를 얻음
     
-         const roomAndUserInfo = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
+        const roomAndUserInfo = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
 
-         if (!roomAndUserInfo) {
-             // Handle the case where roomanduser is undefined
-             return `No RoomAndUser found for room id ${room_id}`;
-         }
-         // 방 정보에서 첫번째로 empty인 부분을 찾음
-         if (!user_id) {
+        if (!roomAndUserInfo) {
+            // Handle the case where roomanduser is undefined
+            return `No RoomAndUser found for room id ${room_id}`;
+        }
+        // 방 정보에서 첫번째로 empty인 부분을 찾음
+        if (!user_id) {
             // Handle the case where user_id is undefined
             return 'user_id is undefined';
-         }
+        }
         
          const user_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());
 
@@ -320,10 +322,21 @@ export class RoomService {
         }
     
         await this.roomAndUserModel.findOneAndUpdate(
+
              { room_id : room_id },
              updateData
         );
     
+
+            { room_id: room_id },
+            {
+                $set: {
+                    [`user_info.${user_index}`]: "EMPTY",
+                    [`ready_status.${user_index}`]: false
+                }
+            },
+        )
+
         await this.memberCountDown(room_id);
         return true;
     }
@@ -334,18 +347,18 @@ export class RoomService {
     
     
 
-    async checkWrongDisconnection (email : string) : Promise<boolean> {
+    async checkWrongDisconnection(email: string): Promise<boolean> {
 
-        const user = await this.authModel.findOne({email : email});
-        if(await user.online === true){
+        const user = await this.authModel.findOne({ email: email });
+        if (await user.online === true) {
             return false;
-        }else {
+        } else {
             return true;
         }
     }
 
-    async changeOwner(room_id : ObjectId, user_id : ObjectId, index : number) : Promise<boolean> {
-        const roomAndUserInfo = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
+    async changeOwner(room_id: ObjectId, user_id: ObjectId, index: number): Promise<boolean> {
+        const roomAndUserInfo = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
         const current_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());
     
         if (current_index === -1) {
@@ -353,16 +366,20 @@ export class RoomService {
         }
         
         await this.roomAndUserModel.findOneAndUpdate(
-            { room_id : room_id }, 
-            { $set : {
-                [`owner.${current_index}`] : false }
+            { room_id: room_id },
+            {
+                $set: {
+                    [`owner.${current_index}`]: false
+                }
             }
         )
         const result = await this.roomAndUserModel.findOneAndUpdate(
-            { room_id : room_id }, 
-            { $set : {
-                [`owner.${index}`] : true,
-                [`ready_status.${index}`] : false } // set the ready status of the new owner to false
+            { room_id: room_id },
+            {
+                $set: {
+                    [`owner.${index}`]: true,
+                    [`ready_status.${index}`]: false
+                } // set the ready status of the new owner to false
             }
         )
         return true;
@@ -379,7 +396,7 @@ export class RoomService {
         return { nickname: user.nickname, status: roomAndUser.ready_status[userIndex] };
     }
 
-    async getResult(room_id: ObjectId, user_id : ObjectId) {
+    async getResult(room_id: ObjectId, user_id: ObjectId) {
         
         const roomInfo = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
         let review_index = 0;
@@ -402,43 +419,42 @@ export class RoomService {
         return false;
     }
     
- 
     
     async unlockRoom(room_id: ObjectId, index: number): Promise<boolean> {
         
-        const roomAndUser = await this.roomAndUserModel.findOne({room_id: room_id}).exec();
+        const roomAndUser = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
         
         if (!roomAndUser || !roomAndUser.owner[0]) {
             throw new BadRequestException('권한이 있는 유저인지 확인');
         }
     
-        if(index < 0 || index >= roomAndUser.user_info.length){
+        if (index < 0 || index >= roomAndUser.user_info.length) {
             console.log('Index out of bounds');
             return null;
         }
         
-        let increment = 0; 
-        if(roomAndUser.user_info[index] === EmptyOrLock.LOCK){
+        let increment = 0;
+        if (roomAndUser.user_info[index] === EmptyOrLock.LOCK) {
             roomAndUser.user_info[index] = EmptyOrLock.EMPTY;
-            increment = 1; 
+            increment = 1;
         } else if (roomAndUser.user_info[index] === EmptyOrLock.EMPTY) {
             roomAndUser.user_info[index] = EmptyOrLock.LOCK;
-            increment = -1; 
+            increment = -1;
         } else {
             return false;
         }
     
         await roomAndUser.save();
-        const room = await this.roomModel.findOne({ _id: room_id }, 'title max_members').exec(); 
+        const room = await this.roomModel.findOne({ _id: room_id }, 'title max_members').exec();
   
         if (room) {
-            room.max_members += increment; 
+            room.max_members += increment;
             await room.save();
         }
         return true;
     }
     
-    async getResultList(title: string): Promise<RoomStatusChangeDto | boolean>  {
+    async getResultList(title: string): Promise<RoomStatusChangeDto | boolean> {
         const roomList = await this.roomModel.findOne({ title: title }).exec();
         return this.getRoomInfo(roomList._id);
     }
@@ -460,19 +476,19 @@ export class RoomService {
         return roomAndUser[randomIndex];
     }
 
-    async isUserInRoom(room_id : ObjectId, user_id : ObjectId) : Promise<boolean> {
-    const roomAndUser = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
-    if (roomAndUser) {
-        return roomAndUser.user_info.includes(user_id.toString());
-    }
-    return false;
+    async isUserInRoom(room_id: ObjectId, user_id: ObjectId): Promise<boolean> {
+        const roomAndUser = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
+        if (roomAndUser) {
+            return roomAndUser.user_info.includes(user_id.toString());
+        }
+        return false;
     
     }
     async getRoomById(room_id: ObjectId): Promise<Room> {
         const room = await this.roomModel.findById(room_id).exec();
  
         return room;
-    }  
+    }
         
     async checkRoomPassword(title: string, password: string): Promise<boolean> {
         const roomInfo = this.roomModel.findOne({ title: title }).exec();
@@ -490,25 +506,26 @@ export class RoomService {
     }
 
     async getNickNameltList(title: string): Promise<string[]> {
-    let nickNameList: string[] = [];
+        let nickNameList: string[] = [];
 
-    const roomAndUserList = await this.roomAndUserModel.find({ title: title }, 'user_info').exec();
+        const roomAndUserList = await this.roomAndUserModel.find({ title: title }, 'user_info').exec();
 
-    for (const roomAndUser of roomAndUserList) {
-        for (const user_id of roomAndUser.user_info) {
-            if (user_id !== EmptyOrLock.EMPTY && user_id !== EmptyOrLock.LOCK) {
-                const user = await this.authModel.findOne({ _id: user_id }, 'nickname').exec();
-                nickNameList.push(user.nickname);
+        for (const roomAndUser of roomAndUserList) {
+            for (const user_id of roomAndUser.user_info) {
+                if (user_id !== EmptyOrLock.EMPTY && user_id !== EmptyOrLock.LOCK) {
+                    const user = await this.authModel.findOne({ _id: user_id }, 'nickname').exec();
+                    nickNameList.push(user.nickname);
+                }
             }
         }
-    }
-    return nickNameList;
+        return nickNameList;
     }
 
-    async getUserIdFromIndex(title: string, index: number) : Promise<any> {
+    async getUserIdFromIndex(title: string, index: number): Promise<any> {
         const userInfo = await this.roomAndUserModel.findOne({ title: title }, 'user_info').exec();
         return new Types.ObjectId(userInfo.user_info[index]);
     }
+
     async checkReviewOrNot(title: string) {
         const roomInfo = await this.roomAndUserModel.findOne({ title: title }).exec();
         const reviews = (await roomInfo).review;
@@ -535,7 +552,27 @@ export class RoomService {
         }
         return false;
     }
-}
 
+    async resetUserStatus(roomId: ObjectId) {
+
+        const roomInfo = this.roomAndUserModel.findOne({ room_id: roomId }).exec();
+        if (!roomInfo) {
+            return false;
+        }
+        const AllFalseStatusArray = Array.from({ length: 10 }, (_, index) => {
+            if (index < 10) return false;
+        });
+
+        (await roomInfo).solved = AllFalseStatusArray;
+        (await roomInfo).submit = AllFalseStatusArray;
+        (await roomInfo).review = AllFalseStatusArray;
+        (await roomInfo).ready_status = AllFalseStatusArray;
+        
+        (await roomInfo).save();
+
+        return true;
+
+    }
+}
 
 
