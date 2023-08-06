@@ -60,11 +60,11 @@ const Review = () => {
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
 
-  // const notifySuccessMessage = (message: string) =>
-  //   toast.success({
-  //     position: 'topCenter',
-  //     message,
-  //   });
+  const notifySuccessMessage = (message: string) =>
+    toast.success({
+      position: 'topCenter',
+      message,
+    });
 
   const notifyErrorMessage = (message: string) =>
     toast.error({
@@ -110,7 +110,7 @@ const Review = () => {
     setViewer(`ROOMNAME${title}${response.reviewer}`);
 
     if (response.reviewer === nickname) {
-      notifyInfoMessage('당신은 리뷰어입니다.');
+      notifySuccessMessage('당신은 리뷰어입니다.');
     } else {
       notifyInfoMessage(`${response.reviewer}님이 리뷰어가 되었습니다.`);
     }
@@ -129,7 +129,7 @@ const Review = () => {
 
   const goToRoom = (response) => {
     navigate(`/room/${title}`, {
-      state: { ...response.roomInfo, nickname },
+      state: { ...response, nickname },
     });
   };
 
@@ -145,6 +145,12 @@ const Review = () => {
       .catch((err) => {
         console.error(err);
       });
+
+    if (reviewer === nickname) {
+      notifySuccessMessage('당신은 리뷰어입니다.');
+    } else {
+      notifyInfoMessage(`${reviewer}님이 리뷰어가 되었습니다.`);
+    }
 
     socket.on('reviewFinished', goToRoom);
     socket.on('room-status-changed', handleReviewMode);
