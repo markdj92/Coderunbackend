@@ -58,7 +58,6 @@ const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
   };
 
   const onSecretRoom = () => {
-    console.log(roomInfo);
     setIsSecret(!isSecret);
   };
   return (
@@ -105,7 +104,7 @@ const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
               />
               <RadioSelect
                 isselected={roomInfo.mode === 'STUDY' ? 'true' : 'false'}
-                for='study-mode'
+                htmlFor='study-mode'
               >
                 STUDY
               </RadioSelect>
@@ -119,7 +118,7 @@ const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
               />
               <RadioSelect
                 isselected={roomInfo.mode === 'COOPERATIVE' ? 'true' : 'false'}
-                for='coop-mode'
+                htmlFor='coop-mode'
               >
                 CO-OP
               </RadioSelect>
@@ -146,7 +145,7 @@ const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
                 onChange={handleChange}
                 value='1'
               />
-              <RadioSelect isselected={roomInfo.level === '1' ? 'true' : 'false'} for='lv1'>
+              <RadioSelect isselected={roomInfo.level === '1' ? 'true' : 'false'} htmlFor='lv1'>
                 1
               </RadioSelect>
               <input
@@ -157,7 +156,7 @@ const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
                 onChange={handleChange}
                 value='2'
               />
-              <RadioSelect isselected={roomInfo.level === '2' ? 'true' : 'false'} for='lv2'>
+              <RadioSelect isselected={roomInfo.level === '2' ? 'true' : 'false'} htmlFor='lv2'>
                 2
               </RadioSelect>
               <input
@@ -168,7 +167,7 @@ const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
                 onChange={handleChange}
                 value='3'
               />
-              <RadioSelect isselected={roomInfo.level === '3' ? 'true' : 'false'} for='lv3'>
+              <RadioSelect isselected={roomInfo.level === '3' ? 'true' : 'false'} htmlFor='lv3'>
                 3
               </RadioSelect>
               <input
@@ -179,7 +178,7 @@ const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
                 onChange={handleChange}
                 value='4'
               />
-              <RadioSelect isselected={roomInfo.level === '4' ? 'true' : 'false'} for='lv4'>
+              <RadioSelect isselected={roomInfo.level === '4' ? 'true' : 'false'} htmlFor='lv4'>
                 4
               </RadioSelect>
               <input
@@ -190,7 +189,7 @@ const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
                 onChange={handleChange}
                 value='5'
               />
-              <RadioSelect isselected={roomInfo.level === '5' ? 'true' : 'false'} for='lv5'>
+              <RadioSelect isselected={roomInfo.level === '5' ? 'true' : 'false'} htmlFor='lv5'>
                 5
               </RadioSelect>
             </InputSet>
