@@ -357,12 +357,12 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
                 outerLoop: if (roomInfo instanceof RoomStatusChangeDto) {
                     room_problems = roomInfo.problem_number;
                     for (const user of roomInfo.user_info) { 
-                    if (user instanceof UserInfoDto) {
-                        if (user.review === true) {
-                            firstReviewer = user.nickname;
-                            break outerLoop; 
+                        if (user instanceof UserInfoDto) {
+                            if (user.review === true) {
+                                firstReviewer = user.nickname;
+                                break outerLoop; 
+                            }
                         }
-                    }
                     }
                 }
             
@@ -397,14 +397,27 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         }
         const reveiwAll = await this.roomService.checkReviewOrNot(title);
         const roomInfo = await this.roomService.getRoomInfo(socket.room_id);
-        this.nsp.to(title).emit('room-status-changed', roomInfo);
 
         if (reveiwAll === false) {
             await this.roomService.resetUserStatus(socket.room_id);
             const roomInfo = await this.roomService.getRoomInfo(socket.room_id);
             this.nsp.to(title).emit('reviewFinished', roomInfo);
-        } 
-        return { success: false, payload: { message: " "} };
+        } else {
+            let reviewer;
+            outerLoop: if (roomInfo instanceof RoomStatusChangeDto || roomInfo instanceof TeamDto) {
+                for (const user of roomInfo.user_info) {
+                    if (user instanceof UserInfoDto) {
+                        if (user.review === true) {
+                            reviewer = user.nickname;
+                            break outerLoop;
+                        }
+                    }
+                }
+            }
+            this.nsp.to(title).emit('room-status-changed', {roomInfo: roomInfo, reviewer : reviewer });   
+        }
+
+        return { success: false, payload: { message: "" } };
     }
 
 }
