@@ -9,7 +9,7 @@ import { socket } from '@/apis/socketApi';
 import Header from '@/components/Result/Header';
 import Timer from '@/components/Result/Timer';
 import useSocketConnect from '@/hooks/useSocketConnect';
-import { UserInfo } from '@/types/room';
+import { BadgeStatus, UserInfo } from '@/types/room';
 
 const CoopResult = () => {
   useSocketConnect();
@@ -17,7 +17,6 @@ const CoopResult = () => {
   const location = useLocation();
   const { title } = location.state;
 
-  const [userInfos, setUserInfos] = useState<UserInfo[]>();
   const [winTeam, setWinTeam] = useState<UserInfo[]>();
   const [loseTeam, setLoseTeam] = useState<UserInfo[]>();
   const [winner, setWinner] = useState<string>('');
@@ -29,12 +28,11 @@ const CoopResult = () => {
   const onResultPage = async () => {
     const response = await postResult(title);
 
-    setUserInfos(response.data.result.user_info);
     setWinner(response.data.winner);
 
     setWinTeam(
-      userInfos?.filter(
-        (user: UserInfo) =>
+      response.data.result.user_info?.filter(
+        (user: UserInfo | BadgeStatus) =>
           user !== undefined &&
           user !== 'EMPTY' &&
           user !== 'LOCK' &&
@@ -42,8 +40,8 @@ const CoopResult = () => {
       ),
     );
     setLoseTeam(
-      userInfos?.filter(
-        (user: UserInfo) =>
+      response.data.result.user_info?.filter(
+        (user: UserInfo | BadgeStatus) =>
           user !== undefined &&
           user !== 'EMPTY' &&
           user !== 'LOCK' &&
