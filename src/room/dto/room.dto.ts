@@ -105,7 +105,9 @@ export class RoomAndUserDto {
 
     @IsNotEmpty()
     @IsEnum(RoomMode)
-    mode : RoomMode;
+    mode: RoomMode;
+
+    problem_number: number[];
 }
 
 export class UserInfoDto {
@@ -167,6 +169,9 @@ export class RoomStatusChangeDto {
     @IsNumber()
     @ApiProperty({description: "현재 최대 맴버 수", type: Number})
     max_members: number; //최대 맴버 수를 추가 room_status_changed에 추가
+
+    @ApiProperty({description: "문제 번호"})
+    problem_number: number[];
 }
 
 export class RoomListDto {
