@@ -280,7 +280,7 @@ export class RoomService {
     }
 
     async changeRoomStatusForLeave(room_id: ObjectId, user_id: ObjectId): Promise<Boolean | string> {
-        // 디비에 해당 유저를 empty 로 바꾸고
+             // 디비에 해당 유저를 empty 로 바꾸고
         // 방 인원수도 바꿔줌.
         // 해당 방에 대한 정보를 얻음
     
@@ -296,38 +296,9 @@ export class RoomService {
             return 'user_id is undefined';
         }
         
-         const user_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());
+        const user_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());
 
-         let updateData = {
-            $set: { 
-                [`user_info.${user_index}`]:  "EMPTY",
-                [`ready_status.${user_index}`]:  false
-            }
-        };
-    
-        //
-        if (roomAndUserInfo.owner[user_index]) {
-            // 위임받을 유저의 인덱스를 찾음
-            let nextOwnerIndex = roomAndUserInfo.user_info.findIndex((value, index) => value !== "EMPTY" && value !== "LOCK" && index !== user_index);
-    
-            // 만약 다음 인덱스의 유저가 존재하면 해당 유저의 오너인덱스를 트루로 바꿔주고 
-            if (nextOwnerIndex !== -1) {
-                updateData.$set[`owner.${user_index}`] = false;
-                updateData.$set[`owner.${nextOwnerIndex}`] = true;
-                // 위임받은 방장의 ready_status가 true인 경우 false로 바꿔줌
-                if (roomAndUserInfo.ready_status[nextOwnerIndex]) {
-                    updateData.$set[`ready_status.${nextOwnerIndex}`] = false;
-                }
-            }
-        }
-    
         await this.roomAndUserModel.findOneAndUpdate(
-
-             { room_id : room_id },
-             updateData
-        );
-    
-
             { room_id: room_id },
             {
                 $set: {
@@ -336,7 +307,6 @@ export class RoomService {
                 }
             },
         )
-
         await this.memberCountDown(room_id);
         return true;
     }
