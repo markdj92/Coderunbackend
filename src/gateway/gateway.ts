@@ -320,8 +320,12 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         await this.codingService.saveSubmitInfo(socket.decoded.email, codeSubmission.title);
         const finish = await this.codingService.checkFinish(codeSubmission.title);
 
-        if (finish == true) {
-            await this.nsp.to(codeSubmission.title).emit('finishedGame', codeSubmission.title);
+        if (finish.success == true) {
+            if (finish.mode !== "STUDY") {
+                await this.nsp.to(codeSubmission.title).emit('finishedGame', codeSubmission.title, finish.mode);
+            } else {
+                await this.nsp.to(codeSubmission.title).emit('finishedGame', codeSubmission.title);
+            }
         }
 
         let roomStatusChangeDto = new RoomStatusChangeDto(); 
