@@ -519,7 +519,7 @@ export class RoomService {
 
     async resetUserStatus(roomId: ObjectId) {
 
-        const roomInfo = this.roomAndUserModel.findOne({ room_id: roomId }).exec();
+        const roomInfo = await this.roomAndUserModel.findOne({ room_id: roomId }).exec();
         if (!roomInfo) {
             return false;
         }
@@ -527,15 +527,18 @@ export class RoomService {
             if (index < 10) return false;
         });
 
-        (await roomInfo).solved = AllFalseStatusArray;
-        (await roomInfo).submit = AllFalseStatusArray;
-        (await roomInfo).review = AllFalseStatusArray;
-        (await roomInfo).ready_status = AllFalseStatusArray;
-        
-        (await roomInfo).save();
-
-        return true;
-
+        const result = await this.roomAndUserModel.findOneAndUpdate(
+            { room_id: roomId },
+            {
+            $set: {
+                solved: AllFalseStatusArray,
+                submit: AllFalseStatusArray,
+                review: AllFalseStatusArray,
+                ready_status: AllFalseStatusArray,
+            },
+            }
+        );
+    return true;
     }
 }
 
