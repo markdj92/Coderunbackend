@@ -96,10 +96,17 @@ const Result = () => {
       if (response.success) {
         if (response.review) {
           navigate('/review', {
-            state: { ...response.roomInfo, nickname, reviewer: response.reviewer },
+            state: {
+              ...response.roomInfo,
+              problems: response.problems,
+              reviewer: response.reviewer,
+              nickname,
+            },
           });
         } else {
-          navigate(`/room/${title}`, { state: { ...response.roomInfo, nickname } });
+          navigate(`/room/${title}`, {
+            state: { ...response.roomInfo, nickname },
+          });
         }
       } else {
         navigate('/lobby', { state: { nickname } });
@@ -128,7 +135,7 @@ const Result = () => {
 
   const onLeaveRoom = useCallback(() => {
     socket.emit('leave-room', { title: roomName }, () => {
-      navigate('/lobby');
+      navigate('/lobby', { state: { nickname } });
     });
   }, [navigate, roomName]);
 

@@ -10,8 +10,8 @@ const QuizHeader = ({
   title?: string;
   timer?: { mm: number; ss: number };
 }) => {
-  const [minutes, setMinutes] = useState<number>(timer ? timer.mm : 0);
-  const [seconds, setSeconds] = useState<number>(timer ? timer.ss : 0);
+  const [minutes, setMinutes] = useState<number>(timer ? timer.mm : 99);
+  const [seconds, setSeconds] = useState<number>(timer ? timer.ss : 99);
   const navigate = useNavigate();
   useEffect(() => {
     const countdown = setInterval(() => {
@@ -34,9 +34,11 @@ const QuizHeader = ({
   return (
     <Container>
       <Title>{title}</Title>
-      <TimerBox>
-        {minutes < 10 ? `0${minutes}` : minutes}:{seconds < 10 ? `0${seconds}` : seconds}
-      </TimerBox>
+      {timer && (
+        <TimerBox>
+          {minutes < 10 ? `0${minutes}` : minutes}:{seconds < 10 ? `0${seconds}` : seconds}
+        </TimerBox>
+      )}
     </Container>
   );
 };

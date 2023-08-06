@@ -1,70 +1,70 @@
 //@ts-nocheck
 import { useEffect, useState } from 'react';
-import { BsFillMicFill, BsFillMicMuteFill } from 'react-icons/bs';
+import { BsFillMicMuteFill, BsFillMicFill } from 'react-icons/bs';
 import { PiSpeakerSimpleHighFill, PiSpeakerSimpleSlashFill } from 'react-icons/pi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
 
-import { UserInfo, BadgeStatus } from '../types/room';
-
 import { postExecuteResult, postQuizInfo } from '@/apis/gameApi';
 import { socket } from '@/apis/socketApi';
 import EditorCodeMirror from '@/components/InGame/EditorCodeMirror';
-import GameBottom from '@/components/InGame/GameBottom';
 import GameLiveBoard from '@/components/InGame/GameLiveBoard';
 import GameNavbar from '@/components/InGame/GameNavbar';
 import QuizFrame from '@/components/InGame/QuizFrame';
 import QuizHeader from '@/components/InGame/QuizHeader';
+import ReviewBottom from '@/components/InGame/ReviewBottom';
 import RunFrame from '@/components/InGame/RunFrame';
-import Alert from '@/components/public/Alert';
 import { useToast } from '@/components/public/Toast';
+import useSocketConnect from '@/hooks/useSocketConnect';
 import { ExecuteResult, QuizInfo } from '@/types/inGame';
+import { UserInfo } from '@/types/room';
 
-const InGame = () => {
+const Review = () => {
+  useSocketConnect();
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const { title, nickname }: { title: string; nickname: string } = location.state;
-  const [isAlert, setIsAlert] = useState<boolean>(false);
-  const [alertTitle, setAlertTitle] = useState<string>('');
-  const [alertContent, setAlertContent] = useState<string>('');
-  const [alertHandle, setAlertHandle] = useState<() => void>(() => {});
-  const [viewer, setViewer] = useState<string>(`ROOMNAME${title}${nickname}`);
+
+  const {
+    title,
+    nickname,
+    reviewer,
+    problems,
+    user_info,
+  }: {
+    title: string;
+    nickname: string;
+    problems: QuizInfo[];
+    reviewer: string;
+    user_info: UserInfo[];
+  } = location.state;
+
+  const [userInGame, setUserInGame] = useState<UserInfo[]>(user_info);
+  const [viewer, setViewer] = useState<string>(`ROOMNAME${title}${reviewer}`);
+  const [isReviewer, setIsReviewer] = useState<boolean>(reviewer === nickname);
+
   const [provider, setProvider] = useState<WebsocketProvider | undefined>(undefined);
   const [ytext, setYtext] = useState<Y.Text>('');
 
-  const [userInGame, setUserInGame] = useState<UserInfo[]>([]);
   const [selectedQuiz, setSelectedQuiz] = useState<number>(0);
-  const [quizList, setQuizList] = useState<QuizInfo[]>([]);
+  const [quizList, setQuizList] = useState<QuizInfo[]>(problems);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
-  const [isSubmit, setIsSubmit] = useState<boolean>(false);
   const [runResult, setRunResult] = useState<ExecuteResult>({
     memory: '0',
     cpuTime: '0',
     output: '',
   });
+
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
 
-  const handleProvider = (pro: WebsocketProvider) => {
-    setProvider(pro);
-  };
-
-  const handleSpeaker = () => {
-    setIsSpeaker(!isSpeaker);
-  };
-
-  const handleMicrophone = () => {
-    setIsMicrophone(!isMicrophone);
-  };
-
-  const notifySuccessMessage = (message: string) =>
-    toast.success({
-      position: 'topCenter',
-      message,
-    });
+  // const notifySuccessMessage = (message: string) =>
+  //   toast.success({
+  //     position: 'topCenter',
+  //     message,
+  //   });
 
   const notifyErrorMessage = (message: string) =>
     toast.error({
@@ -78,6 +78,10 @@ const InGame = () => {
       message,
       duration,
     });
+
+  const handleProvider = (pro: WebsocketProvider) => {
+    setProvider(pro);
+  };
 
   const executeCode = async () => {
     const code = ytext.toString();
@@ -96,66 +100,37 @@ const InGame = () => {
     setRunResult(data.payload.result);
   };
 
+  const handleDoneReviewer = () => {
+    socket.emit('reviewPass', { title: title });
+  };
+
+  const handleReviewMode = (response) => {
+    setUserInGame(response.user_info);
+    setIsReviewer(response.reviewer === nickname);
+    setViewer(`ROOMNAME${title}${response.reviewer}`);
+
+    if (response.reviewer === nickname) {
+      notifyInfoMessage('당신은 리뷰어입니다.');
+    } else {
+      notifyInfoMessage(`${response.reviewer}님이 리뷰어가 되었습니다.`);
+    }
+  };
+
   const getQuizList = async () => {
     return await postQuizInfo(title);
   };
 
-  const handleGetUserInGame = async (response) => {
-    if (response.success) {
-      const {
-        result,
-        quiz_result,
-        user_info,
-      }: { result: ExecuteResult; user_info: UserInfo | BadgeStatus; quiz_result: boolean } =
-        response.payload;
-      const { memory, cpuTime, output } = result;
-      setIsSuccess(quiz_result);
-      setRunResult({ memory, cpuTime, output });
-      setUserInGame(user_info);
-      setIsSubmit(true);
-      notifySuccessMessage('제출에 성공했습니다.');
-      socket.on('room-status-changed', (response) => {
-        setUserInGame(response.payload.user_info);
-      });
-    } else if (response.payload.message) {
-      alert(response.payload.message);
-    } else {
-      notifyErrorMessage('제출에 실패했습니다.');
-    }
+  const handleSpeaker = () => {
+    setIsSpeaker(!isSpeaker);
+  };
+  const handleMicrophone = () => {
+    setIsMicrophone(!isMicrophone);
   };
 
-  const submitCode = () => {
-    const code = ytext.toString();
-
-    const executeData = {
-      title: title,
-      problemNumber: quizList[selectedQuiz].number,
-      script: code,
-      language: 'python3',
-      versionIndex: '0',
-    };
-    socket.emit('submitCode', { ...executeData }, handleGetUserInGame);
-    setIsAlert(false);
-  };
-
-  const handleSubmit = () => {
-    setAlertHandle(() => submitCode);
-    setAlertTitle('제출하시겠습니까?');
-    setAlertContent('');
-    setIsAlert(true);
-  };
-
-  const handleSetViewer = (viewer: string) => {
-    setViewer(`ROOMNAME${title}${viewer}`);
-  };
-
-  const handleFinishGame = () => {
-    setTimeout(goToResult, 10000);
-    notifyInfoMessage('10초 뒤 결과 페이지로 이동합니다.', 10000);
-  };
-
-  const goToResult = () => {
-    navigate('/result', { state: { title, nickname } });
+  const goToRoom = (response) => {
+    navigate(`/room/${title}`, {
+      state: { ...response.roomInfo, nickname },
+    });
   };
 
   useEffect(() => {
@@ -171,10 +146,11 @@ const InGame = () => {
         console.error(err);
       });
 
-    socket.on('finishedGame', () => handleFinishGame());
+    socket.on('reviewFinished', goToRoom);
+    socket.on('room-status-changed', handleReviewMode);
 
     return () => {
-      socket.off('finishedGame');
+      socket.off('reviewFinished');
       socket.off('room-status-changed');
     };
   }, []);
@@ -182,21 +158,9 @@ const InGame = () => {
   if (quizList.length <= 0) return <></>;
   return (
     <Container>
-      {isAlert && (
-        <AlertFrame>
-          <Alert
-            title={alertTitle}
-            handleCloseAlert={() => setIsAlert(false)}
-            handleAlert={alertHandle}
-            backDropOpacity={0}
-          >
-            {alertContent}
-          </Alert>
-        </AlertFrame>
-      )}
       <GameNavbar />
       <MainFrame>
-        {isSubmit && <GameLiveBoard userInGame={userInGame} handleSetViewer={handleSetViewer} />}
+        <GameLiveBoard userInGame={userInGame} />
         <GameFrame>
           <OptionSection>
             <QuizListGroup>
@@ -230,11 +194,7 @@ const InGame = () => {
           </OptionSection>
           <MainSection>
             <QuizSection>
-              <QuizHeader
-                roomName={title}
-                title={quizList[selectedQuiz]?.title}
-                timer={{ mm: 20, ss: 22 }}
-              />
+              <QuizHeader roomName={title} title={quizList[selectedQuiz]?.title} />
               <QuizMain>
                 <QuizLeft>
                   <QuizFrame quizInfo={quizList[selectedQuiz]} />
@@ -243,12 +203,12 @@ const InGame = () => {
                   <EditorFrame>
                     <EditorCodeMirror
                       provider={provider}
-                      ableToEdit={isSubmit}
                       viewer={viewer}
                       nickname={nickname}
                       ytext={ytext}
                       setYtext={setYtext}
                       handleProvider={handleProvider}
+                      ableToEdit={!isReviewer}
                     />
                   </EditorFrame>
                   <RunFrame isSuccess={isSuccess} runResult={runResult} />
@@ -257,7 +217,7 @@ const InGame = () => {
             </QuizSection>
           </MainSection>
         </GameFrame>
-        {!isSubmit && <GameBottom handleRun={executeCode} handleSubmit={handleSubmit} />}
+        {isReviewer && <ReviewBottom handleRun={executeCode} handleSubmit={handleDoneReviewer} />}
       </MainFrame>
     </Container>
   );
@@ -284,14 +244,6 @@ const Container = styled.div`
   ::-webkit-scrollbar-track {
     background: 172334;
   }
-`;
-
-const AlertFrame = styled.div`
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 `;
 
 const MainFrame = styled.div`
@@ -385,4 +337,4 @@ const EditorFrame = styled.div`
   }
 `;
 
-export default InGame;
+export default Review;
