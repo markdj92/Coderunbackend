@@ -52,7 +52,7 @@ export class CodingTestService {
     }
   }
 
-  async getProblem(title : string) {
+  async getRandomProblem(title : string) {
   
     const roomInfo = await this.roomModel.findOne({ title: title }).exec();
     if (!roomInfo) {
@@ -124,7 +124,14 @@ export class CodingTestService {
   }
 
 
-      
+  async getProblem(problem : number[]) {
+    const problems = [];
+    for (let i = 0; i < problem.length; i++) {
+      problems.push(this.problemModel.findOne({ number: problem[i] }).exec());
+    }
+    return await Promise.all(problems);
+}
+
   // for testing about saving data with json struct
   async insertProblemToDB() {
    
