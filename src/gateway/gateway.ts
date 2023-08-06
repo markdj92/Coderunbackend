@@ -332,6 +332,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     }
 
 
+     
     @SubscribeMessage('timer')
     async handleTimer(
     @MessageBody('title') title: string,
@@ -347,11 +348,12 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         } else {
             clearInterval(interval);
             let firstReviewer;
+            let room_problems;
             const reviewOrnot = await this.roomService.checkReviewOrNot(title);
             if (reviewOrnot === true) {
                 const roomInfo = await this.roomService.getRoomInfo(socket.room_id);
-                    
                 outerLoop: if (roomInfo instanceof RoomStatusChangeDto) {
+                    room_problems = roomInfo.problem_number;
                     for (const user of roomInfo.user_info) { 
                     if (user instanceof UserInfoDto) {
                         if (user.review === true) {
@@ -361,7 +363,15 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
                     }
                     }
                 }
-            this.nsp.to(socketId).emit('timeout', { success: true, review: true, roomInfo: roomInfo , reviewer : firstReviewer});
+            
+            const problems = await this.codingService.getProblem(room_problems);
+                this.nsp.to(socketId).emit('timeout', {
+                    success: true,
+                    review: true,
+                    roomInfo: roomInfo,
+                    problems: problems,
+                    reviewer: firstReviewer
+                });
             }
             else {
                 await this.roomService.resetUserStatus(socket.room_id);
