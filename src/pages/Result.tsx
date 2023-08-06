@@ -31,7 +31,19 @@ const Result = () => {
 
   useEffect(() => {
     socket.emit('timer', { title });
+    onResultPage();
   }, []);
+
+  const onResultPage = useCallback(async () => {
+    try {
+      const response = await postResult(title);
+
+      setRoomName(response.data.title);
+      setUserInfos(response.data.user_info);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [userInfos]);
 
   useEffect(() => {
     const resultHandler = (response: RoomStatus) => {
@@ -52,19 +64,6 @@ const Result = () => {
         ),
       );
     };
-
-    const onResultPage = async () => {
-      try {
-        const response = await postResult(title);
-
-        setRoomName(response.data.title);
-        setUserInfos(response.data.user_info);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    onResultPage();
 
     setSolvedUsers(
       userInfos &&
@@ -96,10 +95,11 @@ const Result = () => {
     socket.on('timeout', (response) => {
       if (response.success) {
         if (response.review) {
-          alert('리뷰하러가기');
-          navigate('/review', { state: { nickname } });
+          navigate('/review', {
+            state: { ...response.roomInfo, nickname, reviewer: response.reviewer },
+          });
         } else {
-          navigate(`/room/${title}`, { state: { nickname } });
+          navigate(`/room/${title}`, { state: { ...response.roomInfo, nickname } });
         }
       } else {
         navigate('/lobby', { state: { nickname } });
