@@ -91,21 +91,17 @@ const InputFrame = styled.div<{ isfocus: string; isvalid: string }>`
   position: relative;
   border-radius: 8px;
   transition: all 0.3s ease-in-out;
-  background: ${(props) =>
-    props.isvalid === 'true'
-      ? props.isfocus === 'true'
-        ? 'linear-gradient(270deg, rgba(189, 0, 255, 0.20) 0%, rgba(189, 0, 255, 0.00) 100%), #1F1E4D;'
-        : '#1F1E4D'
-      : 'linear-gradient(0deg, rgba(255, 0, 0, 0.20) 0%, rgba(255, 0, 0, 0.20) 100%), #1F1E4D'};
+  background: ${(props) => props.theme.color.Black};
 
-  border: ${(props) => (props.isvalid === 'true' ? '1.4px solid #4541a4' : '1.4px solid #ff5c5c')};
+  border: ${(props) =>
+    props.isvalid === 'true'
+      ? props.theme.size.border + props.theme.color.MainKeyColor
+      : props.theme.size.border + props.theme.color.Error};
   animation: ${(props) => props.isvalid !== 'true' && 'vibration 0.1s 5'};
-  box-shadow:
-    0px -4px 4px 0px rgba(0, 0, 0, 0.25) inset,
-    0px 4px 4px 0px rgba(0, 0, 0, 0.25) inset;
 
   * {
-    color: ${(props) => (props.isvalid === 'true' ? '#8883ff' : '#ff5c5c')};
+    color: ${(props) =>
+      props.isvalid === 'true' ? props.theme.color.MainKeyColor : props.theme.color.Error};
   }
 
   input {
@@ -117,6 +113,16 @@ const InputFrame = styled.div<{ isfocus: string; isvalid: string }>`
   align-items: center;
   justify-content: space-between;
   gap: 18px;
+
+  box-shadow:
+    0px 0px 12px 0px
+      ${(props) =>
+        props.isvalid === 'true'
+          ? props.isfocus === 'true'
+            ? props.theme.color.FocusShadow
+            : props.theme.color.Black
+          : props.theme.color.ErrorShadow},
+    0px 4px 2px 0px #15124952 inset;
 `;
 
 const NameSection = styled.div`
@@ -127,7 +133,11 @@ const NameSection = styled.div`
 `;
 const TitleBox = styled.div<{ isvalid: string; isfocus: string }>`
   color: ${(props) =>
-    props.isvalid === 'true' ? (props.isfocus === 'true' ? '#8883FF' : '#4541A4;') : '#F00'};
+    props.isvalid === 'true'
+      ? props.isfocus === 'true'
+        ? props.theme.color.MainKeyColor
+        : props.theme.color.NonFocused
+      : props.theme.color.Error};
   text-align: center;
   font-family: 'Noto Sans KR';
   font-size: 22px;
@@ -139,17 +149,19 @@ const TitleBox = styled.div<{ isvalid: string; isfocus: string }>`
 const InputBox = styled.input<{ isvalid: string }>`
   display: flex;
   flex: 1;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: ${(props) => props.theme.font.Content};
   justify-content: center;
   align-items: center;
-  font-size: 22px;
+  font-size: 24px;
+  text-align: start;
   background: transparent;
   border: none;
   outline: none;
-  height: 28px;
+  height: 32px;
   margin: 16px 0 16px 0;
   padding-left: 18px;
-  border-left: 2px solid ${(props) => (props.isvalid === 'true' ? '#302e75' : '#FF5C5C;')};
+  border-left: 2px solid
+    ${(props) => (props.isvalid === 'true' ? props.theme.color.Divider : props.theme.color.Error)};
 `;
 
 const ResetButton = styled.div`

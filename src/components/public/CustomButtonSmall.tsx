@@ -10,31 +10,24 @@ const CustomButtonSmall = ({ title, isDisabled = false, onClick }: CustomButtonP
   if (isDisabled) {
     return (
       <DisabledContainer disabled={true}>
-        <TitleBox style={{ color: '#797AA6', fontWeight: '400' }}>{title}</TitleBox>
+        <TitleBox disabled={true}>{title}</TitleBox>
       </DisabledContainer>
     );
   }
   return (
     <Container onClick={onClick}>
-      <TitleBox>{title}</TitleBox>
+      <TitleBox disabled={false}>{title}</TitleBox>
     </Container>
   );
 };
 const DisabledContainer = styled.button`
   display: inline-flex;
-  border: 1px solid rgba(53, 53, 98, 1);
   cursor: default;
 
   margin-top: 32px;
   border-radius: 12px;
-  background: linear-gradient(
-      90deg,
-      rgba(43, 43, 87, 0) 0%,
-      rgba(53, 53, 99, 0.19) 31.07%,
-      rgba(53, 53, 99, 0.19) 72.03%,
-      rgba(43, 43, 87, 0.24) 100%
-    ),
-    rgba(73, 58, 91, 0.2);
+  border: 1px solid ${(props) => props.theme.color.DarkGray};
+  background: rgba(70, 70, 70, 0.2);
   backdrop-filter: blur(12px);
   width: 180px;
   padding: 20px 44px;
@@ -49,42 +42,27 @@ const Container = styled.button`
   padding: 20px 44px;
   justify-content: center;
   align-items: center;
-  border-radius: 12px;
-  border: 1px solid #4640c6;
   margin-top: 32px;
-  border: 2.4px solid rgba(70, 64, 198, 1);
   border-radius: 12px;
-  background: linear-gradient(
-      90deg,
-      rgba(70, 64, 198, 0) 0%,
-      rgba(70, 64, 198, 0.4) 31.07%,
-      rgba(70, 64, 198, 0.4) 72.03%,
-      rgba(70, 64, 198, 0.13) 100%
-    ),
-    rgba(112, 0, 255, 0.2);
+  border: 1px solid ${(props) => props.theme.color.MainKeyColor};
+  background: rgba(70, 70, 70, 0.2);
   backdrop-filter: blur(12px);
   &:hover {
-    border: 2.4px solid rgba(53, 53, 98, 1);
-    background: linear-gradient(
-        90deg,
-        rgba(43, 43, 87, 0) 0%,
-        rgba(53, 53, 99, 0.4) 31.07%,
-        rgba(53, 53, 99, 0.4) 72.03%,
-        rgba(43, 43, 87, 0.5) 100%
-      ),
-      rgba(112, 0, 255, 0.2);
+    background: rgba(0, 0, 0, 0.12);
+    box-shadow: 0px 4px 2px 0px #101010 inset;
   }
 `;
 
-const TitleBox = styled.div`
+const TitleBox = styled.div<{ disabled: boolean }>`
   width: 92px;
-  color: #8883ff;
   text-align: center;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: ${(props) => props.theme.font.Content};
   font-size: 20px;
   font-style: normal;
   font-weight: 700;
   line-height: 20px; /* 100% */
+  color: ${(props) =>
+    props.disabled ? props.theme.color.DarkGray : props.theme.color.MainKeyColor};
 `;
 
 export default CustomButtonSmall;
