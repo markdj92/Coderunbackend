@@ -280,37 +280,57 @@ export class RoomService {
         return roomStatusChangeDto;
     }
 
-    async changeRoomStatusForLeave(room_id: ObjectId, user_id: ObjectId): Promise<Boolean | string> {
+     async changeRoomStatusForLeave(room_id: ObjectId, user_id: ObjectId): Promise<Boolean | string> {
              // 디비에 해당 유저를 empty 로 바꾸고
         // 방 인원수도 바꿔줌.
         // 해당 방에 대한 정보를 얻음
     
-        const roomAndUserInfo = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
+        const roomAndUserInfo = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
 
-        if (!roomAndUserInfo) {
-            // Handle the case where roomanduser is undefined
-            return `No RoomAndUser found for room id ${room_id}`;
-        }
-        // 방 정보에서 첫번째로 empty인 부분을 찾음
-        if (!user_id) {
-            // Handle the case where user_id is undefined
-            return 'user_id is undefined';
-        }
-        
-        const user_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());
-
-        await this.roomAndUserModel.findOneAndUpdate(
-            { room_id: room_id },
-            {
-                $set: {
-                    [`user_info.${user_index}`]: "EMPTY",
-                    [`ready_status.${user_index}`]: false
-                }
-            },
-        )
-        await this.memberCountDown(room_id);
-        return true;
+    if (!roomAndUserInfo) {
+        // Handle the case where roomanduser is undefined
+        return `No RoomAndUser found for room id ${room_id}`;
     }
+
+    // 방 정보에서 첫번째로 empty인 부분을 찾음
+    if (!user_id) {
+       // Handle the case where user_id is undefined
+       return 'user_id is undefined';
+    }
+
+    const user_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());
+
+    let updateData = {
+        $set: { 
+            [`user_info.${user_index}`]:  "EMPTY",
+            [`ready_status.${user_index}`]:  false
+        }
+    };
+
+    // 오너를 넘겨줄 유저를 찾음
+    if (roomAndUserInfo.owner[user_index]) {
+        // 오너를 넘겨줄 인덱스를 찾음
+        let nextOwnerIndex = roomAndUserInfo.user_info.findIndex((value, index) => value !== "EMPTY" && value !== "LOCK" && index !== user_index);
+
+        // 새로운 오너틀 찾게 된다면 
+        if (nextOwnerIndex !== -1) {
+            updateData.$set[`owner.${user_index}`] = false;
+            updateData.$set[`owner.${nextOwnerIndex}`] = true;
+            // 만약 새로 위임된 오너가 ready상태일경우  false로 변경함
+            if (roomAndUserInfo.ready_status[nextOwnerIndex]) {
+                updateData.$set[`ready_status.${nextOwnerIndex}`] = false;
+            }
+        }
+    }
+
+    await this.roomAndUserModel.findOneAndUpdate(
+         { room_id : room_id },
+         updateData
+    );
+
+    await this.memberCountDown(room_id);
+    return true;
+}
     
     
     
