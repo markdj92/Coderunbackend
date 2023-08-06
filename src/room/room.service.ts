@@ -1,7 +1,7 @@
-import { IsEmail } from 'class-validator';
+
 import { RoomAndUser } from './schemas/roomanduser.schema';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { RoomCreateDto, RoomAndUserDto, EmptyOrLock, UserInfoDto, RoomStatusChangeDto, Team } from './dto/room.dto';
+import { RoomCreateDto, RoomAndUserDto, EmptyOrLock, UserInfoDto, RoomStatusChangeDto, Team, TeamDto } from './dto/room.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Room } from './schemas/room.schema'
 import mongoose, { Model,Mongoose,ObjectId,ObjectIdSchemaDefinition,Types } from 'mongoose';
@@ -235,15 +235,22 @@ export class RoomService {
         await this.memberCountUp(room_id);
     }
 
-    async getRoomInfo(room_id: ObjectId): Promise<RoomStatusChangeDto | boolean> {
-        // room 의 변경사항이 생겼을 때, 사용할 dto 
-        const roomStatusChangeDto = new RoomStatusChangeDto;
+    async getRoomInfo(room_id: ObjectId): Promise<RoomStatusChangeDto | boolean | TeamDto > {
+
         const room = await this.roomModel.findOne({ _id: room_id }).exec();
         const roomanduser = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
 
         if (!roomanduser) {
-            // Handle the case where roomanduser is undefined
             return false;
+        }
+        let roomInfoDto;
+        
+        if (room.mode === "COOPERATIVE") {
+            roomInfoDto = new TeamDto;
+            roomInfoDto.red = roomanduser.red_score;
+            roomInfoDto.blue = roomanduser.blue_score;
+        } else {
+            roomInfoDto = new RoomStatusChangeDto;
         }
 
         const userInfo = await Promise.all(
@@ -255,7 +262,6 @@ export class RoomService {
                     const user = await this.authModel.findOne({ _id: userID });
                 
                     const userInfoDto = new UserInfoDto;
-
                     userInfoDto.nickname = user.nickname;
                     userInfoDto.level = user.level;
                     userInfoDto.status = roomanduser.ready_status[index];
@@ -264,25 +270,25 @@ export class RoomService {
                     userInfoDto.submit = roomanduser.submit[index];
                     userInfoDto.review = roomanduser.review[index];
                     userInfoDto.team = roomanduser.team[index];
-                    return userInfoDto;
+                    return await userInfoDto;
                 }
             })
         );
 
-        roomStatusChangeDto.title = room.title;
-        roomStatusChangeDto.member_count = room.member_count;
-        roomStatusChangeDto.max_members = room.max_members;
-        roomStatusChangeDto.user_info = userInfo;
-        roomStatusChangeDto.mode = room.mode;
-        roomStatusChangeDto.problem_number = roomanduser.problem_number;
-        return roomStatusChangeDto;
+        roomInfoDto.title = room.title;
+        roomInfoDto.member_count = room.member_count;
+        roomInfoDto.max_members = room.max_members;
+        roomInfoDto.user_info = userInfo;
+        roomInfoDto.mode = room.mode;
+        roomInfoDto.problem_number = roomanduser.problem_number;
+
+        return await roomInfoDto;
     }
 
-     async changeRoomStatusForLeave(room_id: ObjectId, user_id: ObjectId): Promise<Boolean | string> {
-             // 디비에 해당 유저를 empty 로 바꾸고
-        // 방 인원수도 바꿔줌.
-        // 해당 방에 대한 정보를 얻음
     
+
+     async changeRoomStatusForLeave(room_id: ObjectId, user_id: ObjectId): Promise<Boolean | string> {
+      
         const roomAndUserInfo = await this.roomAndUserModel.findOne({room_id : room_id}).exec();
 
     if (!roomAndUserInfo) {
@@ -329,12 +335,6 @@ export class RoomService {
     await this.memberCountDown(room_id);
     return true;
 }
-    
-    
-    
-    
-    
-    
 
     async checkWrongDisconnection(email: string): Promise<boolean> {
 
@@ -443,9 +443,21 @@ export class RoomService {
         return true;
     }
     
-    async getResultList(title: string): Promise<RoomStatusChangeDto | boolean> {
-        const roomList = await this.roomModel.findOne({ title: title }).exec();
-        return this.getRoomInfo(roomList._id);
+    
+    async getResultList(title: string): Promise<{ result: RoomStatusChangeDto | boolean | TeamDto, winner?: string }> {
+        
+        const roomInfo = await this.roomModel.findOne({ title: title }).exec();
+        const resultInfo = await this.getRoomInfo(roomInfo._id);
+
+        if (typeof resultInfo === 'object' && 'red' in resultInfo && 'blue' in resultInfo) {
+
+            const winTeam = resultInfo.red > resultInfo.blue ? 'RED' : 'BLUE';
+            if (resultInfo.red === resultInfo.blue) {
+                return { result : resultInfo , winner : "DRAW"};
+            }
+            return { result : resultInfo , winner : winTeam};
+        }
+        return { result: resultInfo , winner : null};
     }
 
     async findRoomForQuickJoin(): Promise<{ title: string, room_id: string } | null> {

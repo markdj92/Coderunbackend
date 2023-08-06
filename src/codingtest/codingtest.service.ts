@@ -92,12 +92,21 @@ export class CodingTestService {
     return { input, output };
   }
 
-  async saveSolvedInfo(email: string, title : string) {
+  async saveSolvedInfo(email: string, title: string) {
     const userInfo = await this.authModel.findOne({ email: email }).exec();
     const roomInfo = await this.roomModel.findOne({ title: title }).exec();
+
     const activeRoom = await this.roomAndUserModel.findOne({ room_id: roomInfo._id });
     const user_index = activeRoom.user_info.indexOf(userInfo._id.toString());
 
+    if (roomInfo.mode === "COOPERATIVE") {
+      const whichTeam = activeRoom.team[user_index];
+      if (whichTeam === "RED") {
+        activeRoom.red_score += 1;
+      } else {
+        activeRoom.blue_score += 1;
+      }
+    }
     activeRoom.solved[user_index] = true;
     await activeRoom.save();
   }
