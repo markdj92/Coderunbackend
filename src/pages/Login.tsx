@@ -153,6 +153,7 @@ const Login = () => {
 const MainFrame = styled.div`
   background: url('./background.png');
   mix-blend-mode: screen;
+
   background-size: cover;
   font-family: 'Raleway', sans-serif;
   display: flex;
@@ -172,7 +173,7 @@ const FormFrame = styled.form`
 const SignInFrame = styled.div`
   width: 732px;
   height: 144px;
-  border-top: 2px solid #3c325f;
+  border-top: 2px solid ${(props) => props.theme.color.DarkGray};
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -180,7 +181,7 @@ const SignInFrame = styled.div`
 `;
 
 const SignInTitle = styled.div`
-  color: #8883ff;
+  color: ${(props) => props.theme.color.DarkGray};
   text-align: center;
   font-size: 20px;
   font-style: normal;
@@ -205,11 +206,12 @@ const WelcomeText = styled.h2`
   line-height: 20px;
   letter-spacing: -0.01em;
   text-align: center;
+  color: ${(props) => props.theme.color.DarkGray};
 `;
 
 const MainText = styled.h1`
-  font-family: 'IBM Plex Sans KR', sans-serif;
-  color: #e2e0ff;
+  font-family: ${(props) => props.theme.font.Title};
+  color: ${(props) => props.theme.color.LightGray};
   font-size: 88px;
   font-style: normal;
   font-weight: 700;
