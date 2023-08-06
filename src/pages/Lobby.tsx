@@ -9,17 +9,16 @@ import IconSetting from '/images/lobby/button_setting.png';
 
 import { postLogout } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
-import Button from '@/components/Lobby/Button';
 
 import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
 
+import Button from '@/components/Lobby/Button';
 import CreateRoom from '@/components/Lobby/CreateRoom';
 import DropBox from '@/components/Lobby/DropBox';
 import IconButton from '@/components/Lobby/IconButton';
 import PrivateModal from '@/components/Lobby/PrivateModal';
 import RoomList from '@/components/Lobby/RoomList';
 import Alert from '@/components/public/Alert';
-import { useInput } from '@/hooks/useInput';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomResponse } from '@/types/lobby';
 
@@ -37,47 +36,9 @@ const Lobby = () => {
   }
   const { nickname, kicked } = location.state;
   const [isKicked, setIsKicked] = useState(kicked ? true : false);
-  const { value: roomInfo, setValue: setRoomInfo } = useInput({
-    title: '',
-    password: '',
-    status: 'PUBLIC',
-    max_members: 2,
-    level: 1,
-    mode: 'STUDY',
-  });
 
   const LEVEL_OPTIONS = ['ALL', '1', '2', '3', '4', '5'];
   const [selectedLevel, setLevel] = useState(0);
-
-  const handleChange = (e: { target: { name: string; value: string } }) => {
-    if (e.target.name === 'password') {
-      const publicState = e.target.value === '' ? 'PUBLIC' : 'PRIVATE';
-      setRoomInfo({ ...roomInfo, [e.target.name]: e.target.value, ['status']: publicState });
-    } else {
-      setRoomInfo({ ...roomInfo, [e.target.name]: e.target.value });
-    }
-  };
-  const onCreateRoom = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    socket.emit('create-room', roomInfo, (response: RoomResponse) => {
-      if (!response.success) {
-        return alert(response.payload.message);
-      }
-      if (!response.payload.roomInfo) {
-        return alert('서버 문제가 발생했습니다.');
-      }
-      if (roomInfo.mode === 'STUDY') {
-        navigate(`/room/${roomInfo.title}`, {
-          state: { ...response.payload.roomInfo, nickname },
-        });
-      } else {
-        navigate(`/cooproom/${roomInfo.title}`, {
-          state: { ...response.payload.roomInfo, nickname },
-        });
-      }
-    });
-  };
 
   const handleShowCreateRoom = () => {
     setShownCreateRoom(!isShownCreateRoom);
@@ -115,12 +76,7 @@ const Lobby = () => {
   return (
     <MainContainer>
       {isShownCreateRoom && (
-        <CreateRoom
-          roomInfo={roomInfo}
-          handleChange={handleChange}
-          onCreateRoom={onCreateRoom}
-          handleShowCreateRoom={handleShowCreateRoom}
-        />
+        <CreateRoom nickname={nickname} handleShowCreateRoom={handleShowCreateRoom} />
       )}
       {isLogout && (
         <Alert

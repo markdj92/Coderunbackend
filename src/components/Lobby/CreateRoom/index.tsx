@@ -1,31 +1,70 @@
 import { useState } from 'react';
 import { BiCheckbox, BiCheckboxChecked } from 'react-icons/bi';
+import { useNavigate } from 'react-router-dom';
 import { styled } from 'styled-components';
 
 import Modal from '../../public/Modal';
 
+import { socket } from '@/apis/socketApi';
 import CustomButtonTiny from '@/components/public/CustomButtonTiny';
 import CustomInputSmall from '@/components/public/CustomInputSmall';
+import { useInput } from '@/hooks/useInput';
+import { RoomResponse } from '@/types/lobby';
 
 type RoomProps = {
-  roomInfo: any;
+  nickname: string;
   handleShowCreateRoom: () => void;
-  handleChange: (e: any) => void;
-  onCreateRoom: (e: any) => void;
 };
-const CreateRoom = ({ roomInfo, handleShowCreateRoom, handleChange, onCreateRoom }: RoomProps) => {
+const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
   const [isSecret, setIsSecret] = useState(false);
+  const navigate = useNavigate();
+
+  const { value: roomInfo, setValue: setRoomInfo } = useInput({
+    title: '',
+    password: '',
+    status: 'PUBLIC',
+    max_members: 2,
+    level: '1',
+    mode: 'STUDY',
+  });
+  const handleChange = (e: { target: { name: string; value: string } }) => {
+    if (e.target.name === 'password') {
+      const publicState = e.target.value === '' ? 'PUBLIC' : 'PRIVATE';
+      setRoomInfo({ ...roomInfo, [e.target.name]: e.target.value, ['status']: publicState });
+    } else {
+      setRoomInfo({ ...roomInfo, [e.target.name]: e.target.value });
+    }
+  };
+  const onCreateRoom = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    socket.emit('create-room', roomInfo, (response: RoomResponse) => {
+      if (!response.success) {
+        return alert(response.payload.message);
+      }
+      if (!response.payload.roomInfo) {
+        return alert('서버 문제가 발생했습니다.');
+      }
+      if (roomInfo.mode === 'STUDY') {
+        navigate(`/room/${roomInfo.title}`, {
+          state: { ...response.payload.roomInfo, nickname },
+        });
+      } else {
+        navigate(`/cooproom/${roomInfo.title}`, {
+          state: { ...response.payload.roomInfo, nickname },
+        });
+      }
+    });
+  };
 
   const onSecretRoom = () => {
+    console.log(roomInfo);
     setIsSecret(!isSecret);
   };
   return (
     <Modal handleHideModal={handleShowCreateRoom}>
       <CreateRoomForm onSubmit={onCreateRoom}>
-        <Title>
-          <Logo />
-          <TitleText>Create Room</TitleText>
-        </Title>
+        <TitleText>Create Room</TitleText>
         <InputContainer>
           <CustomInputSmall
             title='Room Title'
@@ -38,10 +77,10 @@ const CreateRoom = ({ roomInfo, handleShowCreateRoom, handleChange, onCreateRoom
             <InputSet>
               <SecretCheck onClick={onSecretRoom}>
                 {isSecret ? (
-                  <BiCheckboxChecked size='3rem' style={{ fill: '#9190db' }} />
+                  <BiCheckboxChecked size='3rem' style={{ fill: '#76cea3' }} />
                 ) : (
-                  <BiCheckbox size='3rem' style={{ fill: '#9190db' }} />
-                )}{' '}
+                  <BiCheckbox size='3rem' style={{ fill: '#76cea3' }} />
+                )}
                 Private Room
               </SecretCheck>
             </InputSet>
@@ -56,14 +95,34 @@ const CreateRoom = ({ roomInfo, handleShowCreateRoom, handleChange, onCreateRoom
             )}
             <InputSet>
               <InputTitle>Mode</InputTitle>
-              <label>
-                <input type='radio' name='mode' value='STUDY' onChange={handleChange} checked />
+              <input
+                style={{ opacity: '0' }}
+                type='radio'
+                name='mode'
+                value='STUDY'
+                onChange={handleChange}
+                id='study-mode'
+              />
+              <RadioSelect
+                isselected={roomInfo.mode === 'STUDY' ? 'true' : 'false'}
+                for='study-mode'
+              >
                 STUDY
-              </label>
-              <label>
-                <input type='radio' name='mode' value='COOPERATIVE' onChange={handleChange} />
-                COOPERATIVE
-              </label>
+              </RadioSelect>
+              <input
+                style={{ opacity: '0' }}
+                type='radio'
+                name='mode'
+                value='COOPERATIVE'
+                onChange={handleChange}
+                id='coop-mode'
+              />
+              <RadioSelect
+                isselected={roomInfo.mode === 'COOPERATIVE' ? 'true' : 'false'}
+                for='coop-mode'
+              >
+                CO-OP
+              </RadioSelect>
             </InputSet>
             <InputSet>
               <InputTitle>Max People</InputTitle>
@@ -79,40 +138,83 @@ const CreateRoom = ({ roomInfo, handleShowCreateRoom, handleChange, onCreateRoom
             </InputSet>
             <InputSet>
               <InputTitle>Level</InputTitle>
-              <label>
-                <input
-                  type='radio'
-                  id='lv1'
-                  name='level'
-                  value={1}
-                  onChange={handleChange}
-                  checked
-                />
+              <input
+                style={{ opacity: '0' }}
+                type='radio'
+                id='lv1'
+                name='level'
+                onChange={handleChange}
+                value='1'
+              />
+              <RadioSelect isselected={roomInfo.level === '1' ? 'true' : 'false'} for='lv1'>
                 1
-              </label>
-              <label>
-                <input type='radio' id='lv2' name='level' value={2} onChange={handleChange} />2
-              </label>
-              <label>
-                <input type='radio' id='lv3' name='level' value={3} onChange={handleChange} />3
-              </label>
-              <label>
-                <input type='radio' id='lv4' name='level' value={4} onChange={handleChange} />4
-              </label>
-              <label>
-                <input type='radio' id='lv5' name='level' value={5} onChange={handleChange} />5
-              </label>
+              </RadioSelect>
+              <input
+                style={{ opacity: '0' }}
+                type='radio'
+                id='lv2'
+                name='level'
+                onChange={handleChange}
+                value='2'
+              />
+              <RadioSelect isselected={roomInfo.level === '2' ? 'true' : 'false'} for='lv2'>
+                2
+              </RadioSelect>
+              <input
+                style={{ opacity: '0' }}
+                type='radio'
+                id='lv3'
+                name='level'
+                onChange={handleChange}
+                value='3'
+              />
+              <RadioSelect isselected={roomInfo.level === '3' ? 'true' : 'false'} for='lv3'>
+                3
+              </RadioSelect>
+              <input
+                style={{ opacity: '0' }}
+                type='radio'
+                id='lv4'
+                name='level'
+                onChange={handleChange}
+                value='4'
+              />
+              <RadioSelect isselected={roomInfo.level === '4' ? 'true' : 'false'} for='lv4'>
+                4
+              </RadioSelect>
+              <input
+                style={{ opacity: '0' }}
+                type='radio'
+                id='lv5'
+                name='level'
+                onChange={handleChange}
+                value='5'
+              />
+              <RadioSelect isselected={roomInfo.level === '5' ? 'true' : 'false'} for='lv5'>
+                5
+              </RadioSelect>
             </InputSet>
           </SettingContainer>
         </InputContainer>
-        <CustomButtonTiny title={'Enter'} isDisabled={!roomInfo.title} />
+        <ButtonContainer>
+          <CustomButtonTiny title={'Enter'} isDisabled={!roomInfo.title} />
+        </ButtonContainer>
       </CreateRoomForm>
     </Modal>
   );
 };
+
+const RadioSelect = styled.label<{ isselected: string }>`
+  color: ${(props) =>
+    props.isselected === 'true' ? props.theme.color.LightGray : props.theme.color.DarkGray};
+  font-weight: 700;
+  font-style: italic;
+  font-size: 20px;
+  cursor: pointer;
+`;
 const InputTitle = styled.label`
   font-family: 'IBM Plex Sans KR';
-  color: #9190db;
+  color: ${(props) => props.theme.color.MainKeyColor};
   font-size: 25px;
   font-weight: 700;
   width: 300px;
@@ -130,19 +232,8 @@ const CreateRoomForm = styled.form`
   flex-direction: column;
   align-items: left;
 `;
-const Title = styled.div`
-  width: fit-content;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-`;
-const Logo = styled.div`
-  width: 44px;
-  height: 44px;
-  background: #1f1e4d;
-`;
 const TitleText = styled.p`
-  color: #8883ff;
+  color: ${(props) => props.theme.color.LightGray};
   text-align: center;
   font-size: 32px;
   font-family: 'IBM Plex Sans KR';
@@ -161,16 +252,19 @@ const InputContainer = styled.div`
 const SettingTitle = styled.div`
   margin-top: 22px;
   width: fit-content;
-  color: #8883ff;
+  color: ${(props) => props.theme.color.LightGray};
   font-size: 28px;
   font-weight: 700;
   line-height: 35px;
 `;
 const SettingContainer = styled.div`
-  color: #9190db;
+  color: ${(props) => props.theme.color.MainKeyColor};
   display: flex;
   flex-direction: column;
   align-items: left;
+`;
+const ButtonContainer = styled.div`
+  width: 100%;
 `;
 const SecretCheck = styled.div`
   /* width: 10px; */
@@ -178,7 +272,7 @@ const SecretCheck = styled.div`
   flex-direction: row;
   align-items: center;
   font-family: 'IBM Plex Sans KR';
-  color: #9190db;
+  color: #76cea3;
   font-size: 25px;
   font-weight: 700;
 `;
