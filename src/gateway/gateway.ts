@@ -342,7 +342,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     
         const socketId = await this.authService.getSocketIdByuserId(socket.user_id);
 
-        let timer = 15;
+        let timer = 5;
         const interval = setInterval(async () => {
         if (timer >= 0) {
             this.nsp.to(socketId).emit('timer', timer);
