@@ -205,7 +205,6 @@ const InGame = () => {
                   key={index}
                   onClick={() => {
                     setSelectedQuiz(index);
-                    setIsSubmit(false);
                   }}
                 >
                   {index + 1}
