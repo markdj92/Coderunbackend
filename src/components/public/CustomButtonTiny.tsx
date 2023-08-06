@@ -10,13 +10,13 @@ const CustomButtonTiny = ({ title, isDisabled = false, onClick }: CustomButtonPr
   if (isDisabled) {
     return (
       <DisabledContainer disabled={true}>
-        <TitleBox style={{ color: 'rgba(70, 64, 198, 0.4)', fontWeight: '400' }}>{title}</TitleBox>
+        <TitleBox style={{ color: '#26262d', fontWeight: '400' }}>{title}</TitleBox>
       </DisabledContainer>
     );
   }
   return (
     <Container onClick={onClick}>
-      <TitleBox style={{ color: '#8883ff' }}>{title}</TitleBox>
+      <TitleBox>{title}</TitleBox>
     </Container>
   );
 };
@@ -26,14 +26,16 @@ const DisabledContainer = styled.button`
 
   margin-top: 16px;
   border-radius: 8px;
-  border: 1px solid rgba(70, 64, 198, 0.2);
-  background: rgba(70, 64, 198, 0.2);
+  border: 1px solid ${(props) => props.theme.color.Black};
+  background: #83839333;
   backdrop-filter: blur(12px);
   width: 77px;
   padding: 16px 20px;
   justify-content: center;
   align-items: center;
   gap: 10px;
+
+  float: right;
 `;
 const Container = styled.button`
   width: 78px;
@@ -43,30 +45,19 @@ const Container = styled.button`
   justify-content: center;
   align-items: center;
   border-radius: 8px;
-  border: 1px solid #4640c6;
+  border: 1px solid ${(props) => props.theme.color.Black};
   margin-top: 16px;
-  border: 2.4px solid rgba(70, 64, 198, 1);
-  border-radius: 8px;
-  background: linear-gradient(
-      90deg,
-      rgba(70, 64, 198, 0) 0%,
-      rgba(70, 64, 198, 0.4) 31.07%,
-      rgba(70, 64, 198, 0.4) 72.03%,
-      rgba(70, 64, 198, 0.13) 100%
-    ),
-    rgba(112, 0, 255, 0.2);
-  box-shadow: 0px 0px 12px 0px rgba(78, 0, 244, 0.4);
+  background: rgba(70, 70, 70, 0.2);
+  box-shadow:
+    0px 0px 12px 0px #59fff5cc,
+    0px 4px 2px 0px #15124951 inset;
+
   backdrop-filter: blur(12px);
+  float: right;
   &:hover {
-    border: 2.4px solid rgba(53, 53, 98, 1);
-    background: linear-gradient(
-        90deg,
-        rgba(43, 43, 87, 0) 0%,
-        rgba(53, 53, 99, 0.4) 31.07%,
-        rgba(53, 53, 99, 0.4) 72.03%,
-        rgba(43, 43, 87, 0.5) 100%
-      ),
-      rgba(112, 0, 255, 0.2);
+    border: 1px solid ${(props) => props.theme.color.Black};
+    background: rgba(0, 0, 0, 0.12);
+    box-shadow: 0px 4px 2px 0px #101010 inset;
   }
 `;
 
@@ -74,10 +65,11 @@ const TitleBox = styled.div`
   width: 92px;
 
   text-align: center;
-  font-family: 'Noto Sans KR', sans-serif;
+  color: ${(props) => props.theme.color.MainKeyColor};
+  font-family: ${(props) => props.theme.font.Content};
   font-size: 18px;
   font-style: normal;
-  font-weight: 500;
+  font-weight: 700;
   line-height: 18px; /* 100% */
 `;
 
