@@ -12,7 +12,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Socket } from 'socket.io';
-import { RoomCreateDto, RoomStatusChangeDto } from 'src/room/dto/room.dto';
+import { RoomCreateDto, RoomStatusChangeDto, UserInfoDto } from 'src/room/dto/room.dto';
 import { RoomService } from 'src/room/room.service';
 import { UsersService } from 'src/users/users.service';
 import { jwtSocketIoMiddleware } from './jwt-socket-io.middleware';
@@ -338,7 +338,6 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     @ConnectedSocket() socket: ExtendedSocket) {    
     
         const socketId = await this.authService.getSocketIdByuserId(socket.user_id);
-        const roomInfo = await this.roomService.getRoomInfo(socket.room_id);
 
         let timer = 15;
         const interval = setInterval(async () => {
@@ -347,14 +346,51 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
             timer--;
         } else {
             clearInterval(interval);
+            let firstReviewer;
             const reviewOrnot = await this.roomService.checkReviewOrNot(title);
             if (reviewOrnot === true) {
-                this.nsp.to(socketId).emit('timeout', { success: true , review : true , roomInfo : null});
-            } else {
+                const roomInfo = await this.roomService.getRoomInfo(socket.room_id);
+                    
+                outerLoop: if (roomInfo instanceof RoomStatusChangeDto) {
+                    for (const user of roomInfo.user_info) { 
+                    if (user instanceof UserInfoDto) {
+                        if (user.review === true) {
+                            firstReviewer = user.nickname;
+                            break outerLoop; 
+                        }
+                    }
+                    }
+                }
+            this.nsp.to(socketId).emit('timeout', { success: true, review: true, roomInfo: roomInfo , firstReviewer : firstReviewer});
+            }
+            else {
+                await this.roomService.resetUserStatus(socket.room_id);
+                const roomInfo = await this.roomService.getRoomInfo(socket.room_id);
                 this.nsp.to(socketId).emit('timeout', { success: true , review : false, roomInfo : roomInfo});
             }
         }
         }, 1000);
-        
     }
+
+    @SubscribeMessage('reviewPass')
+    async handleReviewPass(
+    @MessageBody('title') title: string,
+    @ConnectedSocket() socket: ExtendedSocket) {    
+        
+        const check = await this.roomService.getResult(socket.room_id, socket.user_id);
+        if (check === false) {
+            return { success: false, payload: { message: "다시 버튼을 눌러주세요." } };
+        }
+        const reveiwAll = await this.roomService.checkReviewOrNot(title);
+        const roomInfo = await this.roomService.getRoomInfo(socket.room_id);
+        this.nsp.to(title).emit('room-status-changed', roomInfo);
+
+        if (reveiwAll === false) {
+            await this.roomService.resetUserStatus(socket.room_id);
+            const roomInfo = await this.roomService.getRoomInfo(socket.room_id);
+            this.nsp.to(title).emit('reviewFinished', roomInfo);
+        } 
+        return { success: false, payload: { message: " "} };
+    }
+
 }
