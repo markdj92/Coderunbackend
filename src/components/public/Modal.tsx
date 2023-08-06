@@ -38,7 +38,7 @@ const Modal = ({
           >
             <path
               d='M20.0356 23.1226L27.7961 30.929L31 27.8064L23.1683 20L31 12.1935L27.7961 9.07097L20.0356 16.8065L12.1327 9L9 12.1935L16.8317 20L9 27.8064L12.1327 31L20.0356 23.1226Z'
-              fill='#8883FF'
+              fill='#838393'
             />
           </svg>
         </CloseButton>
@@ -71,20 +71,21 @@ const ModalOverlay = styled.div`
   backdrop-filter: blur(8.5px);
   -webkit-backdrop-filter: blur(8.5px);
 
-  box-shadow: 0 5px 10px rgba(211, 211, 211, 0.25);
+  /* box-shadow:
+    0px 4px 32px 0px #12112780,
+    0px 4px 2px 0px #15124952 inset; */
+
+  box-shadow:
+    0px 4px 58px 0px #59fff580,
+    0px 4px 2px 0px #15124952 inset;
 
   z-index: 30;
   animation: slide-up 300ms ease-out forwards;
-
-  border: 2.4px solid #8883ff;
   border-radius: 1rem;
-  background: linear-gradient(135deg, rgba(70, 64, 198, 0.32) 0%, rgba(70, 64, 198, 0) 100%),
-    linear-gradient(0deg, rgba(70, 64, 198, 0.2) 0%, rgba(70, 64, 198, 0.2) 100%),
-    rgba(15, 18, 31, 0.24);
+  background: ${(props) => props.theme.color.Black};
 
-  box-shadow:
-    0px 4px 32px 0px rgba(18, 17, 39, 0.5),
-    0px 4px 2px 0px rgba(21, 18, 73, 0.32) inset;
+  border: 2.4px solid ${(props) => props.theme.color.MainKeyColor};
+
   backdrop-filter: blur(9px);
 
   @keyframes slide-down {
@@ -117,7 +118,7 @@ const Backdrop = styled.div<{ backdropopacity: number; isblur: string }>`
   width: 100%;
   height: 100vh;
   z-index: 20;
-  background-color: ${(props) => `rgba(5, 4, 31, ${props.backdropopacity})`};
+  background-color: ${(props) => `rgba(7, 7, 0.8, ${props.backdropopacity})`};
   -webkit-backdrop-filter: ${(props) => props.isblur === 'true' && 'blur(4px)'};
   backdrop-filter: ${(props) => props.isblur === 'true' && 'blur(4px)'};
 `;

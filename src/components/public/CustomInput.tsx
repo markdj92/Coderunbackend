@@ -100,25 +100,29 @@ const InputFrame = styled.div<{ isfocus: string; isvalid: string }>`
   flex-direction: row;
   align-items: center;
   transition: all 0.3s ease-in-out;
-  border: ${(props) => (props.isvalid === 'true' ? '2.4px solid #8883ff' : '2.4px solid #ff5c5c')};
+  border: ${(props) =>
+    props.isvalid === 'true'
+      ? props.theme.size.border + props.theme.color.MainKeyColor
+      : props.theme.size.border + props.theme.color.Error};
   border-radius: 16px;
   * {
-    color: ${(props) => (props.isvalid === 'true' ? '#8883ff' : '#ff5c5c')};
+    color: ${(props) =>
+      props.isvalid === 'true' ? props.theme.color.MainKeyColor : props.theme.color.Error};
   }
   input {
     color: ${(props) => (props.isvalid === 'true' ? '#fff' : '#ff5c5c')};
   }
   animation: ${(props) => props.isvalid !== 'true' && 'vibration 0.1s 5'};
 
-  background: ${(props) =>
-    props.isvalid === 'true'
-      ? props.isfocus === 'true'
-        ? 'linear-gradient(90deg, rgba(70, 64, 198, 0.50) 0%, rgba(70, 64, 198, 0.00) 100%), rgba(189, 0, 255, 0.20)'
-        : 'linear-gradient(90deg, rgba(70, 64, 198, 0.5) 0%, rgba(70, 64, 198, 0) 100%), rgba(70, 64, 198, 0.2)'
-      : 'linear-gradient(90deg, rgba(255, 92, 92, 0.50) 0%, rgba(255, 92, 92, 0.00) 100%), rgba(255, 0, 0, 0.20)'};
   box-shadow:
-    0px 4px 12px 0px rgba(18, 17, 39, 0.24),
-    0px 4px 2px 0px rgba(21, 18, 73, 0.32) inset;
+    0px 0px 12px 0px
+      ${(props) =>
+        props.isvalid === 'true'
+          ? props.isfocus === 'true'
+            ? props.theme.color.FocusShadow
+            : props.theme.color.Black
+          : props.theme.color.ErrorShadow},
+    0px 4px 2px 0px #15124952 inset;
 `;
 
 const NameSection = styled.div<{ isvalid: string }>`
@@ -127,8 +131,8 @@ const NameSection = styled.div<{ isvalid: string }>`
   align-items: center;
   margin: 30px 0 30px 44px;
   padding-right: 24px;
-  border-right: ${(props) =>
-    props.isvalid === 'true' ? '1px solid #8883ff' : '1px solid #ff5c5c'};
+  border-right: 1px solid
+    ${(props) => (props.isvalid === 'true' ? props.theme.color.Divider : props.theme.color.Error)};
 `;
 
 const ShowButton = styled.div`
@@ -138,9 +142,6 @@ const ShowButton = styled.div`
   animation: fadein ease 0.2s;
   -webkit-animation: fadein 0.2s;
   cursor: pointer;
-  * {
-    color: '#8883FF';
-  }
 `;
 
 const ResetButton = styled.div`
@@ -151,7 +152,7 @@ const ResetButton = styled.div`
   -webkit-animation: fadein 0.2s;
   cursor: pointer;
   * {
-    color: '#ff5c5c';
+    color: ${(props) => props.theme.color.Error};
   }
 `;
 

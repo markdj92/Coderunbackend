@@ -85,13 +85,10 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
   return (
     <Modal handleHideModal={handleShowSignup}>
       <SignupForm onSubmit={handleSignup}>
-        <Title>
-          <Logo />
-          <SignupText>
-            <WelcomeText>Welcome to Code Learn</WelcomeText>
-            <SignUpTitle>SIGN UP</SignUpTitle>
-          </SignupText>
-        </Title>
+        <SignupText>
+          <WelcomeText>Welcome to Code Learn</WelcomeText>
+          <SignUpTitle>SIGN UP</SignUpTitle>
+        </SignupText>
         <InputContainer>
           <InputSet>
             <EmailBox>
@@ -140,48 +137,37 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
   );
 };
 
-const Title = styled.div`
-  width: fit-content;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-`;
-const Logo = styled.div`
-  width: 74px;
-  height: 74px;
-  background: #1f1e4d;
-`;
 const SignupText = styled.div`
   width: fit-content;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-left: 24px;
 `;
 const WelcomeText = styled.div`
-  color: #8883ff;
   text-align: center;
-  font-family: 'Noto Sans KR';
+  font-family: ${(props) => props.theme.font.Content};
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
   line-height: 20px; /* 100% */
-  letter-spacing: -0.32px;
+  letter-spacing: -2%;
   margin-bottom: 10px;
+  color: ${(props) => props.theme.color.DarkGray};
 `;
 const SignUpTitle = styled.p`
-  color: #8883ff;
   text-align: center;
   font-size: 44px;
-  font-family: 'IBM Plex Sans KR';
+  font-family: ${(props) => props.theme.font.Title};
   font-style: normal;
   font-weight: 700;
   line-height: 44px; /* 100% */
+  font-family: ${(props) => props.theme.font.Title};
+  color: ${(props) => props.theme.color.LightGray};
 `;
 const SignupForm = styled.form`
   display: flex;
   flex-direction: column;
-  align-items: left;
+  align-items: center;
 `;
 const InputSet = styled.div`
   margin-top: 20px;
@@ -193,25 +179,7 @@ const EmailBox = styled.div`
   justify-content: space-around;
   align-items: flex-end;
 `;
-// const EmailButton = styled.div<{ isvalid: string }>`
-//   ${({ isvalid }) => {
-//     return css`
-//       cursor: ${isvalid === 'true' ? 'pointer' : 'auto'};
-//       letter-spacing: 0.2rem;
-//       margin-bottom: 0.5rem;
-//       text-align: end;
 
-//       width: 10rem;
-//       transition: all 0.5s ease;
-//       color: ${isvalid === 'true' ? '#fff' : '#6a6d94'};
-//       &:hover {
-//         text-shadow: ${isvalid === 'true'
-//           ? '0 0 5px #bebebe,0 0 10px #bebebe,0 0 15px #bebebe,0 0 20px #bebebe,0 0 35px #bebebe'
-//           : ''};
-//       }
-//     `;
-//   }}
-// `;
 const InputContainer = styled.div`
   display: flex;
   flex-direction: column;

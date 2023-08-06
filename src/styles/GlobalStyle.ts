@@ -20,7 +20,7 @@ const GlobalStyle = createGlobalStyle`
     list-style: none;
   }
   body{
-    background: #1D1637;
+    background: rgba(7, 7, 7, 0.80);
   }
 
   button{

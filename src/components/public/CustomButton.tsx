@@ -10,12 +10,12 @@ const CustomButton = ({ title, isDisabled = false, onClick }: CustomButtonProps)
   if (isDisabled)
     return (
       <DisableContainer disabled={true}>
-        <TitleBox>{title}</TitleBox>
+        <TitleBox disabled={true}>{title}</TitleBox>
       </DisableContainer>
     );
   return (
     <Container onClick={onClick}>
-      <TitleBox>{title}</TitleBox>
+      <TitleBox disabled={false}>{title}</TitleBox>
     </Container>
   );
 };
@@ -27,8 +27,8 @@ const DisableContainer = styled.button`
   align-items: center;
   gap: 10px;
   border-radius: 12px;
-  border: 1px solid rgba(70, 64, 198, 0.2);
-  background: rgba(70, 64, 198, 0.2);
+  border: 1px solid ${(props) => props.theme.color.DarkGray};
+  background: rgba(70, 70, 70, 0.2);
   cursor: default;
 `;
 
@@ -40,20 +40,22 @@ const Container = styled.button`
 
   transition: all ease 0.3s;
   border-radius: 12px;
-  border: 1px solid #4640c6;
-  background: rgba(70, 64, 198, 0.2);
+  border: 1px solid ${(props) => props.theme.color.MainKeyColor};
+  background: rgba(70, 70, 70, 0.2);
+
   &:hover {
-    background: rgba(112, 0, 255, 0.2);
-    box-shadow: 0px 0px 12px 0px rgba(78, 0, 244, 0.4);
+    background: rgba(0, 0, 0, 0.12);
+    box-shadow: 0px 4px 2px 0px #101010 inset;
     backdrop-filter: blur(12px);
   }
 `;
 
-const TitleBox = styled.div`
+const TitleBox = styled.div<{ disabled: boolean }>`
   width: 266px;
-  color: #8883ff;
+  color: ${(props) =>
+    props.disabled ? props.theme.color.DarkGray : props.theme.color.MainKeyColor};
   text-align: center;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: ${(props) => props.theme.font.Content};
   font-size: 20px;
   font-style: normal;
   font-weight: 500;
