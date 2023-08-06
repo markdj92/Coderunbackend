@@ -5,8 +5,6 @@ import { PATH_ROUTE } from '@/constants';
 
 import { rootLoader, authLoader } from './loaders';
 
-import InGame from '@/pages/InGame';
-
 const Root = lazy(() => import('@/pages/Root'));
 const Lobby = lazy(() => import('@/pages/Lobby'));
 const Login = lazy(() => import('@/pages/Login'));
@@ -14,6 +12,8 @@ const Error = lazy(() => import('@/pages/Error'));
 const Result = lazy(() => import('@/pages/Result'));
 const Room = lazy(() => import('@/pages/Room'));
 const CoopRoom = lazy(() => import('@/pages/CoopRoom'));
+const InGame = lazy(() => import('@/pages/InGame'));
+const Review = lazy(() => import('@/pages/Review'));
 
 const routes: RouteObject[] = [
   {
@@ -52,6 +52,11 @@ const routes: RouteObject[] = [
       {
         path: PATH_ROUTE.result,
         element: <Result />,
+        errorElement: <Error />,
+      },
+      {
+        path: PATH_ROUTE.review,
+        element: <Review />,
         errorElement: <Error />,
       },
     ],
