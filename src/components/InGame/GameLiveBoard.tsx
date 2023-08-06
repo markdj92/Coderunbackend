@@ -7,7 +7,7 @@ const GameLiveBoard = ({
   handleSetViewer,
 }: {
   userInGame: (UserInfo | BadgeStatus)[];
-  handleSetViewer: (nickname: string) => void;
+  handleSetViewer?: (nickname: string) => void;
 }) => {
   return (
     <Container>
@@ -16,7 +16,10 @@ const GameLiveBoard = ({
           userInGame.map((user, index) => {
             if (user === 'EMPTY' || user === 'LOCK') return;
             return (
-              <UserCard key={index} onClick={() => handleSetViewer(user.nickname)}>
+              <UserCard
+                key={index}
+                onClick={handleSetViewer ? () => handleSetViewer(user.nickname) : () => {}}
+              >
                 {user.nickname}
               </UserCard>
             );

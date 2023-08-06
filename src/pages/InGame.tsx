@@ -5,6 +5,7 @@ import { PiSpeakerSimpleHighFill, PiSpeakerSimpleSlashFill } from 'react-icons/p
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { WebsocketProvider } from 'y-websocket';
+import * as Y from 'yjs';
 
 import { UserInfo, BadgeStatus } from '../types/room';
 
@@ -29,14 +30,14 @@ const InGame = () => {
   const [isAlert, setIsAlert] = useState<boolean>(false);
   const [alertTitle, setAlertTitle] = useState<string>('');
   const [alertContent, setAlertContent] = useState<string>('');
-  const [alertHandle, setAlertHandle] = useState(() => {});
+  const [alertHandle, setAlertHandle] = useState<() => void>(() => {});
   const [viewer, setViewer] = useState<string>(`ROOMNAME${title}${nickname}`);
   const [provider, setProvider] = useState<WebsocketProvider | undefined>(undefined);
-  const [ytext, setYtext] = useState<string>('');
+  const [ytext, setYtext] = useState<Y.Text>('');
 
   const [userInGame, setUserInGame] = useState<string[]>([]);
-  const [quizNumber, setQuizNumber] = useState<number>(1);
-  const [quizInfo, setQuizInfo] = useState<QuizInfo>(null);
+  const [selectedQuiz, setSelectedQuiz] = useState<number>(0);
+  const [quizList, setQuizList] = useState<QuizInfo[]>([]);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
   const [isSubmit, setIsSubmit] = useState<boolean>(false);
   const [runResult, setRunResult] = useState<ExecuteResult>({
@@ -84,7 +85,7 @@ const InGame = () => {
     if (code === '') return notifyErrorMessage('코드를 작성해주세요.');
     const executeData = {
       title: title,
-      problemNumber: quizNumber,
+      problemNumber: quizList[selectedQuiz].number,
       script: code,
       language: 'python3',
       versionIndex: '0',
@@ -95,7 +96,7 @@ const InGame = () => {
     setRunResult(data.payload.result);
   };
 
-  const getQuizInfo = async () => {
+  const getQuizList = async () => {
     return await postQuizInfo(title);
   };
 
@@ -128,7 +129,7 @@ const InGame = () => {
 
     const executeData = {
       title: title,
-      problemNumber: quizNumber,
+      problemNumber: quizList[selectedQuiz].number,
       script: code,
       language: 'python3',
       versionIndex: '0',
@@ -158,16 +159,15 @@ const InGame = () => {
   };
 
   useEffect(() => {
-    getQuizInfo()
+    getQuizList()
       .then((response) => {
         if (response.data === null) {
           alert('퀴즈 정보를 불러오는데 실패했습니다.');
           return;
         }
-        setQuizInfo(response.data);
+        setQuizList(response.data);
       })
       .catch((err) => {
-        setQuizNumber(1);
         console.error(err);
       });
 
@@ -179,7 +179,7 @@ const InGame = () => {
     };
   }, []);
 
-  if (quizInfo === null) return <></>;
+  if (quizList.length <= 0) return <></>;
   return (
     <Container>
       {isAlert && (
@@ -199,29 +199,51 @@ const InGame = () => {
         {isSubmit && <GameLiveBoard userInGame={userInGame} handleSetViewer={handleSetViewer} />}
         <GameFrame>
           <OptionSection>
-            <button onClick={handleSpeaker}>
-              {isSpeaker ? (
-                <PiSpeakerSimpleHighFill size={'2rem'} />
-              ) : (
-                <PiSpeakerSimpleSlashFill size={'2rem'} />
-              )}
-            </button>
-            <button onClick={handleMicrophone}>
-              {isMicrophone ? <BsFillMicFill size={'2rem'} /> : <BsFillMicMuteFill size={'2rem'} />}
-            </button>
+            <QuizListGroup>
+              {quizList.map((quiz, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setSelectedQuiz(index);
+                  }}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </QuizListGroup>
+            <MediaGroupButton>
+              <button onClick={handleSpeaker}>
+                {isSpeaker ? (
+                  <PiSpeakerSimpleHighFill size={'2rem'} />
+                ) : (
+                  <PiSpeakerSimpleSlashFill size={'2rem'} />
+                )}
+              </button>
+              <button onClick={handleMicrophone}>
+                {isMicrophone ? (
+                  <BsFillMicFill size={'2rem'} />
+                ) : (
+                  <BsFillMicMuteFill size={'2rem'} />
+                )}
+              </button>
+            </MediaGroupButton>
           </OptionSection>
           <MainSection>
             <QuizSection>
-              <QuizHeader roomName={title} title={quizInfo.title} timer={{ mm: 20, ss: 22 }} />
+              <QuizHeader
+                roomName={title}
+                title={quizList[selectedQuiz]?.title}
+                timer={{ mm: 20, ss: 22 }}
+              />
               <QuizMain>
                 <QuizLeft>
-                  <QuizFrame quizInfo={quizInfo} />
+                  <QuizFrame quizInfo={quizList[selectedQuiz]} />
                 </QuizLeft>
                 <QuizRight>
                   <EditorFrame>
                     <EditorCodeMirror
                       provider={provider}
-                      isSubmit={isSubmit}
+                      ableToEdit={isSubmit}
                       viewer={viewer}
                       nickname={nickname}
                       ytext={ytext}
@@ -284,16 +306,41 @@ const GameFrame = styled.div`
   height: 100%;
 `;
 
+const QuizListGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 1rem;
+  button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    font-weight: 700;
+    border: white 3px solid;
+    border-radius: 50%;
+  }
+`;
+
 const OptionSection = styled.div`
   height: 100%;
   padding: 0.5rem;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: space-between;
   box-shadow: inset -0.0625rem 0 #172334;
   button {
     padding: 0.5rem;
   }
+`;
+
+const MediaGroupButton = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 `;
 
 const MainSection = styled.div`

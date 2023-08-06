@@ -19,17 +19,17 @@ interface Props {
   viewer: string;
   nickname: string;
   handleProvider: (pro: WebsocketProvider) => void;
-  isSubmit: boolean;
+  ableToEdit: boolean;
 }
 
 const EditorCodeMirror: React.FC<Props> = ({
   viewer,
   ytext,
   nickname,
-  isSubmit,
   provider,
   setYtext,
   handleProvider,
+  ableToEdit,
 }) => {
   const editor = useRef(null);
 
@@ -41,7 +41,7 @@ const EditorCodeMirror: React.FC<Props> = ({
     }
 
     const newDoc = new Y.Doc();
-    const newProvider = new WebsocketProvider('ws://52.69.242.42:8000', viewer, newDoc);
+    const newProvider = new WebsocketProvider('ws://localhost:8000', viewer, newDoc);
     setYtext(newDoc.getText('codemirror'));
     handleProvider(newProvider);
   }, [viewer]);
@@ -72,7 +72,7 @@ const EditorCodeMirror: React.FC<Props> = ({
         foldGutter(),
         placeholder(editorPlaceHolder),
         EditorView.lineWrapping,
-        EditorView.contentAttributes.of({ contenteditable: isSubmit ? 'false' : 'true' }),
+        EditorView.contentAttributes.of({ contenteditable: ableToEdit ? 'false' : 'true' }),
       ],
     });
 
