@@ -35,7 +35,7 @@ const InGame = () => {
   const [provider, setProvider] = useState<WebsocketProvider | undefined>(undefined);
   const [ytext, setYtext] = useState<Y.Text>('');
 
-  const [userInGame, setUserInGame] = useState<string[]>([]);
+  const [userInGame, setUserInGame] = useState<UserInfo[]>([]);
   const [selectedQuiz, setSelectedQuiz] = useState<number>(0);
   const [quizList, setQuizList] = useState<QuizInfo[]>([]);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
