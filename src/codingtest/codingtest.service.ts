@@ -122,24 +122,47 @@ export class CodingTestService {
     await activeRoom.save();
   }
 
-  async checkFinish(title: string) : Promise<boolean>{
+  async checkFinish(title: string): Promise<{success : boolean, mode: string}> {
     const roomStatusInfo = await this.roomAndUserModel.findOne({ title: title }).exec();
     const roomInfo = await this.roomModel.findOne({ title: title }).exec();
-    let count = 0; 
-    await roomStatusInfo.submit.forEach((element) => {
-      if (element == true) {
-        count++;
-      }
-    });
+    if (roomInfo.mode === "STUDY") {
+      let count = 0;
+      await roomStatusInfo.submit.forEach((element) => {
+        if (element == true) {
+          count++;
+        }
+      });
     
-    if (count == roomInfo.member_count) {
-      return await true;
-    }
-    else {    
-      return await false;
+      if (count == roomInfo.member_count) {
+        return { success: true, mode: "STUDY" };
+      }
+      else {
+        return {success : false, mode : "STUDY"};;
+      }
+    } else {
+      let redCount = 0;
+      let blueCount = 0;
+      const teamCount = roomStatusInfo.problem_number.length;
+      await roomStatusInfo.submit.forEach((element, index) => {
+        if (index >= 0 && index <= 4 && element == true) {
+          redCount++;
+        }
+      });
+      await roomStatusInfo.submit.forEach((element, index) => {
+        if (index >= 5 && index <= 9 && element == true) {
+          blueCount++;
+        }
+      });
+      if (redCount == teamCount) {
+        return  { success: true, mode: "RED" };
+      } else if (blueCount == teamCount) {
+        return  { success: true, mode: "BLUE" };
+      }
+      else {
+        return  { success: false, mode: "COOP" };
+      }
     }
   }
-
 
   async getProblem(title: string) {
     
