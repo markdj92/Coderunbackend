@@ -7,6 +7,7 @@ export interface UserInfo {
   solved: boolean;
   status: boolean;
   review: boolean;
+  team: string;
 }
 
 export type BadgeStatus = 'EMPTY' | 'LOCK';
