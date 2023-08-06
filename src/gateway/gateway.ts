@@ -373,13 +373,11 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
                     problems: problems,
                     reviewer: firstReviewer
                 });
-                     console.log(roomInfo);
             }
             else {
                 await this.roomService.resetUserStatus(socket.room_id);
                 const roomInfo = await this.roomService.getRoomInfo(socket.room_id);
                 this.nsp.to(socketId).emit('timeout', { success: true, review: false, roomInfo: roomInfo });
-                     console.log(roomInfo);
             }
         }
         }, 1000);
