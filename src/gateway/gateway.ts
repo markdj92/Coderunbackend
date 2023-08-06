@@ -245,7 +245,8 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
     @MessageBody('title') title : string,
     @ConnectedSocket() socket: ExtendedSocket
     ) {
-         const roomInfo = this.roomService.getRoomById(socket.room_id);
+        const roomInfo = this.roomService.getRoomById(socket.room_id);
+        await this.codingService.getRandomProblem(title);
         if ((await roomInfo).mode === "COOPERATIVE") {
             const balance = await this.roomService.checkBalanceTeam(socket.room_id);
             if (balance === false) {
@@ -364,7 +365,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
                     }
                 }
             
-            const problems = await this.codingService.getProblem(room_problems);
+            const problems = await this.codingService.getProblem(title);
                 this.nsp.to(socketId).emit('timeout', {
                     success: true,
                     review: true,
@@ -372,11 +373,13 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
                     problems: problems,
                     reviewer: firstReviewer
                 });
+                     console.log(roomInfo);
             }
             else {
                 await this.roomService.resetUserStatus(socket.room_id);
                 const roomInfo = await this.roomService.getRoomInfo(socket.room_id);
-                this.nsp.to(socketId).emit('timeout', { success: true , review : false, roomInfo : roomInfo});
+                this.nsp.to(socketId).emit('timeout', { success: true, review: false, roomInfo: roomInfo });
+                     console.log(roomInfo);
             }
         }
         }, 1000);

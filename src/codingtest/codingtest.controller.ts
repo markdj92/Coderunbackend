@@ -33,16 +33,16 @@ export class CodingtestController {
     }
 
    @Post('/')
-    async getRandomProblem(@Body('title') title: string) {
-        const problem = await this.codingTestService.getRandomProblem(title);
+   async getProblem(@Body('title') title: string) {
+        const problem = await this.codingTestService.getProblem(title);
         return problem;
     }
 
-    @Post('/getProblem')
-    async getProblem(@Body('problem_number') problem: number[]) {
-        const problemInfo = await this.codingTestService.getProblem(problem);
-        return problemInfo;
-    }
+    // @Post('/getProblem')
+    // async getProblem(@Body('problem_number') problem: number[]) {
+    //     const problemInfo = await this.codingTestService.getProblem(problem);
+    //     return problemInfo;
+    // }
 
     // async 
 
