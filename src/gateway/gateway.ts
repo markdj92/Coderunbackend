@@ -361,7 +361,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
                     }
                     }
                 }
-            this.nsp.to(socketId).emit('timeout', { success: true, review: true, roomInfo: roomInfo , reviewer : firstReviewer});
+            this.nsp.to(socketId).emit('timeout', { success: true, review: true, roomInfo: roomInfo , firstReviewer : firstReviewer});
             }
             else {
                 await this.roomService.resetUserStatus(socket.room_id);
