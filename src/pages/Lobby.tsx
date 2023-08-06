@@ -10,7 +10,7 @@ import IconSetting from '/images/lobby/button_setting.png';
 import { postLogout } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
 
-import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
+import { PATH_ROUTE, USER_TOKEN_KEY, LEVEL_OPTIONS, TITLE_COMMENT } from '@/constants';
 
 import Button from '@/components/Lobby/Button';
 import CreateRoom from '@/components/Lobby/CreateRoom';
@@ -23,28 +23,35 @@ import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomResponse } from '@/types/lobby';
 
 const Lobby = () => {
-  const [isShownCreateRoom, setShownCreateRoom] = useState(false);
-  const [isPrivateRoom, setIsPrivateRoom] = useState(false);
-  const [privateRoomName, setPrivateRoomName] = useState('');
-  const [isLogout, setIsLogout] = useState(false);
   useSocketConnect();
-
+  const { value: roomInfo, setValue: setRoomInfo } = useInput({
+    title: '',
+    password: '',
+    status: 'PUBLIC',
+    max_members: 2,
+    level: 1,
+    mode: 'STUDY',
+  });
   const navigate = useNavigate();
   const location = useLocation();
   if (!location.state) {
     return <ErrorPage />;
   }
   const { nickname, kicked } = location.state;
+
+  const [isShownCreateRoom, setShownCreateRoom] = useState(false);
+  const [isPrivateRoom, setIsPrivateRoom] = useState(false);
+  const [privateRoomName, setPrivateRoomName] = useState('');
+  const [isLogout, setIsLogout] = useState(false);
+
   const [isKicked, setIsKicked] = useState(kicked ? true : false);
 
-  const LEVEL_OPTIONS = ['ALL', '1', '2', '3', '4', '5'];
   const [selectedLevel, setLevel] = useState(0);
 
   const handleShowCreateRoom = () => {
     setShownCreateRoom(!isShownCreateRoom);
   };
 
-  const logoutTitle = '정말 떠나실건가요?';
   const handleLogout = () => {
     try {
       postLogout();
@@ -80,13 +87,13 @@ const Lobby = () => {
       )}
       {isLogout && (
         <Alert
-          title={logoutTitle}
+          title={TITLE_COMMENT.logout}
           handleAlert={handleLogout}
           handleCloseAlert={() => setIsLogout(false)}
         />
       )}
       {isKicked && (
-        <Alert title={'강퇴 당하셨습니다.'} handleCloseAlert={() => setIsKicked(false)} />
+        <Alert title={TITLE_COMMENT.kicked} handleCloseAlert={() => setIsKicked(false)} />
       )}
       {isPrivateRoom && (
         <PrivateModal

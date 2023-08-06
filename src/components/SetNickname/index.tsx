@@ -33,13 +33,10 @@ const SetNickname = ({
   return (
     <Modal handleHideModal={handleShowSetNickname}>
       <SettingForm onSubmit={(e) => handleSetNickname(e, nickname)}>
-        <Title>
-          <Logo />
-          <TextContainer>
-            <WelcomeText>Welcome to Code Learn</WelcomeText>
-            <TitleText>Set your Nickname</TitleText>
-          </TextContainer>
-        </Title>
+        <TextContainer>
+          <WelcomeText>Welcome to Code Learn</WelcomeText>
+          <TitleText>Set your Nickname</TitleText>
+        </TextContainer>
         <InputContainer>
           <CustomInputSmall
             setRef={nicknameRef}
@@ -58,28 +55,17 @@ const SetNickname = ({
 const SettingForm = styled.form`
   display: flex;
   flex-direction: column;
-  align-items: left;
-`;
-const Title = styled.div`
-  width: fit-content;
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-`;
-const Logo = styled.div`
-  width: 74px;
-  height: 74px;
-  background: #1f1e4d;
+  align-items: center;
 `;
 const TextContainer = styled.div`
   width: fit-content;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   margin-left: 24px;
 `;
 const WelcomeText = styled.div`
-  color: #8883ff;
+  color: ${(props) => props.theme.color.DarkGray};
   text-align: center;
   font-family: 'Noto Sans KR';
   font-size: 16px;
@@ -90,10 +76,10 @@ const WelcomeText = styled.div`
   margin-bottom: 10px;
 `;
 const TitleText = styled.p`
-  color: #8883ff;
   text-align: center;
   font-size: 44px;
-  font-family: 'IBM Plex Sans KR';
+  font-family: ${(props) => props.theme.font.Title};
+  color: ${(props) => props.theme.color.LightGray};
   font-style: normal;
   font-weight: 700;
   line-height: 44px; /* 100% */
