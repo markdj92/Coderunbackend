@@ -53,12 +53,29 @@ export class CodingTestService {
   }
 
   async getProblem(title : string) {
-    const found = await this.roomModel.findOne({ title: title });
-    const count = await this.problemModel.countDocuments({ level : found.level }); 
-    const random = Math.floor(Math.random() * count);  
-    const document = await this.problemModel.findOne({ level: found.level }).skip(random).exec(); 
-    return document;
-  }
+  
+    const roomInfo = await this.roomModel.findOne({ title: title }).exec();
+    if (!roomInfo) {
+      // 방을 찾을 수 없는 경우에 대한 처리
+      return null;
+    }
+    const count = await this.problemModel.find({ level: roomInfo.level }).countDocuments();
+    const roomAndUser = await this.roomAndUserModel.findOne({ title: title }).exec();
+
+    if (roomInfo.mode === "STUDY") {
+      const random = Math.floor(Math.random() * count);
+      const document = await this.problemModel.findOne({ level: roomInfo.level }).skip(random).exec();
+      await roomAndUser.problem_number.push(document.number);
+      roomAndUser.save();
+      return document;
+    } else {
+      const problems = await this.problemModel.find({ level: roomInfo.level }).limit((roomInfo.member_count)/2).exec();
+      for (let i = 0; i < problems.length; i++) {
+        await roomAndUser.problem_number.push(problems[i].number);
+      }
+      return problems; 
+    }
+}
 
   async getProblemInput(index : number) {
     const problem = await this.problemModel.findOne({ number: index });
