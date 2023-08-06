@@ -62,13 +62,13 @@ export class CodingTestService {
     const count = await this.problemModel.find({ level: roomInfo.level }).countDocuments();
     const roomAndUser = await this.roomAndUserModel.findOne({ title: title }).exec();
 
-    if (roomInfo.mode === "STUDY") {
+    if (roomInfo.mode === "STUDY" && roomAndUser.problem_number.length === 0 ) {
       const random = Math.floor(Math.random() * count);
       const document = await this.problemModel.findOne({ level: roomInfo.level }).skip(random).exec();
       await roomAndUser.problem_number.push(document.number);
       roomAndUser.save();
       return document;
-    } else {
+    } else if (roomInfo.mode === "COOPERATIVE" && roomAndUser.problem_number.length === 0){
       const problems = await this.problemModel.find({ level: roomInfo.level }).limit((roomInfo.member_count)/2).exec();
       for (let i = 0; i < problems.length; i++) {
         await roomAndUser.problem_number.push(problems[i].number);
