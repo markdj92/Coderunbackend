@@ -139,6 +139,7 @@ export class UserInfoDto {
     @ApiProperty()
     review: boolean;
     
+    @ApiProperty()
     team: string;
 }
 
@@ -172,6 +173,44 @@ export class RoomStatusChangeDto {
 
     @ApiProperty({description: "문제 번호"})
     problem_number: number[];
+}
+
+export class TeamDto {
+
+    @IsNotEmpty()
+    @ApiProperty({description: "방 제목", required: true, type: String})
+    title: string;
+
+    @IsNotEmpty()
+    @ApiProperty({description: "방 모드", required: true, type: String})
+    mode: RoomMode;
+
+    @IsNotEmpty()
+    @ApiProperty({description: "방에 참여한 유저 수", required: true, type: Number})
+    member_count: number;
+
+    @IsArray()
+    @ApiProperty({description: "방의 사용자 정보", required: true})
+    user_info : (UserInfoDto | EmptyOrLock)[]
+
+    @IsOptional()
+    @IsBoolean()
+    @ApiProperty({description: "현재 준비상태", type: Boolean})
+    currentStatus: boolean;
+
+    @IsOptional()
+    @IsNumber()
+    @ApiProperty({description: "현재 최대 맴버 수", type: Number})
+    max_members: number; //최대 맴버 수를 추가 room_status_changed에 추가
+
+    @ApiProperty({description: "문제 번호"})
+    problem_number: number[];
+
+    @IsNumber()
+    red_score: number;
+    
+    @IsNumber()
+    blue_score: number;
 }
 
 export class RoomListDto {

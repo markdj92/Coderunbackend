@@ -2,6 +2,10 @@ import { Socket } from 'socket.io';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
+export enum Team {
+  RED = "RED",
+  BLUE = "BLUE"
+}
 @Schema()
 export class RoomAndUser extends Document {
 
@@ -33,10 +37,17 @@ export class RoomAndUser extends Document {
   review : boolean[];
   
   @Prop({ type: [String], default : null})
-  team: string[];
+  team: Team[];
 
   @Prop({ type: [Number], default : null})
   problem_number: number[];
+
+  @Prop({ type: Number, default : 0})
+  red_score: number;
+  
+  @Prop({ type: Number, default : 0})
+  blue_score: number;
+
 }
 
 export const RoomAndUserSchema = SchemaFactory.createForClass(RoomAndUser);

@@ -1,3 +1,4 @@
+import { TeamDto } from './../room/dto/room.dto';
 import { AuthService } from './../auth/auth.service';
 import { Logger, Req, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -185,7 +186,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
         const userStatus = await this.roomService.setUserStatusToReady(room_id, user_id);
         const roomAndUserInfo = await this.roomService.getRoomInfo(room_id);
 
-        if (roomAndUserInfo instanceof RoomStatusChangeDto) {
+        if (roomAndUserInfo instanceof RoomStatusChangeDto || roomAndUserInfo instanceof TeamDto) {
             roomAndUserInfo.user_info
             userStatus.status;
             await this.nsp.to(title).emit('room-status-changed', roomAndUserInfo);
@@ -373,11 +374,13 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
                     problems: problems,
                     reviewer: firstReviewer
                 });
+                     console.log(roomInfo);
             }
             else {
                 await this.roomService.resetUserStatus(socket.room_id);
                 const roomInfo = await this.roomService.getRoomInfo(socket.room_id);
                 this.nsp.to(socketId).emit('timeout', { success: true, review: false, roomInfo: roomInfo });
+                     console.log(roomInfo);
             }
         }
         }, 1000);
