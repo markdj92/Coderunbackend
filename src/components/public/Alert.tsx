@@ -31,9 +31,9 @@ const Alert = ({
   );
 };
 const MSG = styled.div`
-  color: #8883ff;
+  color: ${(props) => props.theme.color.LightGray};
   text-align: center;
-  font-family: 'Noto Sans KR', sans-serif;
+  font-family: ${(props) => props.theme.font.Content};
   font-size: 32px;
   font-style: normal;
   font-weight: 700;
@@ -64,28 +64,17 @@ const Button = styled.div`
   align-items: center;
   flex-shrink: 0;
   border-radius: 8px;
-  background: linear-gradient(
-      90deg,
-      rgba(70, 64, 198, 0) 0%,
-      rgba(70, 64, 198, 0.4) 31.07%,
-      rgba(70, 64, 198, 0.4) 72.03%,
-      rgba(70, 64, 198, 0.13) 100%
-    ),
-    rgba(112, 0, 255, 0.2);
-  border: 2.4px solid rgba(70, 64, 198, 1);
-  box-shadow: 0px 0px 12px 0px rgba(78, 0, 244, 0.4);
+  background: rgba(70, 70, 70, 0.2);
+  border: 2.4px solid ${(props) => props.theme.color.MainKeyColor};
+  box-shadow: 0px 4px 2px 0px rgba(16, 16, 16, 1) inset;
   backdrop-filter: blur(12px);
   cursor: pointer;
   &:hover {
-    border: 2.4px solid rgba(53, 53, 98, 1);
-    background: linear-gradient(
-        90deg,
-        rgba(43, 43, 87, 0) 0%,
-        rgba(53, 53, 99, 0.4) 31.07%,
-        rgba(53, 53, 99, 0.4) 72.03%,
-        rgba(43, 43, 87, 0.5) 100%
-      ),
-      rgba(112, 0, 255, 0.2);
+    border: 2.4px solid #538a6f;
+    background: rgba(0, 0, 0, 0.12);
+    box-shadow: 0px 4px 2px 0px #101010 inset;
+    backdrop-filter: blur(12px);
+    color: ${(props) => props.theme.color.DarkGray};
   }
 `;
 export default Alert;
