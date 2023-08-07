@@ -45,7 +45,7 @@ const Container = styled.div`
   }
   &:active {
     transition: 0.1s ease-in-out;
-    transform: translate(0, -2px);
+    transform: translate(2px, -2px);
   }
 `;
 
