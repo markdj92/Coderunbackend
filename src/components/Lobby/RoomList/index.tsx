@@ -91,6 +91,9 @@ const HeaderRightBox = styled.div`
     &:hover {
       rotate: 90deg;
     }
+    &:active {
+      transform: translate(2px, 2px);
+    }
   }
 `;
 
