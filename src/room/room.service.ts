@@ -188,41 +188,40 @@ export class RoomService {
     }
 
     async changeRoomStatusForJoin(room_id: ObjectId, user_id: ObjectId): Promise<void> {
-
         // 해당 방에 대한 정보를 얻음
         const roomAndUserInfo = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
-
+    
         if (!roomAndUserInfo) {
             // Handle the case where roomanduser is undefined
             throw new Error(`No RoomAndUser found for room id ${room_id}`);
         }
-
+    
         let empty_index;
-
+    
         if (roomAndUserInfo.mode === "COOPERATIVE") {
             const userInfo = roomAndUserInfo.user_info;
             const redTeam = userInfo.slice(0, 5);
             const blueTeam = userInfo.slice(5, 10);
-
-            const redEmptyIndex = redTeam.filter(x => x === "EMPTY").length;
-            const blueEmptyIndex = blueTeam.filter(x => x === "EMPTY").length;
-
-            const redLockIndex = redTeam.filter(x => x === "LOCK").length;
-            const blueLockIndex = blueTeam.filter(x => x === "LOCK").length;
-
-            const redPeople = 5 - redLockIndex;
-            const bluePeople = 5 - blueLockIndex;
-
-            if (redPeople - redEmptyIndex > bluePeople - blueEmptyIndex) {
-                empty_index = blueTeam.indexOf("EMPTY");
-                empty_index += 5;
-            } else {
+    
+            const redMembers = redTeam.filter(x => x !== "EMPTY" && x !== "LOCK").length;
+            const blueMembers = blueTeam.filter(x => x !== "EMPTY" && x !== "LOCK").length;
+    
+            // Red팀이 Blue팀보다 인원수가 적거나 같으면 Red팀에, 아니면 Blue팀에 사용자를 할당
+            if (redMembers <= blueMembers) {
                 empty_index = redTeam.indexOf("EMPTY");
+                if (empty_index === -1) { // 레드 팀에 빈 자리가 없다면 블루 팀에서 찾기
+                    empty_index = blueTeam.indexOf("EMPTY") + 5;
+                }
+            } else {
+                empty_index = blueTeam.indexOf("EMPTY") + 5;
+                if (empty_index - 5 === -1) { // 블루 팀에 빈 자리가 없다면 레드 팀에서 찾기
+                    empty_index = redTeam.indexOf("EMPTY");
+                }
             }
         } else {
             empty_index = roomAndUserInfo.user_info.indexOf("EMPTY");
         }
-
+    
         await this.roomAndUserModel.findOneAndUpdate(
             { room_id: room_id },
             {
@@ -230,8 +229,8 @@ export class RoomService {
                     [`user_info.${empty_index}`]: user_id.toString(),
                     [`ready_status.${empty_index}`]: false
                 }
-            },
-        )
+            }
+        );
         await this.memberCountUp(room_id);
     }
 
@@ -412,16 +411,16 @@ export class RoomService {
     async unlockRoom(room_id: ObjectId, index: number): Promise<boolean> {
         
         const roomAndUser = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
-        
+            
         if (!roomAndUser || !roomAndUser.owner[0]) {
             throw new BadRequestException('권한이 있는 유저인지 확인');
         }
-    
+        
         if (index < 0 || index >= roomAndUser.user_info.length) {
             console.log('Index out of bounds');
             return null;
         }
-        
+            
         let increment = 0;
         if (roomAndUser.user_info[index] === EmptyOrLock.LOCK) {
             roomAndUser.user_info[index] = EmptyOrLock.EMPTY;
@@ -432,13 +431,20 @@ export class RoomService {
         } else {
             return false;
         }
-    
+        
         await roomAndUser.save();
-        const room = await this.roomModel.findOne({ _id: room_id }, 'title max_members').exec();
-  
+        
+        const room = await this.roomModel.findOne({ _id: room_id }, 'title max_members member_count').exec();
+    
         if (room) {
-            room.max_members += increment;
-            await room.save();
+            const update = { $inc: { max_members: increment } };
+            if (room.member_count < (room.max_members + increment)) {
+                update['ready'] = true;
+            } else {
+                update['ready'] = false;
+            }
+    
+            await this.roomModel.updateOne({ _id: room_id }, update);
         }
         return true;
     }
