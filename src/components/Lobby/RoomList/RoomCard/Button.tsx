@@ -1,18 +1,23 @@
 import styled from 'styled-components';
 
-import BGButton from '/images/lobby/bg_button.png';
-import BGButtonActive from '/images/lobby/bg_button_active.png';
+import BGButton from '/images/lobby/bg_button.svg';
+import BGButtonIcon from '/images/lobby/bg_button_icon.svg';
 
 const Button = () => {
   return (
     <Container>
       <ButtonBox>
+        <ButtonBackground>
+          <img src={BGButton} alt='' />
+          <img className='icon' src={BGButtonIcon} alt='' />
+        </ButtonBackground>
         <TitleFrame>START</TitleFrame>
-        <img src={BGButton} alt='' />
       </ButtonBox>
       <ButtonBox className='active'>
+        <ButtonBackground className='active'>
+          <img src={BGButton} alt='' />
+        </ButtonBackground>
         <TitleFrame className='active'>START</TitleFrame>
-        <img src={BGButtonActive} alt='' />
       </ButtonBox>
     </Container>
   );
@@ -35,17 +40,29 @@ const ButtonBox = styled.div`
   height: 86px;
   position: absolute;
   top: 0px;
-  right: 50px;
+  right: 35px;
+`;
+
+const ButtonBackground = styled.div`
+  position: relative;
+  img {
+    position: absolute;
+    top: -20px;
+    right: -50px;
+  }
+  .icon {
+    padding-right: 1px;
+  }
 `;
 
 const TitleFrame = styled.div`
   position: absolute;
-  color: #8883ff;
+  color: ${(props) => props.theme.color.MainKeyColor};
   font-family: 'Noto Sans KR', sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
-  line-height: 16px; /* 100% */
+  line-height: 16px;
   letter-spacing: -0.32px;
 `;
 
