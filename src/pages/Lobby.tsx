@@ -4,8 +4,8 @@ import styled from 'styled-components';
 
 import ErrorPage from './Error';
 
-import IconLogout from '/images/lobby/button_logout.png';
-import IconSetting from '/images/lobby/button_setting.png';
+import IconLogout from '/icon/lobby/logout.svg';
+import IconSetting from '/icon/lobby/setting.svg';
 
 import { postLogout } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
@@ -96,7 +96,7 @@ const Lobby = () => {
       )}
       <LeftFrame>
         <HeaderSection>
-          <HeaderLogo onClick={() => navigate('/lobby')}>CODE LEARN</HeaderLogo>
+          <HeaderLogo onClick={() => window.location.reload()} />
         </HeaderSection>
       </LeftFrame>
       <MainFrame>
@@ -139,6 +139,15 @@ const HeaderLogo = styled.div`
   cursor: pointer;
   font-family: 'Noto Sans KR', sans-serif;
   color: #8883ff;
+  background: url('./images/LogoGray.svg') no-repeat;
+  background-size: contain;
+  width: 100%;
+  height: 80px;
+  margin-right: 50px;
+  &:hover {
+    background: url('./images/LogoActive.svg') no-repeat;
+    background-size: contain;
+  }
 `;
 
 const MainContainer = styled.div`
