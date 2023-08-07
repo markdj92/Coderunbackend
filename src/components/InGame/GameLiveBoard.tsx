@@ -18,6 +18,7 @@ const GameLiveBoard = ({
             return (
               <UserCard
                 key={index}
+                style={{ cursor: handleSetViewer ? 'pointer' : 'default' }}
                 onClick={handleSetViewer ? () => handleSetViewer(user.nickname) : () => {}}
               >
                 {user.nickname}
@@ -47,7 +48,6 @@ const UserCard = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  cursor: pointer;
 `;
 
 export default GameLiveBoard;
