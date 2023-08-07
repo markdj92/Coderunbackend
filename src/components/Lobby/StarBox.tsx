@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import StarIcon from '/icon/lobby/star.png';
+import StarIcon from '/icon/lobby/star.svg';
 
 interface Props {
   level: number;
@@ -16,8 +16,8 @@ const StarBox = ({ level, isOpacity = true }: Props) => {
 };
 
 const Container = styled.div<{ opacity?: string }>`
-  width: 17px;
-  height: 17px;
+  width: 15px;
+  height: 12px;
   object-fit: contain;
   opacity: ${(props) => props.opacity};
   img {
