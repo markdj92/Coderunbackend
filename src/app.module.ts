@@ -9,6 +9,7 @@ import { UsersModule } from './users/users.module';
 import { CodingTestService } from './codingtest/codingtest.service';
 import { CodingtestModule } from './codingtest/codingtest.module';
 import { HttpModule } from '@nestjs/axios';
+import { SocketProvider } from './socket.provider';
 
 
 @Module({
@@ -26,9 +27,10 @@ import { HttpModule } from '@nestjs/axios';
     CodingtestModule,
     HttpModule,
     RoomModule
+    
   ],
   controllers: [],
-  providers: []
+  providers: [SocketProvider]
 })
 
 export class AppModule {}
