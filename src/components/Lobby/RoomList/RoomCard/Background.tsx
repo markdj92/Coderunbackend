@@ -38,11 +38,17 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   &:hover .card-shape {
-    box-shadow: 4px 4px 30px 0px #5f27ff;
+    box-shadow: 0px 0px 24px 0px #59fff5;
   }
 `;
 
 const RoomCardShape = styled.div`
+  background:
+    linear-gradient(#26262d, #26262d) padding-box,
+    linear-gradient(to bottom right, #6bd9a4, transparent) border-box,
+    border-box;
+  border: 3px solid transparent;
+
   min-width: 430px;
   min-height: 184px;
   width: 80%;
@@ -50,10 +56,7 @@ const RoomCardShape = styled.div`
 
   transform: sKewX(-15deg);
   border-radius: 30px;
-  background: linear-gradient(140deg, rgba(109, 72, 255, 0.5) 0%, rgba(70, 64, 198, 0) 66.91%),
-    rgba(0, 0, 0, 0.6);
-  filter: drop-shadow(0px 2px 8px #8984ff);
-  border: 1px solid #6761de;
+  filter: drop-shadow(0px 2px 8px ${(props) => props.theme.color.NonFocused});
   transition: 0.3s ease-in-out;
 `;
 
