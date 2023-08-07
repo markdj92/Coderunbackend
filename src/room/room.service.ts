@@ -412,16 +412,16 @@ export class RoomService {
     async unlockRoom(room_id: ObjectId, index: number): Promise<boolean> {
         
         const roomAndUser = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
-        
+            
         if (!roomAndUser || !roomAndUser.owner[0]) {
             throw new BadRequestException('권한이 있는 유저인지 확인');
         }
-    
+        
         if (index < 0 || index >= roomAndUser.user_info.length) {
             console.log('Index out of bounds');
             return null;
         }
-        
+            
         let increment = 0;
         if (roomAndUser.user_info[index] === EmptyOrLock.LOCK) {
             roomAndUser.user_info[index] = EmptyOrLock.EMPTY;
@@ -432,13 +432,20 @@ export class RoomService {
         } else {
             return false;
         }
-    
+        
         await roomAndUser.save();
-        const room = await this.roomModel.findOne({ _id: room_id }, 'title max_members').exec();
-  
+        
+        const room = await this.roomModel.findOne({ _id: room_id }, 'title max_members member_count').exec();
+    
         if (room) {
-            room.max_members += increment;
-            await room.save();
+            const update = { $inc: { max_members: increment } };
+            if (room.member_count < (room.max_members + increment)) {
+                update['ready'] = true;
+            } else {
+                update['ready'] = false;
+            }
+    
+            await this.roomModel.updateOne({ _id: room_id }, update);
         }
         return true;
     }
