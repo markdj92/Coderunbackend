@@ -50,6 +50,10 @@ const ButtonBox = styled.div<{ active: string }>`
       0px 0px 12px 0px rgba(89, 255, 245, 0.8),
       0px 4px 2px 0px rgba(21, 18, 73, 0.32) inset;
   }
+
+  &:active {
+    box-shadow: 0px 0px 12px 0px rgba(89, 255, 245, 0.8) inset;
+  }
 `;
 
 const IconBox = styled.div<{ active: string }>`
