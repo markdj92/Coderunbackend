@@ -41,7 +41,7 @@ const EditorCodeMirror: React.FC<Props> = ({
     }
 
     const newDoc = new Y.Doc();
-    const newProvider = new WebsocketProvider('ws://localhost:8000', viewer, newDoc);
+    const newProvider = new WebsocketProvider('ws://52.69.242.42:8000', viewer, newDoc);
     setYtext(newDoc.getText('codemirror'));
     handleProvider(newProvider);
   }, [viewer]);

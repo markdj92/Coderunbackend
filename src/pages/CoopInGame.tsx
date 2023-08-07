@@ -1,5 +1,5 @@
 //@ts-nocheck
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BsFillMicFill, BsFillMicMuteFill } from 'react-icons/bs';
 import { PiSpeakerSimpleHighFill, PiSpeakerSimpleSlashFill } from 'react-icons/pi';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -23,30 +23,37 @@ import { useToast } from '@/components/public/Toast';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { ExecuteResult, QuizInfo } from '@/types/inGame';
 
-const InGame = () => {
+const CoopInGame = () => {
   useSocketConnect();
+
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const { title, nickname }: { title: string; nickname: string } = location.state;
+  const { title, nickname, user_info }: { title: string; nickname: string } = location.state;
+  const teamColor = useRef<string>(
+    user_info.findIndex((user) => user.nickname === nickname) < 5 ? 'RED' : 'BLUE',
+  );
+  const [redTeam, setRedTeam] = useState<UserInfo[]>(user_info.slice(0, 5));
+  const [blueTeam, setBlueTeam] = useState<UserInfo[]>(user_info.slice(5, 10));
+
   const [isAlert, setIsAlert] = useState<boolean>(false);
   const [alertTitle, setAlertTitle] = useState<string>('');
   const [alertContent, setAlertContent] = useState<string>('');
   const [alertHandle, setAlertHandle] = useState<() => void>(() => {});
-  const [viewer, setViewer] = useState<string>(`ROOMNAME${title}${nickname}`);
+  const [viewer, setViewer] = useState<string | undefined>();
   const [provider, setProvider] = useState<WebsocketProvider | undefined>(undefined);
   const [ytext, setYtext] = useState<Y.Text>('');
 
-  const [userInGame, setUserInGame] = useState<UserInfo[]>([]);
   const [selectedQuiz, setSelectedQuiz] = useState<number>(0);
   const [quizList, setQuizList] = useState<QuizInfo[]>([]);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
-  const [isSubmit, setIsSubmit] = useState<boolean>(false);
+  const [isSubmit, setIsSubmit] = useState<boolean[]>([]);
   const [runResult, setRunResult] = useState<ExecuteResult>({
     memory: '0',
     cpuTime: '0',
     output: '',
   });
+
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
 
@@ -113,12 +120,11 @@ const InGame = () => {
       const { memory, cpuTime, output } = result;
       setIsSuccess(quiz_result);
       setRunResult({ memory, cpuTime, output });
-      setUserInGame(user_info);
-      setIsSubmit(true);
+      isSubmit[selectedQuiz] = true;
+      setIsSubmit([...isSubmit]);
+      setRedTeam(user_info.slice(0, 5));
+      setBlueTeam(user_info.slice(5, 10));
       notifySuccessMessage('제출에 성공했습니다.');
-      socket.on('room-status-changed', (response) => {
-        setUserInGame(response.payload.user_info);
-      });
     } else if (response.payload.message) {
       alert(response.payload.message);
     } else {
@@ -147,17 +153,14 @@ const InGame = () => {
     setIsAlert(true);
   };
 
-  const handleSetViewer = (viewer: string) => {
-    setViewer(`ROOMNAME${title}${viewer}`);
-  };
-
-  const handleFinishGame = () => {
+  const handleFinishGame = (response) => {
+    console.error(response);
     setTimeout(goToResult, 5000);
     notifyInfoMessage('5초 뒤 결과 페이지로 이동합니다.', 5000);
   };
 
   const goToResult = () => {
-    navigate('/result', { state: { title, nickname } });
+    navigate('/coopresult', { state: { title, nickname } });
   };
 
   useEffect(() => {
@@ -168,13 +171,18 @@ const InGame = () => {
           return;
         }
         setQuizList(response.data);
+        setIsSubmit(new Array(response.data.length).fill(false));
+        setViewer(`ROOMNAME${title}${teamColor.current}${response.data[0]}`);
       })
       .catch((err) => {
         console.error(err);
       });
 
-    socket.on('finishedGame', () => handleFinishGame());
-
+    socket.on('finishedGame', handleFinishGame);
+    socket.on('room-status-changed', (response) => {
+      setRedTeam(response.payload.user_info.slice(0, 5));
+      setBlueTeam(response.payload.user_info.slice(5, 10));
+    });
     return () => {
       socket.off('finishedGame');
       socket.off('room-status-changed');
@@ -198,7 +206,7 @@ const InGame = () => {
       )}
       <GameNavbar />
       <MainFrame>
-        {isSubmit && <GameLiveBoard userInGame={userInGame} handleSetViewer={handleSetViewer} />}
+        <GameLiveBoard userInGame={teamColor.current === 'RED' ? redTeam : blueTeam} />
         <GameFrame>
           <OptionSection>
             <QuizListGroup>
@@ -207,6 +215,7 @@ const InGame = () => {
                   key={index}
                   onClick={() => {
                     setSelectedQuiz(index);
+                    setViewer(`ROOMNAME${title}${teamColor.current}${index}`);
                   }}
                 >
                   {index + 1}
@@ -245,7 +254,7 @@ const InGame = () => {
                   <EditorFrame>
                     <EditorCodeMirror
                       provider={provider}
-                      ableToEdit={isSubmit}
+                      ableToEdit={isSubmit[selectedQuiz]}
                       viewer={viewer}
                       nickname={nickname}
                       ytext={ytext}
@@ -259,7 +268,7 @@ const InGame = () => {
             </QuizSection>
           </MainSection>
         </GameFrame>
-        {!isSubmit && <GameBottom handleRun={executeCode} handleSubmit={handleSubmit} />}
+        <GameBottom handleRun={executeCode} handleSubmit={handleSubmit} />
       </MainFrame>
     </Container>
   );
@@ -387,4 +396,4 @@ const EditorFrame = styled.div`
   }
 `;
 
-export default InGame;
+export default CoopInGame;

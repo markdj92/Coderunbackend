@@ -14,6 +14,7 @@ const Room = lazy(() => import('@/pages/Room'));
 const CoopRoom = lazy(() => import('@/pages/CoopRoom'));
 const InGame = lazy(() => import('@/pages/InGame'));
 const Review = lazy(() => import('@/pages/Review'));
+const CoopInGame = lazy(() => import('@/pages/CoopInGame'));
 const CoopResult = lazy(() => import('@/pages/CoopResult'));
 
 const routes: RouteObject[] = [
@@ -48,6 +49,11 @@ const routes: RouteObject[] = [
       {
         path: PATH_ROUTE.game,
         element: <InGame />,
+        errorElement: <Error />,
+      },
+      {
+        path: PATH_ROUTE.coopGame,
+        element: <CoopInGame />,
         errorElement: <Error />,
       },
       {
