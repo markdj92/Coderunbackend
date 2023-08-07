@@ -20,9 +20,11 @@ import QuizHeader from '@/components/InGame/QuizHeader';
 import RunFrame from '@/components/InGame/RunFrame';
 import Alert from '@/components/public/Alert';
 import { useToast } from '@/components/public/Toast';
+import useSocketConnect from '@/hooks/useSocketConnect';
 import { ExecuteResult, QuizInfo } from '@/types/inGame';
 
 const InGame = () => {
+  useSocketConnect();
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -150,8 +152,8 @@ const InGame = () => {
   };
 
   const handleFinishGame = () => {
-    setTimeout(goToResult, 10000);
-    notifyInfoMessage('10초 뒤 결과 페이지로 이동합니다.', 10000);
+    setTimeout(goToResult, 5000);
+    notifyInfoMessage('5초 뒤 결과 페이지로 이동합니다.', 5000);
   };
 
   const goToResult = () => {
