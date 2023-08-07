@@ -13,10 +13,9 @@ import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomStatus, UserInfo, BadgeStatus } from '@/types/room';
 
 const CoopRoom = () => {
-  const [isLeaveRoom, setIsLeaveRoom] = useState(false);
-
   useSocketConnect();
 
+  const [isLeaveRoom, setIsLeaveRoom] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -75,7 +74,7 @@ const CoopRoom = () => {
 
     socket.on('room-status-changed', roomHandler);
     socket.on('start', (response) => {
-      navigate('/game', { state: { nickname: nickname, title: response.title } });
+      navigate('/coopgame', { state: { nickname: nickname, user_info, title: response.title } });
     });
     return () => {
       socket.off('start');
@@ -240,6 +239,8 @@ const Users = styled.div`
   display: flex;
   flex-wrap: wrap;
   height: 90%;
+  width: 100%;
+  flex-direction: column;
 `;
 const RedTeam = styled.div`
   background: radial-gradient(rgba(228, 100, 100, 0.8), rgba(255, 255, 255, 0) 70%);
