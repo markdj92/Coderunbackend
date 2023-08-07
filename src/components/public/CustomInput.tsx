@@ -52,6 +52,7 @@ const CustomInput: React.FC<InputAnimationProps> = ({
       <InputFrame
         isfocus={isFocus ? 'true' : 'false'}
         isvalid={errorMessage === '' ? 'true' : 'false'}
+        isInputValue={!!inputValue ? 'true' : 'false'}
       >
         <NameSection isvalid={errorMessage === '' ? 'true' : 'false'}>
           <TitleBox>{title}</TitleBox>
@@ -94,7 +95,7 @@ const Container = styled.div`
   gap: 12px;
 `;
 
-const InputFrame = styled.div<{ isfocus: string; isvalid: string }>`
+const InputFrame = styled.div<{ isfocus: string; isvalid: string; isInputValue: string }>`
   position: relative;
   display: flex;
   flex-direction: row;
@@ -102,12 +103,19 @@ const InputFrame = styled.div<{ isfocus: string; isvalid: string }>`
   transition: all 0.3s ease-in-out;
   border: ${(props) =>
     props.isvalid === 'true'
-      ? props.theme.size.border + props.theme.color.MainKeyColor
-      : props.theme.size.border + props.theme.color.Error};
+      ? props.isfocus === 'true' || props.isInputValue === 'true'
+        ? props.theme.size.ThickBorder + props.theme.color.MainKeyColor
+        : props.theme.size.ThickBorder + props.theme.color.MainKeyDarkColor
+      : props.theme.size.ThickBorder + props.theme.color.Error};
   border-radius: 16px;
   * {
+    transition: all 0.3s ease-in-out;
     color: ${(props) =>
-      props.isvalid === 'true' ? props.theme.color.MainKeyColor : props.theme.color.Error};
+      props.isvalid === 'true'
+        ? props.isfocus === 'true' || props.isInputValue === 'true'
+          ? props.theme.color.MainKeyColor
+          : props.theme.color.NonFocused
+        : props.theme.color.Error};
   }
   input {
     color: ${(props) => (props.isvalid === 'true' ? '#fff' : '#ff5c5c')};
@@ -115,13 +123,12 @@ const InputFrame = styled.div<{ isfocus: string; isvalid: string }>`
   animation: ${(props) => props.isvalid !== 'true' && 'vibration 0.1s 5'};
 
   box-shadow:
-    0px 0px 12px 0px
-      ${(props) =>
-        props.isvalid === 'true'
-          ? props.isfocus === 'true'
-            ? props.theme.color.FocusShadow
-            : props.theme.color.Black
-          : props.theme.color.ErrorShadow},
+    ${(props) =>
+      props.isvalid === 'true'
+        ? props.isfocus === 'true'
+          ? props.theme.size.boxShadow + props.theme.color.FocusShadow
+          : props.theme.size.boxShadow + props.theme.color.Black
+        : props.theme.size.boxShadow + props.theme.color.ErrorShadow},
     0px 4px 2px 0px #15124952 inset;
 `;
 
