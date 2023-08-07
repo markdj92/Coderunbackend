@@ -1,0 +1,22 @@
+<svg width="193" height="60" viewBox="0 0 193 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="pattern" style="mix-blend-mode:overlay" opacity="0.32">
+<mask id="mask0_120_3515" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="193" height="60">
+<g id="pattern_2">
+<path id="Vector 2" d="M10.9972 30L0 0H17.0456L28.0427 30H10.9972Z" fill="#6BD9A4"/>
+<path id="Vector 4" d="M38.4901 60L27.4929 30H44.5385L55.5357 60H38.4901Z" fill="#6BD9A4"/>
+<path id="Vector 5" d="M71.4814 60L60.4843 30H77.5298L88.527 60H71.4814Z" fill="#6BD9A4"/>
+<path id="Vector 7" d="M104.473 60L93.4758 30H110.521L121.519 60H104.473Z" fill="#6BD9A4"/>
+<path id="Vector 9" d="M137.464 60L126.467 30H143.513L154.51 60H137.464Z" fill="#6BD9A4"/>
+<path id="Vector 11" d="M170.456 60L159.459 30H176.504L187.501 60H170.456Z" fill="#6BD9A4"/>
+<path id="Vector 3" d="M43.9884 30L32.9912 0H50.0368L61.0339 30H43.9884Z" fill="#6BD9A4"/>
+<path id="Vector 6" d="M76.9801 30L65.9829 0H83.0285L94.0256 30H76.9801Z" fill="#6BD9A4"/>
+<path id="Vector 8" d="M109.971 30L98.9742 0H116.02L127.017 30H109.971Z" fill="#6BD9A4"/>
+<path id="Vector 10" d="M142.963 30L131.966 0H149.011L160.009 30H142.963Z" fill="#6BD9A4"/>
+<path id="Vector 12" d="M175.954 30L164.957 0H182.003L193 30H175.954Z" fill="#6BD9A4"/>
+</g>
+</mask>
+<g mask="url(#mask0_120_3515)">
+<rect id="Rectangle 10" x="44" width="133" height="60" rx="8" fill="#6BD9A4"/>
+</g>
+</g>
+</svg>

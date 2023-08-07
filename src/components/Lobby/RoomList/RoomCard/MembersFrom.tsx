@@ -20,7 +20,7 @@ const Container = styled.div`
 `;
 
 const MemberCount = styled.div`
-  color: #8883ff;
+  color: ${(props) => props.theme.color.MainKeyColor};
   font-family: IBM Plex Sans KR;
   font-size: 18px;
   font-style: normal;
@@ -30,7 +30,7 @@ const MemberCount = styled.div`
 `;
 
 const MaxMemberCount = styled.div`
-  color: rgba(136, 131, 255, 0.5);
+  color: ${(props) => props.theme.color.MainKeyDarkColor};
   font-family: IBM Plex Sans KR;
   font-size: 18px;
   font-style: normal;

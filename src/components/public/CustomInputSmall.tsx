@@ -48,6 +48,7 @@ const CustomInputSmall: React.FC<InputAnimationProps> = ({
       <InputFrame
         isfocus={isFocus ? 'true' : 'false'}
         isvalid={errorMessage === '' ? 'true' : 'false'}
+        isInputValue={!!inputValue ? 'true' : 'false'}
       >
         <NameSection>
           <TitleBox
@@ -87,7 +88,7 @@ const Container = styled.div`
   width: 514px;
 `;
 
-const InputFrame = styled.div<{ isfocus: string; isvalid: string }>`
+const InputFrame = styled.div<{ isfocus: string; isvalid: string; isInputValue: string }>`
   position: relative;
   border-radius: 8px;
   transition: all 0.3s ease-in-out;
@@ -95,11 +96,14 @@ const InputFrame = styled.div<{ isfocus: string; isvalid: string }>`
 
   border: ${(props) =>
     props.isvalid === 'true'
-      ? props.theme.size.border + props.theme.color.MainKeyColor
-      : props.theme.size.border + props.theme.color.Error};
+      ? props.isfocus === 'true' || props.isInputValue === 'true'
+        ? props.theme.size.ThinBorder + props.theme.color.MainKeyColor
+        : props.theme.size.ThinBorder + props.theme.color.MainKeyDarkColor
+      : props.theme.size.ThinBorder + props.theme.color.Error};
   animation: ${(props) => props.isvalid !== 'true' && 'vibration 0.1s 5'};
 
   * {
+    transition: all 0.3s ease-in-out;
     color: ${(props) =>
       props.isvalid === 'true' ? props.theme.color.MainKeyColor : props.theme.color.Error};
   }
@@ -131,6 +135,7 @@ const NameSection = styled.div`
   align-items: center;
   margin: 16px 0;
 `;
+
 const TitleBox = styled.div<{ isvalid: string; isfocus: string }>`
   color: ${(props) =>
     props.isvalid === 'true'
@@ -144,6 +149,7 @@ const TitleBox = styled.div<{ isvalid: string; isfocus: string }>`
   font-style: normal;
   font-weight: 900;
   line-height: 28px; /* 127.273% */
+  width: max-content;
 `;
 
 const InputBox = styled.input<{ isvalid: string }>`

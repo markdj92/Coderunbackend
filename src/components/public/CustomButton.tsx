@@ -27,7 +27,7 @@ const DisableContainer = styled.button`
   align-items: center;
   gap: 10px;
   border-radius: 12px;
-  border: 2px solid ${(props) => props.theme.color.DarkGray};
+  border: ${(props) => props.theme.size.ThinBorder + props.theme.color.DarkGray};
   background: rgba(70, 70, 70, 0.2);
   cursor: default;
 `;
@@ -40,7 +40,7 @@ const Container = styled.button`
 
   transition: all ease 0.3s;
   border-radius: 12px;
-  border: 2px solid ${(props) => props.theme.color.MainKeyColor};
+  border: ${(props) => props.theme.size.ThinBorder + props.theme.color.MainKeyColor};
   background: rgba(70, 70, 70, 0.12);
 
   &:hover {
@@ -48,9 +48,17 @@ const Container = styled.button`
     box-shadow: 0px 4px 2px 0px #101010 inset;
     backdrop-filter: blur(12px);
   }
+
+  &:active {
+    box-shadow: 0px 20px 20px 10px #101010 inset;
+    div {
+      color: ${(props) => props.theme.color.MainKeyDarkColor};
+    }
+  }
 `;
 
 const TitleBox = styled.div<{ disabled: boolean }>`
+  transition: all ease 0.3s;
   width: 266px;
   color: ${(props) =>
     props.disabled ? props.theme.color.DarkGray : props.theme.color.MainKeyColor};

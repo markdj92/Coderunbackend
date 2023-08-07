@@ -91,9 +91,10 @@ const Container = styled.div`
 const DropOpenBox = styled.div`
   width: 144px;
   border-radius: 8px;
-  border: 2px solid rgba(180, 176, 255, 0.2);
-  background: #4640c6;
+  border: 2px solid rgba(107, 217, 164, 0.2);
+  background: ${(props) => props.theme.color.Black};
   box-shadow: 2px 4px 12px 0px rgba(0, 0, 0, 0.25);
+  padding-bottom: 10px;
 `;
 
 const ShowDropbox = styled.div<{ isshown: string }>`
@@ -115,7 +116,7 @@ const DropBoxInSection = styled.div<{ opacity: string }>`
 
 const DropSelectedOption = styled.div`
   width: 100%;
-  height: 55px;
+  height: 56px;
   gap: 10px;
   display: flex;
   justify-content: center;
@@ -130,7 +131,7 @@ const DropOption = styled.div`
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  padding: 1.5rem 1rem;
+  padding: 0 0 10px 24px;
   &:hover div {
     opacity: 1;
   }
@@ -143,8 +144,8 @@ const DropButtonBox = styled.div<{ active?: string }>`
   width: 100%;
   height: 100%;
   border-radius: 8px;
-  border: 1px solid rgba(136, 131, 255, 0.2);
-  background: ${(props) => (props.active === 'true' ? '#4640C6' : 'rgba(70, 64, 198, 0.2)')};
+  border: 2px solid rgba(107, 217, 164, 0.2);
+  background: ${(props) => props.theme.color.Black};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -152,7 +153,7 @@ const DropButtonBox = styled.div<{ active?: string }>`
 `;
 
 const DropBoxText = styled.div`
-  color: #8883ff;
+  color: ${(props) => props.theme.color.MainKeyColor};
   font-family: 'Noto Sans KR', sans-serif;
   font-size: 22px;
   font-style: normal;

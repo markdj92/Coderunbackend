@@ -9,6 +9,7 @@ const Button = ({ onClick, title }: LobbyButtonProps) => {
   return (
     <Container onClick={onClick}>
       <ButtonBox>
+        <ButtonBackground />
         <TitleFrame>{title}</TitleFrame>
       </ButtonBox>
       <ButtonBox className='active'>
@@ -34,6 +35,18 @@ const Container = styled.div`
   }
 `;
 
+const ButtonBackground = styled.div`
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  background: url('/images/lobby/bg_button_pattern.svg'), #26262d;
+  background-position-x: -45px;
+  opacity: 0.32;
+  mix-blend-mode: overlay;
+`;
+
 const ButtonBox = styled.div`
   position: absolute;
   top: 0px;
@@ -41,15 +54,17 @@ const ButtonBox = styled.div`
   width: 133px;
   height: 60px;
   border-radius: 8px;
-  border: 1px solid rgba(136, 131, 255, 0.2);
-  background: linear-gradient(90deg, rgba(70, 64, 198, 0.12) 0%, rgba(70, 64, 198, 0) 100%),
-    rgba(70, 64, 198, 0.12);
+  border: 2px solid rgba(107, 217, 164, 0.2);
+  /* background: linear-gradient(90deg, rgba(70, 64, 198, 0.12) 0%, rgba(70, 64, 198, 0) 100%),
+    rgba(70, 64, 198, 0.12); */
   cursor: pointer;
   &:hover {
-    border: 1px solid #8883ff;
-    background: linear-gradient(90deg, rgba(70, 64, 198, 0.12) 0%, rgba(70, 64, 198, 0) 100%),
-      rgba(70, 64, 198, 0.12);
-    box-shadow: 0px 0px 10px 0px #8984ff;
+    border: 1px solid ${(props) => props.theme.color.MainKeyColor};
+    /* background: linear-gradient(90deg, rgba(70, 64, 198, 0.12) 0%, rgba(70, 64, 198, 0) 100%),
+      rgba(70, 64, 198, 0.12); */
+    box-shadow:
+      0px 0px 12px 0px rgba(89, 255, 245, 0.8),
+      0px 4px 2px 0px rgba(21, 18, 73, 0.32) inset;
   }
 `;
 
@@ -60,7 +75,7 @@ const TitleFrame = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #8883ff;
+  color: ${(props) => props.theme.color.MainKeyColor};
   font-family: 'Noto Sans KR', sans-serif;
   font-size: 22px;
   font-style: normal;

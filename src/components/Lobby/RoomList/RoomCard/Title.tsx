@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import PrivateIconImage from '/icon/lobby/lock.png';
+import PrivateIconImage from '/icon/lobby/lock.svg';
 
 interface props {
   title: string;
@@ -25,7 +25,7 @@ const Title = ({ title, status, host = 'Room Host' }: props) => {
 };
 
 const Container = styled.div`
-  width: 251px;
+  width: 270px;
   height: 54px;
   display: flex;
   flex-direction: column;
@@ -40,6 +40,7 @@ const TitleBox = styled.div`
   justify-content: flex-start;
   align-items: center;
   height: 28px;
+  width: 100%;
 `;
 
 const PrivateIcon = styled.div`
@@ -49,17 +50,21 @@ const PrivateIcon = styled.div`
 `;
 
 const TitleText = styled.div`
-  color: #b4b0ff;
-  font-family: 'IBM Plex Sans KR';
-  font-size: 28px;
+  color: ${(props) => props.theme.color.MainKeyLightColor};
+  font-family: ${(props) => props.theme.font.Title};
+  font-size: 25px;
   font-style: normal;
   font-weight: 700;
   line-height: 28px; /* 100% */
   letter-spacing: -0.56px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const RoomHostBox = styled.div`
-  color: #7f74d8;
+  color: #6bd9a480;
   font-family: 'Noto Sans KR', sans-serif;
   font-size: 18px;
   font-style: normal;

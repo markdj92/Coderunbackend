@@ -15,11 +15,13 @@ const CoopResult = () => {
   useSocketConnect();
 
   const location = useLocation();
-  const { title } = location.state;
+  const { title, nickname } = location.state;
 
   const [winTeam, setWinTeam] = useState<UserInfo[]>();
   const [loseTeam, setLoseTeam] = useState<UserInfo[]>();
   const [winner, setWinner] = useState<string>('');
+  const [roomName, setRoomName] = useState('');
+
   useEffect(() => {
     socket.emit('timer', { title });
     onResultPage();
@@ -29,6 +31,7 @@ const CoopResult = () => {
     const response = await postResult(title);
 
     setWinner(response.data.winner);
+    setRoomName(response.data.title);
 
     setWinTeam(
       response.data.result.user_info?.filter(
@@ -69,10 +72,10 @@ const CoopResult = () => {
   };
 
   const onLeaveRoom = useCallback(() => {
-    socket.emit('leave-room', { title: title }, () => {
-      navigate('/lobby');
+    socket.emit('leave-room', { title: roomName }, () => {
+      navigate('/lobby', { state: { nickname } });
     });
-  }, [navigate, title]);
+  }, [navigate, roomName]);
 
   return (
     <MainContainer>
