@@ -49,8 +49,11 @@ const Button = styled.button`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #4640c6;
+  background-color: ${(props) => props.theme.color.MainKeyLightColor};
   cursor: pointer;
+  img {
+    filter: grayscale(100%);
+  }
 `;
 
 export default Arrows;
