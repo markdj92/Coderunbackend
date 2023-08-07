@@ -50,7 +50,7 @@ const Login = () => {
         }
       }
     } catch (error: any) {
-      if (error.response.data) {
+      if (error.response?.data) {
         if (error.response.data.message.includes('이메일')) {
           setErrorMessage({ ...errorMessage, email: error.response.data.message });
           emailRef.current?.focus();
@@ -59,7 +59,10 @@ const Login = () => {
           passwordRef.current?.focus();
         }
       }
-      console.error(error.response.data);
+      setErrorMessage({
+        ...errorMessage,
+        password: '서버에 문제가 있습니다. 잠시 후 다시 시도해주세요.',
+      });
     }
   };
 
