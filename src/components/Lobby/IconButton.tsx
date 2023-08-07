@@ -38,12 +38,18 @@ const ButtonBox = styled.div<{ active: string }>`
   width: 100%;
   height: 100%;
   border-radius: 8px;
-  border: 1px solid rgba(136, 131, 255, 0.2);
-  background: ${(props) => (props.active === 'true' ? '#4640C6' : 'rgba(70, 64, 198, 0.2)')};
-
+  border: 1px solid rgba(131, 131, 147, 0.2);
+  background: ${(props) =>
+    props.active === 'true' ? 'rgba(107, 217, 164, 0.20)' : 'rgba(131, 131, 147, 0.20)'};
   display: flex;
   justify-content: center;
   align-items: center;
+
+  &:hover {
+    box-shadow:
+      0px 0px 12px 0px rgba(89, 255, 245, 0.8),
+      0px 4px 2px 0px rgba(21, 18, 73, 0.32) inset;
+  }
 `;
 
 const IconBox = styled.div<{ active: string }>`
@@ -52,9 +58,8 @@ const IconBox = styled.div<{ active: string }>`
   object-fit: contain;
   img {
     width: 100%;
-    -webkit-filter: ${(props) =>
-      props.active === 'true' && 'opacity(0.5) drop-shadow(0 0 0 white)'};
-    filter: ${(props) => props.active === 'true' && 'opacity(0.5) drop-shadow(0 0 0 white)'};
+    -webkit-filter: ${(props) => props.active === 'false' && 'grayscale(100%)'};
+    filter: ${(props) => props.active === 'false' && 'grayscale(100%)'};
   }
 `;
 
