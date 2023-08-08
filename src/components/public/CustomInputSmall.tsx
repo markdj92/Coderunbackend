@@ -48,7 +48,7 @@ const CustomInputSmall: React.FC<InputAnimationProps> = ({
       <InputFrame
         isfocus={isFocus ? 'true' : 'false'}
         isvalid={errorMessage === '' ? 'true' : 'false'}
-        isInputValue={!!inputValue ? 'true' : 'false'}
+        isinputvalue={!!inputValue ? 'true' : 'false'}
       >
         <NameSection>
           <TitleBox
@@ -88,7 +88,7 @@ const Container = styled.div`
   width: 514px;
 `;
 
-const InputFrame = styled.div<{ isfocus: string; isvalid: string; isInputValue: string }>`
+const InputFrame = styled.div<{ isfocus: string; isvalid: string; isinputvalue: string }>`
   position: relative;
   border-radius: 8px;
   transition: all 0.3s ease-in-out;
@@ -96,7 +96,7 @@ const InputFrame = styled.div<{ isfocus: string; isvalid: string; isInputValue: 
 
   border: ${(props) =>
     props.isvalid === 'true'
-      ? props.isfocus === 'true' || props.isInputValue === 'true'
+      ? props.isfocus === 'true' || props.isinputvalue === 'true'
         ? props.theme.size.ThinBorder + props.theme.color.MainKeyColor
         : props.theme.size.ThinBorder + props.theme.color.MainKeyDarkColor
       : props.theme.size.ThinBorder + props.theme.color.Error};
