@@ -305,6 +305,10 @@ export class RoomService {
 
     const user_index = await roomAndUserInfo.user_info.indexOf(user_id.toString());
 
+    if (user_index === -1 || roomAndUserInfo.user_info[user_index] === "EMPTY") {
+        return "User alreay left the room";
+    }
+
     let updateData = {
         $set: { 
             [`user_info.${user_index}`]:  "EMPTY",
