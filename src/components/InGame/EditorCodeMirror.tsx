@@ -1,15 +1,16 @@
 //@ts-nocheck
 import { defaultKeymap, indentWithTab, standardKeymap } from '@codemirror/commands';
 import { python } from '@codemirror/lang-python';
-import { indentUnit, foldGutter } from '@codemirror/language';
+import { indentUnit } from '@codemirror/language';
 import { EditorState } from '@codemirror/state';
 import { keymap, EditorView, placeholder } from '@codemirror/view';
 import { basicSetup } from 'codemirror';
 import { useEffect, useRef } from 'react';
-import { yCollab, yUndoManagerKeymap } from 'y-codemirror.next';
+import { yCollab } from 'y-codemirror.next';
 import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
 
+import { customEditorTheme } from '@/styles/theme';
 import { userColor } from '@/utils/userTagColors';
 
 interface Props {
@@ -41,7 +42,8 @@ const EditorCodeMirror: React.FC<Props> = ({
     }
 
     const newDoc = new Y.Doc();
-    const newProvider = new WebsocketProvider('ws://52.69.242.42:8000', viewer, newDoc);
+    // const newProvider = new WebsocketProvider('ws://52.69.242.42:8000', viewer, newDoc);
+    const newProvider = new WebsocketProvider('ws://localhost:8000', viewer, newDoc);
     setYtext(newDoc.getText('codemirror'));
     handleProvider(newProvider);
   }, [viewer]);
@@ -63,13 +65,13 @@ const EditorCodeMirror: React.FC<Props> = ({
       doc: ytext.toString(),
       extensions: [
         basicSetup,
+        customEditorTheme,
         python(),
         yCollab(ytext, provider.awareness),
-        keymap.of([...yUndoManagerKeymap, indentWithTab]),
+        keymap.of([indentWithTab]),
         keymap.of(standardKeymap),
         keymap.of(defaultKeymap),
         indentUnit.of('\t'),
-        foldGutter(),
         placeholder(editorPlaceHolder),
         EditorView.lineWrapping,
         EditorView.contentAttributes.of({ contenteditable: ableToEdit ? 'false' : 'true' }),
@@ -94,6 +96,7 @@ const EditorCodeMirror: React.FC<Props> = ({
         style={{
           filter: 'drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25)',
           marginBottom: '10px',
+          fontSize: '2rem',
         }}
       />
     </div>

@@ -55,8 +55,8 @@ const Container = styled.div`
 
 const Title = styled.div`
   font-weight: 400;
-  padding: 0.5rem;
-  font-size: 1.2rem;
+  padding: 1rem;
+  font-size: 2.5rem;
 `;
 
 const TimerBox = styled.div`

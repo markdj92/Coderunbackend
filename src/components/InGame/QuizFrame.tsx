@@ -32,7 +32,7 @@ const Container = styled.div`
 
 const Title = styled.div`
   font-weight: 700;
-  font-size: 14px;
+  font-size: 2rem;
   margin-bottom: 1rem;
 `;
 
