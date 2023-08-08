@@ -277,9 +277,11 @@ export class RoomService {
         roomInfoDto.title = room.title;
         roomInfoDto.member_count = room.member_count;
         roomInfoDto.max_members = room.max_members;
+        roomInfoDto.level = room.level;
         roomInfoDto.user_info = userInfo;
         roomInfoDto.mode = room.mode;
         roomInfoDto.problem_number = roomanduser.problem_number;
+        
 
         return await roomInfoDto;
     }
