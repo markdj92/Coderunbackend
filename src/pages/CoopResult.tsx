@@ -31,7 +31,7 @@ const CoopResult = () => {
     const response = await postResult(title);
 
     setWinner(response.data.winner);
-    setRoomName(response.data.title);
+    setRoomName(response.data.result.title);
 
     setWinTeam(
       response.data.result.user_info?.filter(
