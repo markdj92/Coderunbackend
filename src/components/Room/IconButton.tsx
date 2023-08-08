@@ -16,7 +16,6 @@ const IconButton = ({
 
   return (
     <Container
-      ishover={isHover ? 'true' : 'false'}
       onMouseOver={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
       onClick={onClick ? onClick : () => {}}
