@@ -18,7 +18,7 @@ const LogoFrame = styled.div`
   transition: all 0.5s ease;
   font-size: 1.5rem;
   font-weight: 700;
-  cursor: pointer;
+  /* cursor: pointer; */
   padding: 0.5rem;
 `;
 

@@ -214,7 +214,7 @@ const HeaderLogo = styled.div`
   font-size: 2rem;
   padding: 2rem;
   font-weight: 500;
-  cursor: pointer;
+  /* cursor: pointer; */
 `;
 const TeamChangeButtons = styled.div`
   width: 100%;
@@ -323,7 +323,7 @@ const ButtonStartLock = styled.button`
   padding: 0 1rem 0;
   color: #bebebe;
   border-left: 5px solid #bebebe;
-  cursor: default;
+  /* cursor: default; */
 `;
 
 const ButtonState = styled.button`

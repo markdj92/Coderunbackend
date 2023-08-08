@@ -68,7 +68,7 @@ const Button = styled.div`
   border: 2.4px solid ${(props) => props.theme.color.MainKeyColor};
   box-shadow: 0px 4px 2px 0px rgba(16, 16, 16, 1) inset;
   backdrop-filter: blur(12px);
-  cursor: pointer;
+  /* cursor: pointer; */
   &:hover {
     border: 2.4px solid #538a6f;
     background: rgba(0, 0, 0, 0.12);

@@ -148,7 +148,7 @@ const ShowButton = styled.div`
   top: 32px;
   animation: fadein ease 0.2s;
   -webkit-animation: fadein 0.2s;
-  cursor: pointer;
+  /* cursor: pointer; */
 `;
 
 const ResetButton = styled.div`
@@ -157,7 +157,7 @@ const ResetButton = styled.div`
   top: 32px;
   animation: fadein ease 0.2s;
   -webkit-animation: fadein 0.2s;
-  cursor: pointer;
+  /* cursor: pointer; */
   * {
     color: ${(props) => props.theme.color.Error};
   }

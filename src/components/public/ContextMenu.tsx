@@ -99,7 +99,7 @@ const MenuList = styled.ul<{ top: string; left: string }>`
 
     font-size: 12px;
     font-weight: 600;
-    cursor: pointer;
+    /* cursor: pointer; */
     border-top: 1px solid #edf2f7;
 
     color: #000;

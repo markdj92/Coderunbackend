@@ -35,7 +35,7 @@ const HeaderLogo = styled.div`
   transition: all 0.5s ease;
   font-size: 2rem;
   font-weight: 500;
-  cursor: pointer;
+  /* cursor: pointer; */
 `;
 
 const HeaderLeftBox = styled.div`

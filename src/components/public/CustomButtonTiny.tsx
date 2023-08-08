@@ -22,7 +22,7 @@ const CustomButtonTiny = ({ title, isDisabled = false, onClick }: CustomButtonPr
 };
 const DisabledContainer = styled.button`
   display: inline-flex;
-  cursor: default;
+  /* cursor: default; */
 
   margin-top: 16px;
   border-radius: 8px;

@@ -175,7 +175,7 @@ const ResetButton = styled.div`
   top: 16px;
   animation: fadein ease 0.2s;
   -webkit-animation: fadein 0.2s;
-  cursor: pointer;
+  /* cursor: pointer; */
   * {
     color: '#ff5c5c';
   }

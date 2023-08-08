@@ -50,7 +50,7 @@ const Button = styled.button`
   background-color: ${(props) => props.theme.color.NonFocused};
 
   transition: all 0.5s ease;
-  cursor: pointer;
+  /* cursor: pointer; */
   &:hover {
     background-color: ${(props) => props.theme.color.MainKeyDarkColor};
     box-shadow: 0 0 10px 0 ${(props) => props.theme.color.FocusShadow};
@@ -59,7 +59,7 @@ const Button = styled.button`
     box-shadow:
       inset -0.3rem -0.1rem 1.4rem #838393,
       inset 0.3rem 0.4rem 0.8rem #92dab8;
-    cursor: pointer;
+    /* cursor: pointer; */
   }
 `;
 
