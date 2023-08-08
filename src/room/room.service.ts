@@ -413,8 +413,8 @@ export class RoomService {
     async unlockRoom(room_id: ObjectId, index: number): Promise<boolean> {
         
         const roomAndUser = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
-            
-        if (!roomAndUser || !roomAndUser.owner[0]) {
+        const ownerIndex = roomAndUser.owner.indexOf(true);
+        if (ownerIndex === -1) {
             throw new BadRequestException('권한이 있는 유저인지 확인');
         }
         
