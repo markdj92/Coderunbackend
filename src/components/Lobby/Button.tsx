@@ -55,16 +55,15 @@ const ButtonBox = styled.div`
   height: 60px;
   border-radius: 8px;
   border: 2px solid rgba(107, 217, 164, 0.2);
-  /* background: linear-gradient(90deg, rgba(70, 64, 198, 0.12) 0%, rgba(70, 64, 198, 0) 100%),
-    rgba(70, 64, 198, 0.12); */
   cursor: pointer;
   &:hover {
     border: 1px solid ${(props) => props.theme.color.MainKeyColor};
-    /* background: linear-gradient(90deg, rgba(70, 64, 198, 0.12) 0%, rgba(70, 64, 198, 0) 100%),
-      rgba(70, 64, 198, 0.12); */
     box-shadow:
       0px 0px 12px 0px rgba(89, 255, 245, 0.8),
       0px 4px 2px 0px rgba(21, 18, 73, 0.32) inset;
+  }
+  &:active {
+    box-shadow: 0px 0px 12px 0px rgba(89, 255, 245, 0.8) inset;
   }
 `;
 

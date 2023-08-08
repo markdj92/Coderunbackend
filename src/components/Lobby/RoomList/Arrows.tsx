@@ -1,7 +1,5 @@
+import { BiSolidLeftArrow, BiSolidRightArrow } from 'react-icons/bi';
 import styled from 'styled-components';
-
-import ArrowLeft from '/icon/lobby/arrowLeft.png';
-import ArrowRight from '/icon/lobby/arrowRight.png';
 
 const Arrows = ({
   totalPage,
@@ -26,10 +24,10 @@ const Arrows = ({
   return (
     <Container>
       <Button onClick={handleLeftClick}>
-        <img src={ArrowLeft} alt='' />
+        <BiSolidLeftArrow size={20} />
       </Button>
       <Button onClick={handleRightClick}>
-        <img src={ArrowRight} alt='' />
+        <BiSolidRightArrow size={20} />
       </Button>
     </Container>
   );
@@ -49,10 +47,19 @@ const Button = styled.button`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: ${(props) => props.theme.color.MainKeyLightColor};
+  background-color: ${(props) => props.theme.color.NonFocused};
+
+  transition: all 0.5s ease;
   cursor: pointer;
-  img {
-    filter: grayscale(100%);
+  &:hover {
+    background-color: ${(props) => props.theme.color.MainKeyDarkColor};
+    box-shadow: 0 0 10px 0 ${(props) => props.theme.color.FocusShadow};
+  }
+  &:active {
+    box-shadow:
+      inset -0.3rem -0.1rem 1.4rem #838393,
+      inset 0.3rem 0.4rem 0.8rem #92dab8;
+    cursor: pointer;
   }
 `;
 

@@ -40,6 +40,13 @@ const Container = styled.div`
   &:hover .card-shape {
     box-shadow: 0px 0px 24px 0px #59fff5;
   }
+  &:hover {
+    transform: translate(-2px, 2px);
+  }
+  &:active {
+    transition: 0.1s ease-in-out;
+    transform: translate(2px, -2px);
+  }
 `;
 
 const RoomCardShape = styled.div`
