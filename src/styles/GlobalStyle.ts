@@ -10,6 +10,10 @@ const GlobalStyle = createGlobalStyle`
     -webkit-user-select:none;
     -moz-user-select:none;
     -ms-user-select:none;
+    cursor: url(/icon/cursor.png),auto;
+    &:active, &:focus{
+      cursor: url(/icon/active_cursor.png),auto;
+    }
     user-select:none
   }
   a {
@@ -28,7 +32,7 @@ const GlobalStyle = createGlobalStyle`
     border: none;
     padding: 0;
     font: inherit;
-    cursor: pointer;
+    cursor: url(/icon/cursor.png),auto;
     outline: inherit;
   }
 
