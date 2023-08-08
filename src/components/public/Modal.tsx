@@ -53,7 +53,7 @@ const CloseButton = styled.div`
   position: fixed;
   right: 2.5rem;
   top: 2.5rem;
-  cursor: pointer;
+  /* cursor: pointer; */
 `;
 const ModalOverlay = styled.div`
   display: inline-flex;

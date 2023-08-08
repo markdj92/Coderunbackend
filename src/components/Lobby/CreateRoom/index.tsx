@@ -275,7 +275,7 @@ const RadioSelect = styled.label<{ isselected: string }>`
   font-weight: 500;
   font-size: 22px;
   line-height: 28px;
-  cursor: pointer;
+  /* cursor: pointer; */
 `;
 const LevelSelect = styled.label<{ isselected: string }>`
   color: ${(props) =>
@@ -290,7 +290,7 @@ const LevelSelect = styled.label<{ isselected: string }>`
   border: 1.4px solid
     ${(props) =>
       props.isselected === 'true' ? props.theme.color.MainKeyColor : props.theme.color.Black};
-  cursor: pointer;
+  /* cursor: pointer; */
 `;
 const InputTitle = styled.label`
   font-family: ${(props) => props.theme.font.Title};
@@ -359,7 +359,7 @@ const SecretCheck = styled.div`
   height: 60px;
   margin-bottom: 10px;
   font-size: 22px;
-  cursor: pointer;
+  /* cursor: pointer; */
 `;
 
 export default CreateRoom;

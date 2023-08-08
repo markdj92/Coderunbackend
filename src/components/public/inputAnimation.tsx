@@ -191,7 +191,7 @@ const InputBtn = styled.div`
   right: 0;
   bottom: 2px;
   .delIcon {
-    cursor: pointer;
+    /* cursor: pointer; */
   }
 `;
 

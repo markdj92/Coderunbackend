@@ -55,7 +55,7 @@ const ButtonBox = styled.div`
   height: 60px;
   border-radius: 8px;
   border: 2px solid rgba(107, 217, 164, 0.2);
-  cursor: pointer;
+  /* cursor: pointer; */
   &:hover {
     border: 1px solid ${(props) => props.theme.color.MainKeyColor};
     box-shadow:

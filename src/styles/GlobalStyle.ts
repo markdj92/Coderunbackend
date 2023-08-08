@@ -10,9 +10,9 @@ const GlobalStyle = createGlobalStyle`
     -webkit-user-select:none;
     -moz-user-select:none;
     -ms-user-select:none;
-    cursor: url(/icon/cursor.png),auto;
+    cursor: url(/icon/cursor.png) 32 30,auto;
     &:active, &:focus{
-      cursor: url(/icon/active_cursor.png),auto;
+      cursor: url(/icon/active_cursor.png) 32 30,auto;
     }
     user-select:none
   }
@@ -32,7 +32,7 @@ const GlobalStyle = createGlobalStyle`
     border: none;
     padding: 0;
     font: inherit;
-    cursor: url(/icon/cursor.png),auto;
+    /* cursor: pointer; */
     outline: inherit;
   }
 

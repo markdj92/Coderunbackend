@@ -225,7 +225,7 @@ const HeaderLogo = styled.div`
   font-weight: 500;
   margin-top: 25px;
   margin-left: 80px;
-  cursor: pointer;
+  /* cursor: pointer; */
   font-family: 'Noto Sans KR', sans-serif;
   color: #8883ff;
   background: url('/images/LogoGray.svg') no-repeat;

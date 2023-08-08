@@ -29,7 +29,7 @@ const Container = styled.div`
   width: 60px;
   height: 60px;
   * {
-    cursor: pointer;
+    /* cursor: pointer; */
     transition: 0.3s ease-in-out;
   }
 `;

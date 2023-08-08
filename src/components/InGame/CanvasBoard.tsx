@@ -294,7 +294,7 @@ const InvisibleWrapper = styled.div<{ isChecked: boolean }>`
     color: aliceblue;
     bottom: 0;
     margin-bottom: 7px;
-    cursor: pointer;
+    /* cursor: pointer; */
   }
 
   .palleteBtn:hover {

@@ -29,7 +29,7 @@ const DisableContainer = styled.button`
   border-radius: 12px;
   border: ${(props) => props.theme.size.ThinBorder + props.theme.color.DarkGray};
   background: rgba(70, 70, 70, 0.2);
-  cursor: default;
+  /* cursor: default; */
 `;
 
 const Container = styled.button`

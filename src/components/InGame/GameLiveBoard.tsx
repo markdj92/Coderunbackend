@@ -18,7 +18,7 @@ const GameLiveBoard = ({
             return (
               <UserCard
                 key={index}
-                style={{ cursor: handleSetViewer ? 'pointer' : 'default' }}
+                // style={{ cursor: handleSetViewer ? 'pointer' : 'default' }}
                 onClick={handleSetViewer ? () => handleSetViewer(user.nickname) : () => {}}
               >
                 {user.nickname}

@@ -126,7 +126,7 @@ export const CloseButton = styled.button<MessageStyleProps>`
   align-items: center;
   background: none;
   border: none;
-  cursor: pointer;
+  /* cursor: pointer; */
   & > svg {
     fill: ${({ messageType }) => ToastTheme[messageType].color};
   }
