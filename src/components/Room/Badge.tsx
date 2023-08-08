@@ -85,7 +85,7 @@ const Badge = ({
             <InfoFrame>
               <p>Here's</p>
               {user === 'LOCK' || user === undefined ? (
-                <NonTitle>lock</NonTitle>
+                <NonTitle style={{ color: '#54a980' }}>lock</NonTitle>
               ) : (
                 <NonTitle style={{ color: '#838393' }}>empty</NonTitle>
               )}
@@ -103,7 +103,9 @@ const Badge = ({
       <Container>
         <UserCard islock={user.status ? 'true' : 'false'}>
           <InfoBox>
-            <UserImg ismine={isMine ? 'true' : 'false'}></UserImg>
+            <UserImg ismine={isMine ? 'true' : 'false'}>
+              <img id='profile-image' src={'/images/anonymous.jpg'} />
+            </UserImg>
             <InfoFrame>
               <p>User</p>
               <p className='nickname'>
@@ -147,7 +149,9 @@ const Badge = ({
       <Container>
         <UserCard ref={outerRef} islock={user.status ? 'true' : 'false'}>
           <InfoBox>
-            <UserImg ismine={isMine ? 'true' : 'false'}></UserImg>
+            <UserImg ismine={isMine ? 'true' : 'false'}>
+              <img id='profile-image' src={'/images/anonymous.jpg'} />
+            </UserImg>
             <InfoFrame>
               <p>User</p>
               <p className='nickname'>
@@ -188,6 +192,7 @@ const Container = styled.div`
       display: block;
     }
   }
+  padding: 1.5rem;
 `;
 
 const InfoBox = styled.div`
@@ -201,11 +206,18 @@ const UserImg = styled.div<{ ismine?: string }>`
   min-width: 104px;
   min-height: 104px;
   border-radius: 50%;
-  border: 5px solid ${(props) => (props.ismine === 'true' ? '#35353f' : '#35353f')};
+  border: 5px solid ${(props) => (props.ismine === 'true' ? '#92dab870' : '#35353f')};
   background-color: #26262d;
 
   * {
     color: #838393;
+  }
+
+  object-fit: cover;
+  overflow: hidden;
+
+  #profile-image {
+    width: 100%;
   }
 
   display: flex;
@@ -216,8 +228,6 @@ const UserImg = styled.div<{ ismine?: string }>`
 `;
 
 const NonUserCard = styled.div<{ islock: string }>`
-  margin: 1.5em;
-
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -228,7 +238,7 @@ const NonUserCard = styled.div<{ islock: string }>`
     linear-gradient(#26262d, #26262d) padding-box,
     linear-gradient(
         to bottom right,
-        ${(props) => (props.islock === 'true' ? '#a1f4ff' : '#838393')},
+        ${(props) => (props.islock === 'true' ? '#92dab870' : '#838393')},
         transparent
       )
       border-box,
@@ -236,8 +246,9 @@ const NonUserCard = styled.div<{ islock: string }>`
   border: 2.4px solid transparent;
 
   min-width: 450px;
+  height: 80%;
   width: 100%;
-  height: 160px;
+  min-height: 160px;
 
   border-radius: 80px;
 
@@ -255,8 +266,6 @@ const NonUserCard = styled.div<{ islock: string }>`
 `;
 
 const UserCard = styled.div<{ islock: string; ismine?: string }>`
-  margin: 1.5em;
-
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -275,8 +284,9 @@ const UserCard = styled.div<{ islock: string; ismine?: string }>`
   border: 2.4px solid transparent;
 
   min-width: 450px;
+  height: 80%;
   width: 100%;
-  height: 160px;
+  min-height: 160px;
 
   border-radius: 80px;
 
@@ -287,7 +297,7 @@ const UserCard = styled.div<{ islock: string; ismine?: string }>`
     border: 2.4px solid #6bd9a4;
     box-shadow: 0px 0px 5px 0px #59fff5;
     color: #eee;
-    font-family: Noto Sans CJK KR;
+    font-family: ${(props) => props.theme.font.title};
     font-size: 16px;
     font-style: normal;
     font-weight: 900;
