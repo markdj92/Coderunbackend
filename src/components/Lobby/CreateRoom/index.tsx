@@ -18,7 +18,7 @@ type RoomProps = {
 const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
   const [isSecret, setIsSecret] = useState(false);
   const navigate = useNavigate();
-  const titleRef = useRef(null);
+  const titleRef = useRef<HTMLInputElement>(null);
 
   const { value: roomInfo, setValue: setRoomInfo } = useInput({
     title: '',
