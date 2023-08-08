@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import LockIcon from '/icon/public/lock.svg';
 import QuestionIcon from '/icon/public/question.svg';
+import StarIcon from '/icon/public/star.svg';
 
 import { socket } from '@/apis/socketApi';
 import { Menu } from '@/components/public/ContextMenu';
@@ -100,12 +101,14 @@ const Badge = ({
   if (isMine)
     return (
       <Container>
-        <UserCard ismine={isMine ? 'true' : 'false'} islock={user.status ? 'true' : 'false'}>
+        <UserCard islock={user.status ? 'true' : 'false'}>
           <InfoBox>
-            <UserImg></UserImg>
+            <UserImg ismine={isMine ? 'true' : 'false'}></UserImg>
             <InfoFrame>
               <p>User</p>
-              <p className='nickname'>{user.nickname}</p>
+              <p className='nickname'>
+                {isMine && <img src={StarIcon} />} {user.nickname}
+              </p>
               <p className='level'>LV {user.level}</p>
             </InfoFrame>
           </InfoBox>
@@ -142,16 +145,15 @@ const Badge = ({
         </Menu>
       )}
       <Container>
-        <UserCard
-          ref={outerRef}
-          ismine={isMine ? 'true' : 'false'}
-          islock={user.status ? 'true' : 'false'}
-        >
+        <UserCard ref={outerRef} islock={user.status ? 'true' : 'false'}>
           <InfoBox>
-            <UserImg></UserImg>
+            <UserImg ismine={isMine ? 'true' : 'false'}></UserImg>
             <InfoFrame>
               <p>User</p>
-              <p className='nickname'>{user.nickname}</p>
+              <p className='nickname'>
+                {isMine && <img src={StarIcon} />}
+                {user.nickname}
+              </p>
               <p className='level'>LV {user.level}</p>
             </InfoFrame>
           </InfoBox>
@@ -195,11 +197,11 @@ const InfoBox = styled.div`
   width: 65%;
 `;
 
-const UserImg = styled.div`
+const UserImg = styled.div<{ ismine?: string }>`
   min-width: 104px;
   min-height: 104px;
   border-radius: 50%;
-  border: 5px solid #35353f;
+  border: 5px solid ${(props) => (props.ismine === 'true' ? '#35353f' : '#35353f')};
   background-color: #26262d;
 
   * {
@@ -239,8 +241,7 @@ const NonUserCard = styled.div<{ islock: string }>`
 
   border-radius: 80px;
 
-  box-shadow: ${(props) =>
-    props.islock === 'true' ? '0px 0px 5px 0px #59fff5' : '0px 0px 24px 0px #222'};
+  box-shadow: '0px 0px 24px 0px #222';
 
   .disable.status {
     display: block;
@@ -253,7 +254,7 @@ const NonUserCard = styled.div<{ islock: string }>`
   }
 `;
 
-const UserCard = styled.div<{ islock: string; ismine: string }>`
+const UserCard = styled.div<{ islock: string; ismine?: string }>`
   margin: 1.5em;
 
   display: flex;
@@ -266,7 +267,7 @@ const UserCard = styled.div<{ islock: string; ismine: string }>`
     linear-gradient(#26262d, #26262d) padding-box,
     linear-gradient(
         to bottom right,
-        ${(props) => (props.islock === 'true' ? '#a1f4ff' : '#838393')},
+        ${(props) => (props.islock === 'true' ? '#59fff5' : '#838393')},
         transparent
       )
       border-box,
@@ -280,7 +281,7 @@ const UserCard = styled.div<{ islock: string; ismine: string }>`
   border-radius: 80px;
 
   box-shadow: ${(props) =>
-    props.islock === 'true' ? '0px 0px 24px 0px #59fff5' : '0px 0px 5px 0px #59fff5'};
+    props.islock === 'true' ? '0px 0px 24px 0px #59fff5' : '0px 0px 10px 0px #59fff5'};
 
   .ready {
     border: 2.4px solid #6bd9a4;
@@ -341,6 +342,9 @@ const InfoFrame = styled.div`
   min-width: 176px;
   width: 100%;
 
+  img {
+    width: 24px;
+  }
   p {
     color: ${(props) => props.theme.color.MainKeyColor};
     overflow: hidden;
