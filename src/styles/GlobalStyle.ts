@@ -67,6 +67,18 @@ const GlobalStyle = createGlobalStyle`
         opacity: 1;
     }
   }
+
+  @keyframes rotate {
+    100% {
+        transform: rotate(360deg);
+    }
+  }
+
+  @-webkit-keyframes rotate {
+    100% {
+        transform: rotate(360deg);
+    }
+  }
 `;
 
 export default GlobalStyle;

@@ -34,6 +34,7 @@ const Container = styled.div`
   width: 100%;
   height: 30%;
   overflow: hidden;
+  font-size: 2rem;
   * {
     -webkit-user-select: text;
     -moz-user-select: text;
@@ -45,7 +46,7 @@ const Container = styled.div`
 const Title = styled.div`
   padding: 1rem;
   font-weight: 700;
-  font-size: 14px;
+  font-size: 2rem;
   margin-bottom: 1rem;
   border-bottom: 1px solid #172334;
   color: #98a8b9;

@@ -2,6 +2,10 @@ import React, { useRef, MouseEvent } from 'react';
 import { FaCrown } from 'react-icons/fa';
 import styled from 'styled-components';
 
+import LockIcon from '/icon/public/lock.svg';
+import QuestionIcon from '/icon/public/question.svg';
+import StarIcon from '/icon/public/star.svg';
+
 import { socket } from '@/apis/socketApi';
 import { Menu } from '@/components/public/ContextMenu';
 import { UserInfo, BadgeStatus } from '@/types/room';
@@ -38,6 +42,9 @@ const Badge = ({
         case 'register-admin':
           registerAdmin();
           break;
+        case 'kick-user':
+          handleKick();
+          break;
         default:
           break;
       }
@@ -70,11 +77,23 @@ const Badge = ({
           onClick={handleLockCard}
           islock={user === 'LOCK' || user === undefined ? 'true' : 'false'}
         >
-          {user === 'LOCK' || user === undefined ? (
-            <NonTitle>lock</NonTitle>
-          ) : (
-            <NonTitle style={{ color: '#3f3d4d' }}>empty</NonTitle>
-          )}
+          <InfoBox>
+            <UserImg>
+              <img className={user === 'LOCK' ? 'active' : 'disable'} src={LockIcon} />
+              <img className={user === 'LOCK' ? 'disable' : 'active'} src={QuestionIcon} />
+            </UserImg>
+            <InfoFrame>
+              <p>Here's</p>
+              {user === 'LOCK' || user === undefined ? (
+                <NonTitle style={{ color: '#54a980' }}>lock</NonTitle>
+              ) : (
+                <NonTitle style={{ color: '#838393' }}>empty</NonTitle>
+              )}
+            </InfoFrame>
+          </InfoBox>
+          <StatusButton className={user === 'LOCK' ? 'disable status' : 'active status'}>
+            Waiting
+          </StatusButton>
         </NonUserCard>
       </Container>
     );
@@ -82,17 +101,27 @@ const Badge = ({
   if (isMine)
     return (
       <Container>
-        <UserImg>
-          {user.status && <p className='ready'>READY</p>}
-          <img id='profile-image' src={'/images/anonymous.jpg'} />
-        </UserImg>
-        <UserCard ismine={isMine ? 'true' : 'false'} islock={user.status ? 'true' : 'false'}>
-          <InfoFrame>
-            <p className='nickname'>
-              {user.nickname} {isOwner && <FaCrown size={'1.5rem'} />}
-            </p>
-            <p className='level'>LV {user.level}</p>
-          </InfoFrame>
+        <UserCard islock={user.status ? 'true' : 'false'}>
+          <InfoBox>
+            <UserImg ismine={isMine ? 'true' : 'false'}>
+              <img id='profile-image' src={'/images/anonymous.jpg'} />
+            </UserImg>
+            <InfoFrame>
+              <p>User</p>
+              <p className='nickname'>
+                {isMine && <img src={StarIcon} />} {user.nickname}
+              </p>
+              <p className='level'>LV {user.level}</p>
+            </InfoFrame>
+          </InfoBox>
+
+          {isOwner ? (
+            <StatusButton className='ready'>
+              <FaCrown size={'30px'} />
+            </StatusButton>
+          ) : (
+            <StatusButton className={user.status ? 'ready' : ''}>READY</StatusButton>
+          )}
         </UserCard>
       </Container>
     );
@@ -103,6 +132,7 @@ const Badge = ({
           outerRef={outerRef as React.MutableRefObject<HTMLDivElement>}
           menuOnClick={(e) => menuOnClickHandler(e)}
         >
+          <li data-option='kick-user'>강퇴하기</li>
           <li data-option='profile'>프로필 보기</li>
           <li data-option='add-friend'>친구추가 요청</li>
           <li data-option='register-admin'>방장 위임</li>
@@ -117,22 +147,28 @@ const Badge = ({
         </Menu>
       )}
       <Container>
-        <UserImg>
-          {user.status && <p className='ready'>READY</p>}
-          <img id='profile-image' src={'/images/anonymous.jpg'} />
-        </UserImg>
-        <UserCard
-          ref={outerRef}
-          ismine={isMine ? 'true' : 'false'}
-          islock={user.status ? 'true' : 'false'}
-        >
-          {isRoomAuth && <KickButton onClick={handleKick}>x</KickButton>}
-          <InfoFrame>
-            <p className='nickname'>
-              {user.nickname} {isOwner && <FaCrown size={'1.5rem'} />}
-            </p>
-            <p className='level'>LV {user.level}</p>
-          </InfoFrame>
+        <UserCard ref={outerRef} islock={user.status ? 'true' : 'false'}>
+          <InfoBox>
+            <UserImg ismine={isMine ? 'true' : 'false'}>
+              <img id='profile-image' src={'/images/anonymous.jpg'} />
+            </UserImg>
+            <InfoFrame>
+              <p>User</p>
+              <p className='nickname'>
+                {isMine && <img src={StarIcon} />}
+                {user.nickname}
+              </p>
+              <p className='level'>LV {user.level}</p>
+            </InfoFrame>
+          </InfoBox>
+
+          {isOwner ? (
+            <StatusButton className='ready'>
+              <FaCrown size={'30px'} />
+            </StatusButton>
+          ) : (
+            <StatusButton className={user.status ? 'ready' : ''}>READY</StatusButton>
+          )}
         </UserCard>
       </Container>
     </>
@@ -144,23 +180,154 @@ const Container = styled.div`
   height: 20%;
   position: relative;
   transition: all 0.1s ease;
-  &:hover {
-    transform: scale(1.03);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  * {
+    transition: all 0.1s ease;
+    .disable {
+      display: none;
+    }
+    .active {
+      display: block;
+    }
   }
+  padding: 1.5rem;
 `;
 
-const NonUserCard = styled.div<{ islock: string }>`
-  border: 1px solid white;
-  border-radius: 20px;
-  margin: 1.5em;
-  min-height: 99.66px;
-  max-height: 99.66px;
+const InfoBox = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 65%;
+`;
+
+const UserImg = styled.div<{ ismine?: string }>`
+  min-width: 104px;
+  min-height: 104px;
+  border-radius: 50%;
+  border: 5px solid ${(props) => (props.ismine === 'true' ? '#92dab870' : '#35353f')};
+  background-color: #26262d;
+
+  * {
+    color: #838393;
+  }
+
+  object-fit: cover;
+  overflow: hidden;
+
+  #profile-image {
+    width: 100%;
+  }
 
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: ${(props) =>
-    props.islock !== 'true' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)'};
+
+  margin-right: 16px;
+`;
+
+const NonUserCard = styled.div<{ islock: string }>`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 32px;
+  background:
+    linear-gradient(#26262d, #26262d) padding-box,
+    linear-gradient(
+        to bottom right,
+        ${(props) => (props.islock === 'true' ? '#92dab870' : '#838393')},
+        transparent
+      )
+      border-box,
+    border-box;
+  border: 2.4px solid transparent;
+
+  min-width: 450px;
+  height: 80%;
+  width: 100%;
+  min-height: 160px;
+
+  border-radius: 80px;
+
+  box-shadow: '0px 0px 24px 0px #222';
+
+  .disable.status {
+    display: block;
+    color: #26262d;
+    background-color: #26262d;
+  }
+
+  &:hover {
+    border-color: #6bd9a480;
+  }
+`;
+
+const UserCard = styled.div<{ islock: string; ismine?: string }>`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  padding: 32px;
+  background:
+    linear-gradient(#26262d, #26262d) padding-box,
+    linear-gradient(
+        to bottom right,
+        ${(props) => (props.islock === 'true' ? '#59fff5' : '#838393')},
+        transparent
+      )
+      border-box,
+    border-box;
+  border: 2.4px solid transparent;
+
+  min-width: 450px;
+  height: 80%;
+  width: 100%;
+  min-height: 160px;
+
+  border-radius: 80px;
+
+  box-shadow: ${(props) =>
+    props.islock === 'true' ? '0px 0px 24px 0px #59fff5' : '0px 0px 10px 0px #59fff5'};
+
+  .ready {
+    border: 2.4px solid #6bd9a4;
+    box-shadow: 0px 0px 5px 0px #59fff5;
+    color: #eee;
+    font-family: ${(props) => props.theme.font.title};
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 900;
+    line-height: 16px; /* 100% */
+    letter-spacing: -0.32px;
+  }
+
+  &:hover {
+    border-color: #6bd9a4;
+  }
+`;
+
+const StatusButton = styled.div`
+  width: 108px;
+  height: 46px;
+  display: inline-flex;
+  padding: 15px 23px 15px 24px;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 48px;
+  background: rgba(131, 131, 147, 0.2);
+
+  color: rgba(131, 131, 147, 0.5);
+  font-family: ${(props) => props.theme.font.content};
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 16px; /* 100% */
+  letter-spacing: -0.32px;
 `;
 
 const NonTitle = styled.div`
@@ -168,74 +335,58 @@ const NonTitle = styled.div`
   font-weight: bolder;
   font-style: italic;
   font-size: 2em;
-`;
 
-const UserCard = styled.div<{ islock: string; ismine: string }>`
-  position: relative;
-  overflow: hidden;
-  border: ${(props) => (props.ismine === 'true' ? '1px solid blue' : '1px solid white')};
-  border-radius: 20px;
-  margin: 1.5em;
-  min-height: 99.66px;
-  max-height: 99.66px;
-  background-color: ${(props) =>
-    props.islock !== 'true' ? 'rgba(255,255,255,0.4)' : 'rgba(100,100,100,0.4)'};
-
-  box-shadow: 0 2px 8px rgba(31, 38, 135, 1);
+  color: ${(props) => props.theme.color.MainKeyColor};
+  font-family: ${(props) => props.theme.font.title};
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 32px; /* 100% */
+  letter-spacing: -0.64px;
 `;
 
 const InfoFrame = styled.div`
-  transform: translate(35%, 0%);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  position: absolute;
-  top: 1.4rem;
-  left: 3.2rem;
+  min-width: 176px;
+  width: 100%;
+
+  img {
+    width: 24px;
+  }
   p {
+    color: ${(props) => props.theme.color.MainKeyColor};
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     padding: 0.2rem;
+    color: #838393;
   }
   .nickname {
+    width: 100%;
+    color: ${(props) => props.theme.color.MainKeyColor};
+    font-family: ${(props) => props.theme.font.title};
     text-shadow: #3f3d4d 2px 0 3px;
     text-transform: uppercase;
     font-weight: bolder;
-    font-size: 1.5em;
+    font-size: 32px;
     white-space: nowrap;
+
+    font-style: normal;
+    font-weight: 700;
+    line-height: 32px; /* 100% */
+    letter-spacing: -0.64px;
   }
-`;
-
-const KickButton = styled.button`
-  position: absolute;
-  top: 0;
-  right: 0.5rem;
-  font-size: 1.3rem;
-  padding: 0.5rem;
-`;
-
-const UserImg = styled.div`
-  transform: translate(-40%, -40%);
-  position: absolute;
-  width: 6em;
-  height: 6em;
-  top: 2.7em;
-  left: 2.3em;
-  z-index: 1;
-  img {
-    border: 1px solid white;
+  .level {
     width: 100%;
-    height: 100%;
-    border-radius: 50%;
-  }
-  & > .ready {
-    position: absolute;
-    padding: 10%;
-    margin-top: 20%;
-    border: 2px solid rgb(0, 0, 0);
-    color: white;
-    background-color: rgba(0, 0, 0, 0.7);
-    font-size: larger;
-    font-weight: bold;
-    transform: skew(-25deg) rotate(-30deg);
+    color: #c3c3d6;
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 18px;
+    letter-spacing: -0.36px;
   }
 `;
+
 export default Badge;

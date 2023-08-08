@@ -17,14 +17,14 @@ const Container = styled.div`
 
 const Title = styled.div`
   font-weight: 700;
-  font-size: 14px;
+  font-size: 2rem;
   line-height: 1.5;
   margin-bottom: 1rem;
   margin-top: 24px;
 `;
 
 const Content = styled.span`
-  font-size: 1rem;
+  font-size: 2rem;
   word-wrap: break-word;
   font-weight: 400;
   line-height: 1.8;

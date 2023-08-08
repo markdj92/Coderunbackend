@@ -34,7 +34,7 @@ const QuizInputOutputTable = ({
 
 const Title = styled.div`
   font-weight: 700;
-  font-size: 14px;
+  font-size: 2rem;
   line-height: 1.5;
   margin-bottom: 1rem;
   margin-top: 24px;
@@ -47,6 +47,7 @@ const TableContainer = styled.table`
   border-top-right-radius: 0.1875rem;
   border-spacing: 2px;
   text-indent: initial;
+  font-size: 1.5rem;
   tr {
     display: table-row;
     vertical-align: inherit;
@@ -54,15 +55,16 @@ const TableContainer = styled.table`
   th {
     padding: 0.5rem;
     background: #202b3d;
-    border: 1px solid #3f3d4d;
+    border: 2px solid #ffffff;
   }
   td {
     font-family: 'Courier New', Courier, monospace;
     font-weight: 100;
     padding: 0.5rem;
     background: #202b3d;
-    border: 1px solid #3f3d4d;
+    border: 2px solid #ffffff;
     color: #bebebe;
+    font-size: 2rem;
   }
 `;
 

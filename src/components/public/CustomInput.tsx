@@ -52,7 +52,7 @@ const CustomInput: React.FC<InputAnimationProps> = ({
       <InputFrame
         isfocus={isFocus ? 'true' : 'false'}
         isvalid={errorMessage === '' ? 'true' : 'false'}
-        isInputValue={!!inputValue ? 'true' : 'false'}
+        isinputvalue={!!inputValue ? 'true' : 'false'}
       >
         <NameSection isvalid={errorMessage === '' ? 'true' : 'false'}>
           <TitleBox>{title}</TitleBox>
@@ -95,7 +95,7 @@ const Container = styled.div`
   gap: 12px;
 `;
 
-const InputFrame = styled.div<{ isfocus: string; isvalid: string; isInputValue: string }>`
+const InputFrame = styled.div<{ isfocus: string; isvalid: string; isinputvalue: string }>`
   position: relative;
   display: flex;
   flex-direction: row;
@@ -103,7 +103,7 @@ const InputFrame = styled.div<{ isfocus: string; isvalid: string; isInputValue: 
   transition: all 0.3s ease-in-out;
   border: ${(props) =>
     props.isvalid === 'true'
-      ? props.isfocus === 'true' || props.isInputValue === 'true'
+      ? props.isfocus === 'true' || props.isinputvalue === 'true'
         ? props.theme.size.ThickBorder + props.theme.color.MainKeyColor
         : props.theme.size.ThickBorder + props.theme.color.MainKeyDarkColor
       : props.theme.size.ThickBorder + props.theme.color.Error};
@@ -112,7 +112,7 @@ const InputFrame = styled.div<{ isfocus: string; isvalid: string; isInputValue: 
     transition: all 0.3s ease-in-out;
     color: ${(props) =>
       props.isvalid === 'true'
-        ? props.isfocus === 'true' || props.isInputValue === 'true'
+        ? props.isfocus === 'true' || props.isinputvalue === 'true'
           ? props.theme.color.MainKeyColor
           : props.theme.color.NonFocused
         : props.theme.color.Error};

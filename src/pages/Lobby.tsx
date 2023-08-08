@@ -139,13 +139,13 @@ const HeaderLogo = styled.div`
   cursor: pointer;
   font-family: 'Noto Sans KR', sans-serif;
   color: #8883ff;
-  background: url('./images/LogoGray.svg') no-repeat;
+  background: url('/images/LogoGray.svg') no-repeat;
   background-size: contain;
   width: 100%;
   height: 80px;
   margin-right: 50px;
   &:hover {
-    background: url('./images/LogoActive.svg') no-repeat;
+    background: url('/images/LogoActive.svg') no-repeat;
     background-size: contain;
   }
 `;

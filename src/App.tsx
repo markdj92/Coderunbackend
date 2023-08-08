@@ -5,7 +5,7 @@ import PageRouter from '@/routes';
 
 import { ToastProvider, Toast } from './components/public/Toast';
 import GlobalStyle from './styles/GlobalStyle';
-import theme from './styles/theme';
+import { theme } from './styles/theme';
 
 const toastInstance = new Toast(document.getElementById('toast-root'));
 

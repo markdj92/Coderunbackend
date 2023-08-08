@@ -383,7 +383,7 @@ const EditorFrame = styled.div`
   height: 70%;
   overflow-y: scroll;
   .cm-lineNumbers {
-    width: 2rem;
+    width: 3rem;
   }
 `;
 
