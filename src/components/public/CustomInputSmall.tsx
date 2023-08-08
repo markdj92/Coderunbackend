@@ -133,7 +133,7 @@ const NameSection = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 16px 0;
+  margin: 13px 0;
 `;
 
 const TitleBox = styled.div<{ isvalid: string; isfocus: string }>`
@@ -158,13 +158,12 @@ const InputBox = styled.input<{ isvalid: string }>`
   font-family: ${(props) => props.theme.font.Content};
   justify-content: center;
   align-items: center;
-  font-size: 24px;
+  font-size: 22px;
   text-align: start;
   background: transparent;
   border: none;
   outline: none;
-  height: 32px;
-  margin: 16px 0 16px 0;
+  height: fit-content;
   padding-left: 18px;
   border-left: 2px solid
     ${(props) => (props.isvalid === 'true' ? props.theme.color.Divider : props.theme.color.Error)};
