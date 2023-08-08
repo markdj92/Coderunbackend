@@ -32,6 +32,7 @@
     "socket.io-client": "^4.7.1",
     "styled-components": "^6.0.4",
     "styled-reset": "^4.5.1",
+    "thememirror": "^2.0.1",
     "y-codemirror.next": "^0.3.2",
     "y-websocket": "^1.4.5",
     "yjs": "^13.6.7"
