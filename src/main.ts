@@ -26,7 +26,7 @@ async function bootstrap() {
   const socketProvider = app.get(SocketProvider);
   socketProvider.initialize(server);
 
-  const port = 3004;
+  const port = 3100;
   server.listen(port, () => {
     console.log(`server is running on port ${port}`);
   });
