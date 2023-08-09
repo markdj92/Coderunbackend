@@ -9,10 +9,10 @@ import IconSetting from '/icon/lobby/setting.svg';
 
 import { postLogout } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
+import Button from '@/components/Lobby/Button';
 
 import { PATH_ROUTE, USER_TOKEN_KEY, LEVEL_OPTIONS, TITLE_COMMENT } from '@/constants';
 
-import Button from '@/components/Lobby/Button';
 import CreateRoom from '@/components/Lobby/CreateRoom';
 import DropBox from '@/components/Lobby/DropBox';
 import IconButton from '@/components/Lobby/IconButton';
@@ -20,6 +20,7 @@ import PrivateModal from '@/components/Lobby/PrivateModal';
 import RoomList from '@/components/Lobby/RoomList';
 import Alert from '@/components/public/Alert';
 import { HeaderLogo } from '@/components/public/HeaderLogo';
+import { Loading } from '@/components/public/Loading';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomResponse } from '@/types/lobby';
 
@@ -41,6 +42,8 @@ const Lobby = () => {
 
   const [selectedLevel, setLevel] = useState(0);
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleShowCreateRoom = () => {
     setShownCreateRoom(!isShownCreateRoom);
   };
@@ -58,7 +61,9 @@ const Lobby = () => {
   const handleSetting = () => {};
 
   const handleQuickStart = () => {
+    setIsLoading(true);
     socket.emit('quick-join', (response: RoomResponse) => {
+      setIsLoading(false);
       if (!response.success) return alert(response.payload.roomInfo);
       socket.emit('join-room', { title: response.payload.roomInfo }, (response: RoomResponse) => {
         if (!response.payload?.roomInfo) return alert('방 입장 실패!');
@@ -75,6 +80,12 @@ const Lobby = () => {
 
   return (
     <MainContainer>
+      {isLoading && (
+        <SpinnerFrame onClick={() => {}}>
+          <Loading />
+        </SpinnerFrame>
+      )}
+
       {isShownCreateRoom && (
         <CreateRoom nickname={nickname} handleShowCreateRoom={handleShowCreateRoom} />
       )}
@@ -104,7 +115,7 @@ const Lobby = () => {
         <HeaderSection>
           <RoomButtonBox>
             <Button onClick={handleShowCreateRoom} title='방 만들기' />
-            <Button title='빠른 시작' onClick={handleQuickStart} />
+            <Button title='빠른 시작' onClick={isLoading ? () => {} : handleQuickStart} />
             <DropBox
               options={LEVEL_OPTIONS}
               selected={selectedLevel}
@@ -143,7 +154,14 @@ const MainContainer = styled.div`
   width: 100vw;
   height: 100vh;
 `;
-
+const SpinnerFrame = styled.div`
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 const LeftFrame = styled.div`
   width: 25%;
   height: 100%;

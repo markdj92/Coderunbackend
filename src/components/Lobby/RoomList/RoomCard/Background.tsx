@@ -3,15 +3,18 @@ import styled from 'styled-components';
 
 import Button from './Button';
 
+import { Loading } from '@/components/public/Loading';
+
 interface props {
   title: ReactNode;
   mode: ReactNode;
   level: ReactNode;
   members: ReactNode;
   ready?: boolean;
+  loading?: boolean;
 }
 
-const Background = ({ title, mode, level, members }: props) => {
+const Background = ({ title, mode, level, members, loading }: props) => {
   return (
     <Container>
       <RoomCardShape className='card-shape' />
@@ -21,6 +24,7 @@ const Background = ({ title, mode, level, members }: props) => {
         {level}
         {members}
       </DetailFrame>
+      {loading && <Loading />}
       <Button />
     </Container>
   );
