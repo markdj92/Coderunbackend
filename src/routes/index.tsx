@@ -9,7 +9,7 @@ const Root = lazy(() => import('@/pages/Root'));
 const Lobby = lazy(() => import('@/pages/Lobby'));
 const Login = lazy(() => import('@/pages/Login'));
 const Error = lazy(() => import('@/pages/Error'));
-const Result = lazy(() => import('@/pages/StudyResult'));
+const StudyResult = lazy(() => import('@/pages/StudyResult'));
 const Room = lazy(() => import('@/pages/StudyRoom'));
 const CoopRoom = lazy(() => import('@/pages/CoopRoom'));
 const InGame = lazy(() => import('@/pages/InGame'));
@@ -58,7 +58,7 @@ const routes: RouteObject[] = [
       },
       {
         path: PATH_ROUTE.result,
-        element: <Result />,
+        element: <StudyResult />,
         errorElement: <Error />,
       },
       {
