@@ -102,7 +102,7 @@ const Review = () => {
   };
 
   const handleDoneReviewer = () => {
-    socket.emit('reviewPass', { title: title });
+    socket.emit('reviewPass', { title: title, review: false });
   };
 
   const handleReviewMode = (response) => {
