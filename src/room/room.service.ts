@@ -390,7 +390,7 @@ export class RoomService {
         return { nickname: user.nickname, status: roomAndUser.ready_status[userIndex] };
     }
 
-    async getResult(room_id: ObjectId, user_id: ObjectId) {
+    async getResult(room_id: ObjectId, user_id: ObjectId, review : boolean) {
         
         const roomInfo = await this.roomAndUserModel.findOne({ room_id: room_id }).exec();
         let review_index = 0;
@@ -402,7 +402,7 @@ export class RoomService {
         });
         
         if (review_index !== -1) {
-            roomInfo.review[review_index] = !roomInfo.review[review_index];
+            roomInfo.review[review_index] = review;
             try {
                 await roomInfo.save();
                 return true;

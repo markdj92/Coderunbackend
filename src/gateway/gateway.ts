@@ -202,10 +202,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
     @SubscribeMessage('reviewUser')
     async handleReviewUser(
-    @MessageBody('title') title : string,
+    @MessageBody('title') title : string, @MessageBody('review') review : boolean,
     @ConnectedSocket() socket: ExtendedSocket
     ): Promise<{ success: boolean, payload: any} >{
-        const checkReuslt = await this.roomService.getResult(socket.room_id, socket.user_id);
+        const checkReuslt = await this.roomService.getResult(socket.room_id, socket.user_id, review);
 
         if (checkReuslt === false) {
             return {success : false, payload: { message : "버튼을 클릭할 수 없습니다."}}
@@ -402,10 +402,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
 
     @SubscribeMessage('reviewPass')
     async handleReviewPass(
-    @MessageBody('title') title: string,
+    @MessageBody('title') title: string, @MessageBody('review') review : boolean,
     @ConnectedSocket() socket: ExtendedSocket) {    
         
-        const check = await this.roomService.getResult(socket.room_id, socket.user_id);
+        const check = await this.roomService.getResult(socket.room_id, socket.user_id, review);
         if (check === false) {
             return { success: false, payload: { message: "다시 버튼을 눌러주세요." } };
         }
