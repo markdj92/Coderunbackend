@@ -2,13 +2,53 @@ import { styled } from 'styled-components';
 
 import { BadgeStatus, UserInfo } from '@/types/room';
 
-const User = ({ user }: { user: UserInfo | BadgeStatus }) => {
+const User = ({ user, widthSize = 180 }: { user: UserInfo | BadgeStatus; widthSize?: number }) => {
   if (user === 'EMPTY' || user === 'LOCK') return;
   const isReview: boolean = user.review;
-  return <UserCard status={isReview ? 'true' : 'false'}>{user.nickname}</UserCard>;
+  return (
+    <UserCard status={isReview ? 'true' : 'false'} widthSize={`${widthSize}px`}>
+      <UserImage status={isReview ? 'true' : 'false'} widthSize={`${widthSize * 0.8}px`}>
+        <img src={user.profile ? user.profile : '/images/anonymous.jpg'} alt='user' />
+      </UserImage>
+      <UserName status={isReview ? 'true' : 'false'}>{user.nickname}</UserName>
+    </UserCard>
+  );
 };
-const UserCard = styled.div<{ status: string }>`
-  color: ${(props) => (props.status === 'false' ? '#eee' : '#9e9e9e')};
-  font-weight: 600;
+
+const UserCard = styled.div<{ status: string; widthSize: string }>`
+  display: flex;
+  width: ${(props) => props.widthSize};
+  padding: 28px 0px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
 `;
+
+const UserImage = styled.div<{ status: string; widthSize: string }>`
+  width: ${(props) => props.widthSize};
+  height: ${(props) => props.widthSize};
+  flex-shrink: 0;
+  border-radius: 142px;
+  border: 6px solid #838393;
+  object-fit: cover;
+  overflow: hidden;
+  img {
+    width: 100%;
+  }
+`;
+
+const UserName = styled.div<{ status: string }>`
+  overflow: hidden;
+  color: #fff;
+  text-align: center;
+  text-overflow: ellipsis;
+  font-family: Noto Sans CJK KR;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 32px; /* 100% */
+  letter-spacing: -0.64px;
+`;
+
 export default User;
