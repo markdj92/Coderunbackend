@@ -9,23 +9,38 @@ const Alert = ({
   handleCloseAlert,
   handleAlert,
   backDropOpacity,
+  isLoading,
 }: {
   title: string;
   children?: React.ReactNode;
   handleCloseAlert: () => void;
   handleAlert?: () => void;
   backDropOpacity?: number;
+  isLoading?: boolean;
 }) => {
   const alertsound = new Audio('sounds/alertsound.wav');
   useEffect(() => {
     alertsound.play();
   }, []);
   return (
-    <Modal handleHideModal={handleCloseAlert} backDropOpacity={backDropOpacity}>
+    <Modal
+      isLoading={isLoading}
+      handleHideModal={handleCloseAlert}
+      backDropOpacity={backDropOpacity}
+    >
       <MSG>{title}</MSG>
       {children}
       <Buttons>
-        {handleAlert && <Button onClick={handleAlert}>YES</Button>}
+        {handleAlert && (
+          <Button
+            onClick={() => {
+              if (isLoading) return;
+              return handleAlert();
+            }}
+          >
+            YES
+          </Button>
+        )}
         {handleAlert ? (
           <Button onClick={handleCloseAlert}>NO</Button>
         ) : (

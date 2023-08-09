@@ -19,6 +19,7 @@ import QuizFrame from '@/components/InGame/QuizFrame';
 import QuizHeader from '@/components/InGame/QuizHeader';
 import RunFrame from '@/components/InGame/RunFrame';
 import Alert from '@/components/public/Alert';
+import { Loading } from '@/components/public/Loading';
 import { useToast } from '@/components/public/Toast';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { ExecuteResult, QuizInfo } from '@/types/inGame';
@@ -53,6 +54,7 @@ const InGame = () => {
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
 
+  const [isLoading, setIsLoading] = useState(false);
   const handleProvider = (pro: WebsocketProvider) => {
     setProvider(pro);
   };
@@ -85,9 +87,13 @@ const InGame = () => {
     });
 
   const executeCode = async () => {
+    setIsLoading(true);
     const code = ytext.toString();
 
-    if (code === '') return notifyErrorMessage('코드를 작성해주세요.');
+    if (code === '') {
+      notifyErrorMessage('코드를 작성해주세요.');
+      return setIsLoading(false);
+    }
     const executeData = {
       title: title,
       problemNumber: quizList[selectedQuiz].number,
@@ -97,6 +103,7 @@ const InGame = () => {
     };
     const response = await postExecuteResult(executeData);
     const { data } = response;
+    setIsLoading(false);
     setIsSuccess(data.success);
     setRunResult(data.payload.result);
     if (isSuccess) answersound.play();
@@ -108,6 +115,7 @@ const InGame = () => {
   };
 
   const handleGetUserInGame = async (response) => {
+    setIsLoading(false);
     if (response.success) {
       const {
         result,
@@ -132,6 +140,7 @@ const InGame = () => {
   };
 
   const submitCode = () => {
+    setIsLoading(true);
     const code = ytext.toString();
 
     const executeData = {
@@ -203,6 +212,12 @@ const InGame = () => {
       )}
       <GameNavbar />
       <MainFrame>
+        {isLoading && (
+          <SpinnerFrame onClick={() => {}}>
+            <Loading />
+          </SpinnerFrame>
+        )}
+
         {isSubmit && <GameLiveBoard userInGame={userInGame} handleSetViewer={handleSetViewer} />}
         <GameFrame>
           <OptionSection>
@@ -264,7 +279,18 @@ const InGame = () => {
             </QuizSection>
           </MainSection>
         </GameFrame>
-        {!isSubmit && <GameBottom handleRun={executeCode} handleSubmit={handleSubmit} />}
+        {!isSubmit && (
+          <GameBottom
+            handleRun={() => {
+              if (isLoading) return;
+              return executeCode();
+            }}
+            handleSubmit={() => {
+              if (isLoading) return;
+              return handleSubmit();
+            }}
+          />
+        )}
       </MainFrame>
     </Container>
   );
@@ -292,7 +318,14 @@ const Container = styled.div`
     background: 172334;
   }
 `;
-
+const SpinnerFrame = styled.div`
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 const AlertFrame = styled.div`
   width: 100vw;
   height: 100vh;

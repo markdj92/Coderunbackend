@@ -16,6 +16,7 @@ type RoomProps = {
   handleShowCreateRoom: () => void;
 };
 const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [isSecret, setIsSecret] = useState(false);
   const navigate = useNavigate();
   const titleRef = useRef<HTMLInputElement>(null);
@@ -38,8 +39,9 @@ const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
   };
   const onCreateRoom = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    setIsLoading(true);
     socket.emit('create-room', roomInfo, (response: RoomResponse) => {
+      setIsLoading(false);
       if (!response.success) {
         return alert(response.payload.message);
       }
@@ -64,8 +66,13 @@ const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
     setIsSecret(!isSecret);
   };
   return (
-    <Modal handleHideModal={handleShowCreateRoom}>
-      <CreateRoomForm onSubmit={onCreateRoom}>
+    <Modal isLoading={isLoading} handleHideModal={handleShowCreateRoom}>
+      <CreateRoomForm
+        onSubmit={(e) => {
+          if (isLoading) return;
+          return onCreateRoom(e);
+        }}
+      >
         <TitleText>Make a new room</TitleText>
         <InputContainer>
           <CustomInputSmall
@@ -206,7 +213,7 @@ const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
         </InputContainer>
 
         <ButtonContainer>
-          <CustomButtonTiny title={'Enter'} isDisabled={!roomInfo.title} />
+          <CustomButtonTiny title={'Enter'} isDisabled={isLoading || !roomInfo.title} />
         </ButtonContainer>
       </CreateRoomForm>
     </Modal>
