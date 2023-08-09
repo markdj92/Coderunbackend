@@ -26,6 +26,9 @@ import { ExecuteResult, QuizInfo } from '@/types/inGame';
 
 const InGame = () => {
   useSocketConnect();
+  const answersound = new Audio('sounds/correctchime.mp3');
+  const wrongsound = new Audio('sounds/wrongbeep.mp3');
+
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -103,6 +106,8 @@ const InGame = () => {
     setIsLoading(false);
     setIsSuccess(data.success);
     setRunResult(data.payload.result);
+    if (isSuccess) answersound.play();
+    else wrongsound.play();
   };
 
   const getQuizList = async () => {

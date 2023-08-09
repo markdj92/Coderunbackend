@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { styled } from 'styled-components';
 
 import Modal from '../public/Modal';
@@ -17,6 +18,10 @@ const Alert = ({
   backDropOpacity?: number;
   isLoading?: boolean;
 }) => {
+  const alertsound = new Audio('sounds/alertsound.wav');
+  useEffect(() => {
+    alertsound.play();
+  }, []);
   return (
     <Modal
       isLoading={isLoading}
