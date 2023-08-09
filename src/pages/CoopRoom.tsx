@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { BsFillMicFill, BsFillMicMuteFill } from 'react-icons/bs';
-import { ImExit } from 'react-icons/im';
-import { LuSettings2 } from 'react-icons/lu';
-import { PiSpeakerSimpleHighFill, PiSpeakerSimpleSlashFill } from 'react-icons/pi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { styled } from 'styled-components';
 
 import { socket } from '@/apis/socketApi';
 import Alert from '@/components/public/Alert';
+import { HeaderLogo } from '@/components/public/HeaderLogo';
 import Badge from '@/components/Room/Badge';
+import ToolButtonBox from '@/components/Room/ToolButtonBox';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomStatus, UserInfo, BadgeStatus } from '@/types/room';
 
@@ -19,7 +17,7 @@ const CoopRoom = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { title, member_count, max_members, user_info, nickname } = location.state;
+  const { title, member_count, max_members, user_info, nickname, level } = location.state;
 
   const [ableStart, setAbleStart] = useState<boolean>(false);
 
@@ -55,10 +53,6 @@ const CoopRoom = () => {
       setMaxPeople(max_members);
       setUserInfos(user_info);
     };
-    const bgm = document.getElementById('bgm');
-    if (bgm instanceof HTMLAudioElement) {
-      bgm.pause();
-    }
 
     let countReady = 0;
     setRoomName(title);
@@ -78,7 +72,9 @@ const CoopRoom = () => {
 
     socket.on('room-status-changed', roomHandler);
     socket.on('start', (response) => {
-      navigate('/coopgame', { state: { nickname: nickname, user_info, title: response.title } });
+      navigate('/coopgame', {
+        state: { nickname: nickname, user_info, title: response.title },
+      });
     });
     return () => {
       socket.off('start');
@@ -117,230 +113,224 @@ const CoopRoom = () => {
           handleAlert={onLeaveRoom}
         />
       )}
-      <MainFrame>
-        <LeftSide>
-          <HeaderLogo onClick={() => navigate('/lobby', { state: { nickname } })}>
-            CODE LEARN
-          </HeaderLogo>
-          <RoomName>{title}</RoomName>
+      <LeftFrame>
+        <HeaderSection>
+          <HeaderLogo />
+        </HeaderSection>
+        <RoomInfoSection>
+          <ModeBox>CO-OP MODE.</ModeBox>
+          <TitleBox>{title}</TitleBox>
+          <DetailBox>Lv.{level}</DetailBox>
+        </RoomInfoSection>
 
-          <OptionSection>
-            <button onClick={handleSpeaker}>
-              {isSpeaker ? (
-                <PiSpeakerSimpleHighFill size={'2rem'} />
-              ) : (
-                <PiSpeakerSimpleSlashFill size={'2rem'} />
-              )}
-            </button>
-            <button onClick={handleMicrophone}>
-              {isMicrophone ? <BsFillMicFill size={'2rem'} /> : <BsFillMicMuteFill size={'2rem'} />}
-            </button>
-          </OptionSection>
-        </LeftSide>
-        <MainSide>
-          <TeamChangeButtons>
-            <TeamButton team='blue'>BLUE</TeamButton>
-            <TeamButton team='red'>RED</TeamButton>
-          </TeamChangeButtons>
-          <RedTeam />
-          <BlueTeam />
-          <Users>
-            {userInfos &&
-              Array.from({ length: 10 }).map((_, index) => {
-                return (
-                  <Badge
-                    key={index}
-                    isMine={index === myIndex}
-                    isOwner={index === ownerIndex}
-                    isRoomAuth={myIndex === ownerIndex}
-                    user={userInfos[index]}
-                    title={roomName}
-                    badgeNumber={index}
-                  />
-                );
-              })}
-          </Users>
-        </MainSide>
-        <RightSide>
-          <RoomButtons>
-            <button onClick={() => setIsLeaveRoom(true)}>
-              <ImExit size={'2rem'} />
-            </button>
-            <button>
-              <LuSettings2 size={'2rem'} />
-            </button>
-          </RoomButtons>
+        <ToolButtonBox
+          isSpeaker={isSpeaker}
+          isMicrophone={isMicrophone}
+          handleSpeaker={handleSpeaker}
+          handleMicrophone={handleMicrophone}
+          handleLeaveRoom={() => setIsLeaveRoom(true)}
+        />
+      </LeftFrame>
+      <MainFrame>
+        <MainContentBox>
+          <TeamBox>
+            <RedTeam />
+            <BlueTeam />
+          </TeamBox>
+          {userInfos &&
+            Array.from({ length: 10 }).map((_, index) => {
+              return (
+                <Badge
+                  key={index}
+                  isMine={index === myIndex}
+                  isOwner={index === ownerIndex}
+                  isRoomAuth={myIndex === ownerIndex}
+                  user={userInfos[index]}
+                  title={roomName}
+                  badgeNumber={index}
+                  coop={true}
+                />
+              );
+            })}
+        </MainContentBox>
+      </MainFrame>
+      <RightFrame>
+        <HeaderSection></HeaderSection>
+
+        <StartButtonSection>
           <People>
             <label className='countReady'>{people}</label>
             <label className='countPeople'>/ {maxPeople}</label>
           </People>
+
           {myIndex === ownerIndex ? (
             ableStart ? (
-              <ButtonState onClick={onGameRoom}>시작</ButtonState>
+              <ButtonStart onClick={onGameRoom}>START</ButtonStart>
             ) : (
-              <ButtonStartLock>시작</ButtonStartLock>
+              <ButtonStartLock>START</ButtonStartLock>
             )
           ) : (
-            <ButtonState onClick={onReady}>준비</ButtonState>
+            <ReadyBox onClick={onReady}>READY</ReadyBox>
           )}
-        </RightSide>
-      </MainFrame>
+          <ButtonStartArrow ablestart={ableStart ? 'true' : 'false'} />
+        </StartButtonSection>
+      </RightFrame>
     </MainContainer>
   );
 };
 
 const MainContainer = styled.div`
+  background: url('/background_lobby.png');
+  background-blend-mode: luminosity;
+  background-size: contain;
   font-family: 'Noto Sans KR', sans-serif;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
+  width: 100vw;
   height: 100vh;
 `;
 const MainFrame = styled.div`
-  width: 90%;
-  height: 90%;
+  min-width: 988px;
+  width: 50%;
+  height: 100%;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: flex-start;
+`;
 
-  min-width: 900px;
-
-  border: 1px solid #fff;
-  border-top: 0px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 1);
-  backdrop-filter: blur(8.5px);
-  -webkit-backdrop-filter: blur(8.5px);
-`;
-const HeaderLogo = styled.div`
-  transition: all 0.5s ease;
-  font-size: 2rem;
-  padding: 2rem;
-  font-weight: 500;
-  /* cursor: pointer; */
-`;
-const TeamChangeButtons = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  height: 4rem;
-`;
-const TeamButton = styled.button<{ team: string }>`
-  transition: all 0.3s ease;
-
-  background-color: rgba(0, 0, 0, 0.4);
-  height: 3rem;
-  transform: sKewX(-30deg);
-  font-size: 30px;
-  padding: 10px;
-  &:hover {
-    filter: drop-shadow(0px 2px 8px ${(props) => (props.team === 'red' ? '#ff8484' : '#8497ff')});
-  }
-`;
-const Users = styled.div`
+const MainContentBox = styled.div`
+  height: 100%;
   display: flex;
   flex-wrap: wrap;
-  height: 90%;
-  width: 100%;
+  padding: 97px 0 103px;
   flex-direction: column;
+`;
+const TeamBox = styled.div`
+  display: flex;
+  position: absolute;
+  flex-direction: row;
 `;
 const RedTeam = styled.div`
-  background: radial-gradient(rgba(228, 100, 100, 0.8), rgba(255, 255, 255, 0) 70%);
-  width: 50%;
-  height: 100%;
-  position: absolute;
-  right: 0;
+  background: radial-gradient(rgba(255, 92, 92, 0.5), rgba(255, 255, 255, 0) 60%);
+  filter: blur(60px);
+  width: 25vw;
+  height: 90vh;
+  position: relative;
 `;
 const BlueTeam = styled.div`
-  background: radial-gradient(rgba(106, 100, 228, 0.8), rgba(255, 255, 255, 0) 70%);
-  width: 50%;
-  height: 100%;
-  position: absolute;
+  background: radial-gradient(rgba(89, 113, 240, 0.5), rgba(255, 255, 255, 0) 60%);
+  filter: blur(60px);
+  width: 25vw;
+  height: 90vh;
+  position: relative;
 `;
-const RoomName = styled.div`
-  font-family: 'Black Han Sans', sans-serif;
-  font-size: 2.5rem;
-  padding: 2rem 1rem 1rem 1rem;
-  margin: 0 1rem 0 1rem;
-  border-bottom: 3px solid #fff;
-  text-align: center;
-  letter-spacing: 10px;
-  font-style: italic;
-  width: fit-content;
+const RoomInfoSection = styled.div`
+  margin: 46px 120px 10px 100px;
+  border-bottom: 4px solid #838393;
 `;
-const OptionSection = styled.div`
-  height: 100%;
-  padding: 2.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  button {
-    transition: all 0.3s ease;
-    padding: 1rem;
-    width: fit-content;
-    &:hover {
-      filter: drop-shadow(0 0 10px #e0e0e0);
-    }
-  }
+
+const ModeBox = styled.div`
+  display: inline-flex;
+  padding: 1.2rem 3rem;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border-radius: 50px;
+  background: #838393;
+
+  color: #26262d;
+  font-family: ${(props) => props.theme.font.title};
+  font-size: 30px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 24px; /* 100% */
+  letter-spacing: -0.48px;
 `;
-const RoomButtons = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 3rem 0 0 4rem;
-  button {
-    transition: all 0.3s ease;
-    margin: 2rem;
-    width: fit-content;
-    &:hover {
-      filter: drop-shadow(0 0 10px #e0e0e0);
-    }
-  }
-`;
-const People = styled.div`
-  display: flex;
-  flex-direction: column;
-  font-family: 'Black Han Sans', sans-serif;
+
+const TitleBox = styled.div`
+  color: #fff;
+  font-family: ${(props) => props.theme.font.title};
   font-size: 60px;
-  text-shadow: #3f3d4d 5px 6px 3px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 80px;
+  letter-spacing: -0.8px;
+  padding: 10px;
+  width: 20rem;
+`;
+
+const DetailBox = styled.div`
+  padding: 14px;
+  font-family: ${(props) => props.theme.font.content};
+  font-size: 30px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px;
+  letter-spacing: -0.48px;
+  color: #838393;
+`;
+
+const People = styled.div`
+  display: inline-flex;
+  padding: 2rem 4rem;
+  margin-bottom: 1rem;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 6px;
+  border-radius: 50px;
+  background: #6bd9a480;
 
   .countPeople {
-    color: #789;
-    padding: 0 0 0 1rem;
+    color: ${(props) => props.theme.color.MainKeyColor};
+    font-family: ${(props) => props.theme.font.content};
+    font-size: 50px;
+    font-style: normal;
+    font-weight: 900;
+    line-height: 28px; /* 100% */
+    letter-spacing: -0.56px;
   }
   .countReady {
-    padding: 3rem 0 0 0;
-    font-size: 10rem;
+    color: #fff;
+    font-family: ${(props) => props.theme.font.content};
+    font-size: 50px;
+    font-style: normal;
+    font-weight: 900;
+    line-height: 28px; /* 100% */
+    letter-spacing: -0.56px;
   }
 `;
-
 const ButtonStartLock = styled.button`
-  margin-left: 1rem;
   transition: all 0.3s ease;
-  font-size: xx-large;
   font-weight: bolder;
   width: fit-content;
   text-align: center;
-  height: 3rem;
-  margin-bottom: 30%;
-  padding: 0 1rem 0;
+
   color: #bebebe;
-  border-left: 5px solid #bebebe;
+  font-size: 58px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 58px;
+  letter-spacing: -1.16px;
+  margin-left: 1rem;
   /* cursor: default; */
 `;
 
-const ButtonState = styled.button`
-  margin-left: 1rem;
+const ButtonStart = styled.button`
   transition: all 0.3s ease;
-  font-size: xx-large;
   font-weight: bolder;
   width: fit-content;
   text-align: center;
-  height: 3rem;
-  margin-bottom: 30%;
-  padding: 0 1rem 0;
-  border-left: 5px solid #fff;
+
+  color: #fff;
+  font-size: 58px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 58px;
+  letter-spacing: -1.16px;
+  margin-left: 1rem;
+
   &:hover {
     text-shadow:
       0 0 5px #bebebe,
@@ -350,30 +340,69 @@ const ButtonState = styled.button`
       0 0 35px #bebebe;
   }
 `;
-const LeftSide = styled.div`
-  height: 100%;
-  width: 25%;
+const HeaderSection = styled.div`
+  padding-top: 80px;
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  word-break: break-word;
-`;
-const MainSide = styled.div`
-  position: relative;
-
-  padding-top: 1rem;
-  height: 100%;
-  width: 60%;
-  display: flex;
-  flex-wrap: wrap;
-`;
-const RightSide = styled.div`
-  height: 100%;
-  width: 20%;
-  min-width: 200px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
+
+  font-size: 20px;
+  font-weight: 800;
 `;
+const StartButtonSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  height: 200px;
+  margin-bottom: 200px;
+  margin-left: 20%;
+`;
+const ReadyBox = styled.div`
+  transition: all 0.3s ease;
+  font-weight: bolder;
+  width: fit-content;
+  text-align: center;
+
+  color: #fff;
+  font-size: 58px;
+  font-style: normal;
+  font-weight: 900;
+  line-height: 58px;
+  letter-spacing: -1.16px;
+  margin-left: 1rem;
+
+  &:hover {
+    text-shadow:
+      0 0 5px #bebebe,
+      0 0 10px #bebebe,
+      0 0 15px #bebebe,
+      0 0 20px #bebebe,
+      0 0 35px #bebebe;
+  }
+`;
+const ButtonStartArrow = styled.div<{ ablestart: string }>`
+  width: 250px;
+  height: 17px;
+  transform: sKewX(55deg);
+  transition: all 0.3s ease;
+  border-bottom: 3px solid ${(props) => (props.ablestart === 'true' ? '#6BD9A4' : '#eee')};
+  border-right: 8px solid ${(props) => (props.ablestart === 'true' ? '#6BD9A4' : '#eee')};
+`;
+const LeftFrame = styled.div`
+  width: 25%;
+  height: 100%;
+  position: relative;
+`;
+
+const RightFrame = styled.div`
+  width: 25%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`;
+
 export default CoopRoom;
