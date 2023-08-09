@@ -159,7 +159,8 @@ const Lobby = () => {
 const MainContainer = styled.div`
   background: url('/background_lobby.png');
   background-blend-mode: luminosity;
-  background-size: contain;
+  background-size: cover;
+  background-position: center;
   font-family: 'Noto Sans KR', sans-serif;
   display: flex;
   flex-direction: row;
