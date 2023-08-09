@@ -30,9 +30,10 @@ const UserImage = styled.div<{ status: string; widthSize: string }>`
   height: ${(props) => props.widthSize};
   flex-shrink: 0;
   border-radius: 142px;
-  border: 6px solid #838393;
+  border: ${(props) => (props.status === 'true' ? '6px solid #6BD9A4' : '6px solid #838393')};
   object-fit: cover;
   overflow: hidden;
+  box-shadow: ${(props) => (props.status === 'true' ? '0px 0px 20px #A1F4FF' : 'none')};
   img {
     width: 100%;
   }
@@ -43,7 +44,7 @@ const UserName = styled.div<{ status: string }>`
   color: #fff;
   text-align: center;
   text-overflow: ellipsis;
-  font-family: Noto Sans CJK KR;
+  font-family: ${(props) => props.theme.font.Content};
   font-size: 32px;
   font-style: normal;
   font-weight: 700;
