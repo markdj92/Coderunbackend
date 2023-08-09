@@ -19,6 +19,7 @@ import IconButton from '@/components/Lobby/IconButton';
 import PrivateModal from '@/components/Lobby/PrivateModal';
 import RoomList from '@/components/Lobby/RoomList';
 import Alert from '@/components/public/Alert';
+import { HeaderLogo } from '@/components/public/HeaderLogo';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomResponse } from '@/types/lobby';
 
@@ -96,7 +97,7 @@ const Lobby = () => {
       )}
       <LeftFrame>
         <HeaderSection>
-          <HeaderLogo onClick={() => window.location.reload()} />
+          <HeaderLogo />
         </HeaderSection>
       </LeftFrame>
       <MainFrame>
@@ -129,26 +130,6 @@ const Lobby = () => {
     </MainContainer>
   );
 };
-
-const HeaderLogo = styled.div`
-  transition: all 0.5s ease;
-  font-size: 2.5rem;
-  font-weight: 500;
-  margin-top: 25px;
-  margin-left: 80px;
-  /* cursor: pointer; */
-  font-family: 'Noto Sans KR', sans-serif;
-  color: #8883ff;
-  background: url('/images/LogoGray.svg') no-repeat;
-  background-size: contain;
-  width: 100%;
-  height: 80px;
-  margin-right: 50px;
-  &:hover {
-    background: url('/images/LogoActive.svg') no-repeat;
-    background-size: contain;
-  }
-`;
 
 const MainContainer = styled.div`
   background: url('/background_lobby.png');
