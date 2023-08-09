@@ -53,13 +53,6 @@ const StudyResult = () => {
     }
   }, [userInfos]);
 
-  const handleLeaveRoom = () => {
-    const answer = confirm('정말 나가시겠습니까?');
-    if (answer) {
-      onLeaveRoom();
-    }
-  };
-
   const onLeaveRoom = useCallback(() => {
     socket.emit('leave-room', { title: roomName }, () => {
       navigate('/lobby', { state: { nickname } });
@@ -173,7 +166,7 @@ const StudyResult = () => {
           isMicrophone={isMicrophone}
           handleSpeaker={handleSpeaker}
           handleMicrophone={handleMicrophone}
-          handleLeaveRoom={handleLeaveRoom}
+          handleLeaveRoom={() => setIsLeaveRoom(true)}
         />
       </LeftFrame>
       <MainFrame>
