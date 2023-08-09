@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { styled } from 'styled-components';
 
 import Modal from '../public/Modal';
@@ -15,6 +16,10 @@ const Alert = ({
   handleAlert?: () => void;
   backDropOpacity?: number;
 }) => {
+  const alertsound = new Audio('sounds/alertsound.wav');
+  useEffect(() => {
+    alertsound.play();
+  }, []);
   return (
     <Modal handleHideModal={handleCloseAlert} backDropOpacity={backDropOpacity}>
       <MSG>{title}</MSG>

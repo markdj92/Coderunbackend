@@ -11,13 +11,17 @@ const Arrows = ({
   page: number;
   setPage: React.Dispatch<React.SetStateAction<number>>;
 }) => {
+  const leftsound = new Audio('sounds/arrowleft.MOV');
+  const rightsound = new Audio('sounds/arrowright.MOV');
   const handleLeftClick = () => {
     if (page === 1) return;
+    leftsound.play();
     setPage(page - 1);
   };
 
   const handleRightClick = () => {
     if (page === totalPage) return setPage(totalPage);
+    rightsound.play();
     setPage(page + 1);
   };
 
