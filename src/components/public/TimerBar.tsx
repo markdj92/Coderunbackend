@@ -40,10 +40,13 @@ const SecondBar = styled.div<{ seconds: number }>`
   animation: timer 10s linear;
   animation-fill-mode: forwards;
   animation-play-state: ${(props) => (props.seconds > 0 ? 'running' : 'paused')};
+  object-fit: contain;
   img {
+    width: 90px;
+    height: 90px;
     position: absolute;
     padding-top: 20px;
-    right: -20px;
+    right: -45px;
     top: 5px;
   }
   @keyframes timer {
