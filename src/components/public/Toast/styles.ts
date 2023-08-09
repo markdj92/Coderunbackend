@@ -76,7 +76,8 @@ export const Toast = styled.div<ProgressBarStyleProps>`
   position: relative;
   display: flex;
   align-items: center;
-  width: fit-content;
+  width: 40vw;
+  height: 10vh;
   min-height: 30px;
   border-radius: 5px 5px 0px 0px;
   margin-bottom: 1em;
@@ -113,9 +114,12 @@ export const Toast = styled.div<ProgressBarStyleProps>`
 `;
 
 export const Message = styled.p<MessageStyleProps>`
-  width: 300px;
+  width: 100%;
+  font-weight: 700;
+  font-size: 40px;
+  font-family: 'IBM Plex Sans KR', sans-serif;
   max-height: 60px;
-  margin: 0;
+  /* margin: 30px; */
   word-break: break-all;
   color: ${({ messageType }) => ToastTheme[messageType].color};
   overflow: hidden;
