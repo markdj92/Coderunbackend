@@ -8,6 +8,7 @@ export interface UserInfo {
   status: boolean;
   review: boolean;
   team: string;
+  profile: string;
 }
 
 export type BadgeStatus = 'EMPTY' | 'LOCK';

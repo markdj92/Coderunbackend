@@ -5,22 +5,9 @@ import styled from 'styled-components';
 import { socket } from '@/apis/socketApi';
 import Alert from '@/components/public/Alert';
 import Badge from '@/components/Room/Badge';
-import IconButton from '@/components/Room/IconButton';
+import ToolButtonBox from '@/components/Room/ToolButtonBox';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { BadgeStatus, RoomStatus, UserInfo } from '@/types/room';
-
-import MicIcon from '/icon/room/mic.svg';
-import SpeakerIcon from '/icon/room/speaker.svg';
-import SettingIcon from '/icon/room/setting.svg';
-import RoomOutIcon from '/icon/room/logout.svg';
-import MicActiveIcon from '/icon/room/mic_active.svg';
-import SpeakerActiveIcon from '/icon/room/speaker_active.svg';
-import SettingActiveIcon from '/icon/room/setting_active.svg';
-import RoomOutActiveIcon from '/icon/room/logout_active.svg';
-import MicMuteIcon from '/icon/room/micMute.svg';
-import SpeakerMuteIcon from '/icon/room/speakerMute.svg';
-import MicMuteActiveIcon from '/icon/room/micMute_active.svg';
-import SpeakerMuteActiveIcon from '/icon/room/speakerMute_active.svg';
 
 const StudyRoom = () => {
   useSocketConnect();
@@ -138,45 +125,13 @@ const StudyRoom = () => {
           <TitleBox>{title}</TitleBox>
           <DetailBox>Lv.4</DetailBox>
         </RoomInfoSection>
-        <IconButtonsBox>
-          {isMicrophone ? (
-            <IconButton
-              icon={MicIcon}
-              hoverIcon={MicActiveIcon}
-              alt='mic'
-              onClick={handleMicrophone}
-            />
-          ) : (
-            <IconButton
-              icon={MicMuteIcon}
-              hoverIcon={MicMuteActiveIcon}
-              alt='mic'
-              onClick={handleMicrophone}
-            />
-          )}
-          {isSpeaker ? (
-            <IconButton
-              icon={SpeakerIcon}
-              hoverIcon={SpeakerActiveIcon}
-              alt='speaker'
-              onClick={handleSpeaker}
-            />
-          ) : (
-            <IconButton
-              icon={SpeakerMuteIcon}
-              hoverIcon={SpeakerMuteActiveIcon}
-              alt='speaker'
-              onClick={handleSpeaker}
-            />
-          )}
-          <IconButton icon={SettingIcon} hoverIcon={SettingActiveIcon} alt='setting' />
-          <IconButton
-            icon={RoomOutIcon}
-            hoverIcon={RoomOutActiveIcon}
-            alt='roomOut'
-            onClick={() => setIsLeaveRoom(true)}
-          />
-        </IconButtonsBox>
+        <ToolButtonBox
+          isSpeaker={isSpeaker}
+          isMicrophone={isMicrophone}
+          handleSpeaker={handleSpeaker}
+          handleMicrophone={handleMicrophone}
+          handleLeaveRoom={() => setIsLeaveRoom(true)}
+        />
       </LeftFrame>
       <MainFrame>
         <MainContentBox>
@@ -256,15 +211,6 @@ const LeftFrame = styled.div`
   width: 25%;
   height: 100%;
   position: relative;
-`;
-
-const IconButtonsBox = styled.div`
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  bottom: 5rem;
-  left: 5rem;
-  gap: 24px;
 `;
 
 const RoomInfoSection = styled.div`
