@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -9,10 +9,10 @@ import IconSetting from '/icon/lobby/setting.svg';
 
 import { postLogout } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
+import Button from '@/components/Lobby/Button';
 
 import { PATH_ROUTE, USER_TOKEN_KEY, LEVEL_OPTIONS, TITLE_COMMENT } from '@/constants';
 
-import Button from '@/components/Lobby/Button';
 import CreateRoom from '@/components/Lobby/CreateRoom';
 import DropBox from '@/components/Lobby/DropBox';
 import IconButton from '@/components/Lobby/IconButton';
@@ -41,12 +41,20 @@ const Lobby = () => {
 
   const [selectedLevel, setLevel] = useState(0);
 
+  const logoutsound = new Audio('sounds/logout.MOV');
+
+  const bgm = document.getElementById('bgm');
+  useEffect(() => {
+    if (bgm instanceof HTMLAudioElement) bgm.play();
+  }, []);
+
   const handleShowCreateRoom = () => {
     setShownCreateRoom(!isShownCreateRoom);
   };
 
   const handleLogout = () => {
     try {
+      logoutsound.play();
       postLogout();
       localStorage.removeItem(USER_TOKEN_KEY);
       navigate(PATH_ROUTE.login);
@@ -171,8 +179,8 @@ const HeaderSection = styled.div`
   align-items: center;
   justify-content: space-between;
 
-  font-size: 20px;
-  font-weight: 800;
+  font-size: 25px;
+  font-weight: 600;
 `;
 
 const RoomButtonBox = styled.div`

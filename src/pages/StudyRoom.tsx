@@ -59,7 +59,10 @@ const StudyRoom = () => {
       setMaxPeople(max_members);
       setUserInfos(user_info);
     };
-
+    const bgm = document.getElementById('bgm');
+    if (bgm instanceof HTMLAudioElement) {
+      bgm.pause();
+    }
     let countReady = 0;
     setRoomName(title);
     setRoomLevel(level);
