@@ -7,6 +7,7 @@ import { TITLE_COMMENT } from '@/constants';
 import { postResult } from '@/apis/roomApi';
 import { socket } from '@/apis/socketApi';
 import Alert from '@/components/public/Alert';
+import TimerBar from '@/components/public/TimerBar';
 import ToggleButton from '@/components/public/ToggleButton';
 import ResultFrame from '@/components/Result/ResultFrame';
 import User from '@/components/Result/User';
@@ -31,7 +32,7 @@ const StudyResult = () => {
   const [unsolvedUsers, setUnsolvedUsers] = useState<UserInfo[]>();
 
   const [review, setReview] = useState<boolean>(false);
-  // const [seconds, setSeconds] = useState<number>(0);
+  const [seconds, setSeconds] = useState<number>(0);
 
   const handleSpeaker = () => {
     setIsSpeaker(!isSpeaker);
@@ -71,7 +72,7 @@ const StudyResult = () => {
   };
 
   useEffect(() => {
-    // socket.emit('timer', { title });
+    socket.emit('timer', { title });
     onResultPage();
   }, []);
 
@@ -118,8 +119,8 @@ const StudyResult = () => {
       });
 
     socket.on('room-status-changed', resultHandler);
-    socket.on('timer', () => {
-      // setSeconds(response);
+    socket.on('timer', (response) => {
+      setSeconds(response);
     });
 
     socket.on('timeout', (response) => {
@@ -177,7 +178,9 @@ const StudyResult = () => {
       </LeftFrame>
       <MainFrame>
         <MainContentBox>
-          <TimerBox>TIMER</TimerBox>
+          <TimerBox>
+            <TimerBar seconds={seconds} />
+          </TimerBox>
           <SolvedSection>
             <ResultFrame title={`SOLVED ${solvedUsers ? solvedUsers.length : ''}`} color='#6bd9a4'>
               {solvedUsers &&
