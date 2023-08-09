@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const TimerBar = ({ seconds }) => {
+const TimerBar = ({ seconds }: { seconds: number }) => {
   return (
     <Container>
       <TimeBar />
