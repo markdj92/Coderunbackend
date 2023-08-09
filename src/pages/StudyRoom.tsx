@@ -4,6 +4,7 @@ import styled from 'styled-components';
 
 import { socket } from '@/apis/socketApi';
 import Alert from '@/components/public/Alert';
+import { HeaderLogo } from '@/components/public/HeaderLogo';
 import Badge from '@/components/Room/Badge';
 import ToolButtonBox from '@/components/Room/ToolButtonBox';
 import useSocketConnect from '@/hooks/useSocketConnect';
@@ -118,7 +119,7 @@ const StudyRoom = () => {
       )}
       <LeftFrame>
         <HeaderSection>
-          <HeaderLogo onClick={() => window.location.reload()} />
+          <HeaderLogo />
         </HeaderSection>
         <RoomInfoSection>
           <ModeBox>STUDY MODE.</ModeBox>
@@ -173,26 +174,6 @@ const StudyRoom = () => {
     </MainContainer>
   );
 };
-
-const HeaderLogo = styled.div`
-  transition: all 0.5s ease;
-  font-size: 2.5rem;
-  font-weight: 500;
-  margin-top: 25px;
-  margin-left: 80px;
-  /* cursor: pointer; */
-  font-family: 'Noto Sans KR', sans-serif;
-  color: #8883ff;
-  background: url('/images/LogoGray.svg') no-repeat;
-  background-size: contain;
-  width: 100%;
-  height: 80px;
-  margin-right: 50px;
-  &:hover {
-    background: url('/images/LogoActive.svg') no-repeat;
-    background-size: contain;
-  }
-`;
 
 const MainContainer = styled.div`
   background: url('/background_lobby.png');
