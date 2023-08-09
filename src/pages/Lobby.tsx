@@ -6,10 +6,12 @@ import ErrorPage from './Error';
 
 import IconLogout from '/icon/lobby/logout.svg';
 import IconSetting from '/icon/lobby/setting.svg';
+import IconSpeaker from '/icon/room/speaker_active.svg';
 
 import { postLogout } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
 import Button from '@/components/Lobby/Button';
+import CreateRoom from '@/components/Lobby/CreateRoom';
 
 import {
   PATH_ROUTE,
@@ -19,7 +21,6 @@ import {
   USER_NICKNAME_KEY,
 } from '@/constants';
 
-import CreateRoom from '@/components/Lobby/CreateRoom';
 import DropBox from '@/components/Lobby/DropBox';
 import IconButton from '@/components/Lobby/IconButton';
 import PrivateModal from '@/components/Lobby/PrivateModal';
@@ -51,9 +52,22 @@ const Lobby = () => {
   const logoutsound = new Audio('sounds/logout.MOV');
 
   const bgm = document.getElementById('bgm');
+
+  const [backgroundmusic, setbgm] = useState(true);
+  const handleBGM = () => {
+    setbgm(!backgroundmusic);
+  };
+
   useEffect(() => {
-    if (bgm instanceof HTMLAudioElement) bgm.play();
-  }, []);
+    if (bgm instanceof HTMLAudioElement) {
+      if (backgroundmusic) {
+        bgm.play();
+      } else {
+        bgm.pause();
+      }
+    }
+  }, [backgroundmusic]);
+
   const [isLoading, setIsLoading] = useState(false);
 
   const handleShowCreateRoom = () => {
@@ -138,6 +152,7 @@ const Lobby = () => {
           </RoomButtonBox>
           <RoomButtonBox>
             {nickname} 님 반갑습니다!
+            <IconButton icon={IconSpeaker} alt='bgm' onClick={handleBGM} />
             <IconButton icon={IconSetting} alt='setting' onClick={handleSetting} />
             <IconButton icon={IconLogout} alt='setting' onClick={() => setIsLogout(true)} />
           </RoomButtonBox>
