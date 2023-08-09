@@ -338,7 +338,6 @@ const MainContentBox = styled.div`
 const TimerBox = styled.div`
   width: 100%;
   height: 100px;
-  flex-shrink: 0;
 `;
 
 const RightFrame = styled.div`
