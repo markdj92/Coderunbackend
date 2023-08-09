@@ -11,7 +11,13 @@ import { postLogout } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
 import Button from '@/components/Lobby/Button';
 
-import { PATH_ROUTE, USER_TOKEN_KEY, LEVEL_OPTIONS, TITLE_COMMENT } from '@/constants';
+import {
+  PATH_ROUTE,
+  USER_TOKEN_KEY,
+  LEVEL_OPTIONS,
+  TITLE_COMMENT,
+  USER_NICKNAME_KEY,
+} from '@/constants';
 
 import CreateRoom from '@/components/Lobby/CreateRoom';
 import DropBox from '@/components/Lobby/DropBox';
@@ -59,6 +65,7 @@ const Lobby = () => {
       logoutsound.play();
       postLogout();
       localStorage.removeItem(USER_TOKEN_KEY);
+      localStorage.removeItem(USER_NICKNAME_KEY);
       navigate(PATH_ROUTE.login);
     } catch (error) {
       console.error(error);

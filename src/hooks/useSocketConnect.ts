@@ -1,7 +1,7 @@
 import { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
+import { PATH_ROUTE, USER_NICKNAME_KEY, USER_TOKEN_KEY } from '@/constants';
 import { getUserToken } from '@/utils';
 
 import { getNicknameByToken, postLogout } from '@/apis/authApi';
@@ -18,6 +18,7 @@ const useSocketConnect = () => {
       } else {
         postLogout();
         localStorage.removeItem(USER_TOKEN_KEY);
+        localStorage.removeItem(USER_NICKNAME_KEY);
         navigate(PATH_ROUTE.login);
       }
     } catch (error) {
@@ -37,6 +38,25 @@ const useSocketConnect = () => {
         socket.connect();
       }
     }
+  }, []);
+
+  useEffect(() => {
+    const getNickname = async () => {
+      try {
+        const response = await getNicknameByToken();
+
+        const nickname = localStorage.getItem('nickname');
+
+        if (nickname !== response.data.nickname) {
+          localStorage.setItem(USER_NICKNAME_KEY, response.data.nickname);
+          navigate(PATH_ROUTE.lobby, { state: { nickname: response.data.nickname } });
+        }
+      } catch (error) {
+        navigate(PATH_ROUTE.login);
+      }
+    };
+
+    getNickname();
   }, []);
 
   useEffect(() => {

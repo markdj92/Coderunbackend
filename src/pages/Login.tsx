@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { PATH_ROUTE, USER_TOKEN_KEY } from '@/constants';
+import { PATH_ROUTE, USER_NICKNAME_KEY, USER_TOKEN_KEY } from '@/constants';
 import { validateUserInfo } from '@/utils';
 
 import { postLogin, setInitName } from '@/apis/authApi';
@@ -44,6 +44,7 @@ const Login = () => {
 
         if (!!nickname) {
           socket.connect();
+          localStorage.setItem(USER_NICKNAME_KEY, nickname);
           navigate(PATH_ROUTE.lobby, { state: { nickname } });
         } else {
           setShownSetNickname(true);
