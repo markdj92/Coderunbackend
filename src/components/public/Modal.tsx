@@ -1,10 +1,13 @@
 import styled from 'styled-components';
 
+import { Loading } from './Loading';
+
 type ModalProps = {
   children: React.ReactNode | string;
   handleHideModal: () => void;
   backDropOpacity?: number;
   isBlurEffect?: boolean;
+  isLoading?: boolean;
 };
 
 const Modal = ({
@@ -12,6 +15,7 @@ const Modal = ({
   handleHideModal,
   backDropOpacity = 0.8,
   isBlurEffect = true,
+  isLoading = false,
 }: ModalProps) => {
   const handleKeyPress = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {
@@ -28,6 +32,11 @@ const Modal = ({
         onClick={() => {}}
       />
       <ModalOverlay>
+        {isLoading && (
+          <SpinnerFrame onClick={() => {}}>
+            <Loading />
+          </SpinnerFrame>
+        )}
         <CloseButton onClick={handleHideModal}>
           <svg
             xmlns='http://www.w3.org/2000/svg'
@@ -54,6 +63,14 @@ const CloseButton = styled.div`
   right: 2.5rem;
   top: 2.5rem;
   /* cursor: pointer; */
+`;
+const SpinnerFrame = styled.div`
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 const ModalOverlay = styled.div`
   display: inline-flex;

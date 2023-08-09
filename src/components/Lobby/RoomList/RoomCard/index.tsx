@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -22,10 +22,12 @@ interface Props {
 
 const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props) => {
   const navigate = useNavigate();
-
+  const [isLoading, setIsLoading] = useState(false);
   const onClickRoom = useCallback(
     (roomName: string) => {
+      setIsLoading(true);
       socket.emit('join-room', { title: roomName }, (response: RoomResponse) => {
+        setIsLoading(false);
         if (!response.payload?.roomInfo) return alert('방 입장 실패!');
         if (response.payload?.roomInfo.mode === 'COOPERATIVE') {
           navigate(`/cooproom/${roomName}`, {
@@ -51,6 +53,9 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props)
   return (
     <Container
       onClick={() => {
+        if (isLoading) {
+          return;
+        }
         if (roomInfo.status === 'PRIVATE') {
           handlePrivate();
           return handleClickRoom(roomInfo.title);
@@ -76,6 +81,7 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props)
           />
         }
         ready={roomInfo.ready}
+        loading={isLoading}
       />
     </Container>
   );

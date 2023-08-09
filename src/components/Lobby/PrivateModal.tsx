@@ -15,6 +15,7 @@ type ModalProps = {
 };
 const PrivateModal = ({ handleShowModal, roomName, nickname }: ModalProps) => {
   const [privateKey, setPrivateKey] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const navigate = useNavigate();
 
@@ -25,10 +26,12 @@ const PrivateModal = ({ handleShowModal, roomName, nickname }: ModalProps) => {
 
   const onClickRoom = useCallback(
     (roomName: string, password: string) => {
+      setIsLoading(true);
       socket.emit(
         'join-room',
         { title: roomName, password: password },
         (response: RoomResponse) => {
+          setIsLoading(false);
           if (response.payload?.message) return setErrorMsg(response.payload.message);
           if (!response.payload?.roomInfo) return alert('방 입장 실패!');
           if (response.payload?.roomInfo.mode === 'COOPERATIVE') {
@@ -47,6 +50,7 @@ const PrivateModal = ({ handleShowModal, roomName, nickname }: ModalProps) => {
   );
   return (
     <Alert
+      isLoading={isLoading}
       title={'비밀키를 입력하세요'}
       handleAlert={() => {
         if (privateKey) onClickRoom(roomName, privateKey);
