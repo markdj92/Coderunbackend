@@ -13,7 +13,7 @@ import { BadgeStatus, RoomStatus, UserInfo } from '@/types/room';
 const StudyRoom = () => {
   useSocketConnect();
   const location = useLocation();
-  const { title, member_count, max_members, user_info, nickname } = location.state;
+  const { title, member_count, max_members, user_info, nickname, level } = location.state;
 
   const [isLeaveRoom, setIsLeaveRoom] = useState(false);
   const [ableStart, setAbleStart] = useState<boolean>(false);
@@ -25,6 +25,7 @@ const StudyRoom = () => {
   const [ownerIndex, setOwnerIndex] = useState<number>(0);
   const [maxPeople, setMaxPeople] = useState<number>(max_members);
   const [userInfos, setUserInfos] = useState<(UserInfo | BadgeStatus)[]>(user_info);
+  const [roomlevel, setRoomLevel] = useState<number>(1);
 
   const navigate = useNavigate();
 
@@ -61,6 +62,7 @@ const StudyRoom = () => {
 
     let countReady = 0;
     setRoomName(title);
+    setRoomLevel(level);
     setPeople(member_count);
     user_info.forEach((user: UserInfo | BadgeStatus, index: number) => {
       if (user === 'LOCK' || user === 'EMPTY') return;
@@ -124,7 +126,7 @@ const StudyRoom = () => {
         <RoomInfoSection>
           <ModeBox>STUDY MODE.</ModeBox>
           <TitleBox>{title}</TitleBox>
-          <DetailBox>Lv.4</DetailBox>
+          <DetailBox>Lv.{roomlevel}</DetailBox>
         </RoomInfoSection>
         <ToolButtonBox
           isSpeaker={isSpeaker}
