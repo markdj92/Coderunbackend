@@ -50,30 +50,26 @@ isRunning: { [key: string]: boolean } = {};
  handleJoinRoom(@ConnectedSocket() socket, @MessageBody() title) {
 
     if (!this.rooms[title]) {
-        socket.emit("join-fail", "존재하지 않는 방입니다.");
-        return { success: false };
+        return { success: false, payload : { message : "존재하지 않는 방입니다." }};
     }
     if (this.rooms[title].length >= 10) {
-        socket.emit("join-fail", "방이 꽉 찼습니다.");
-        return  { success: false }; 
+        return { success: false, payload : { message : "방이 꽉 찼습니다." }};
     }
  
     if (this.isRunning[title]) {
-        socket.emit("join-fail", "현재 진행중인 방입니다.");
-        return  { success: false }; 
+        return { success: false, payload : { message : "현재 진행중인 방입니다." }};
     }
 
     socket.join(title);
 
     this.rooms[title].push(socket.id); //방 목록에 추가
+     
     console.log("user list", this.rooms[title]);
-
     console.log("joinRoom join : ", title, socket.id);
-    socket.emit("join-succ", { title: title, userlist: this.rooms[title] });
     console.log("userlist", this.rooms[title]);
         
     socket.broadcast.to(title).emit("user-join", this.rooms[title]);
-    return  { success: true }; 
+    return  { success: true, payload : { title: title, userlist: this.rooms[title] } }; 
  }
 
  @SubscribeMessage('offer')
