@@ -589,6 +589,17 @@ export class RoomService {
         );
     return true;
     }
+
+    async checkModeForCoop(title :string) {
+        const roomInfo = await this.roomModel.findOne({ title: title }).exec();
+        if (roomInfo.mode == "COOPERATIVE") {
+            return true;
+        }
+        else {
+            return false;
+        }
+
+    }
 }
 
 

@@ -303,10 +303,16 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
                 const resultOutput = result.output.replace(/\n/g, '');
                 userOutputResult.push(resultOutput);
             }
+           
             if (userOutputResult.length == problem.output.length &&
-                userOutputResult.every((value, index) => value == problem.output[index])) {
+                userOutputResult.every((value, index) => value === problem.output[index])) {
                 await this.codingService.saveSolvedInfo(socket.decoded.email, codeSubmission.title);
                 quiz_result = true;
+            } else {
+                const checkMode = await this.roomService.checkModeForCoop(codeSubmission.title);
+                if (checkMode) {
+                    return { success: false, payload: { message: "틀렸습니다! 다시 시도해주세요." } }; 
+                }                
             }
         } else {
             const compileResult = new CompileResultDto;
@@ -388,13 +394,13 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect{
                     problems: problems,
                     reviewer: firstReviewer
                 });
-                     console.log(roomInfo);
+                  
             }
             else {
                 await this.roomService.resetUserStatus(socket.room_id);
                 const roomInfo = await this.roomService.getRoomInfo(socket.room_id);
                 this.nsp.to(socketId).emit('timeout', { success: true, review: false, roomInfo: roomInfo });
-                     console.log(roomInfo);
+            
             }
         }
         }, 1000);
