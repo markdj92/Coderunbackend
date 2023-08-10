@@ -105,9 +105,12 @@ const InputFrame = styled.div<{ isfocus: string; isvalid: string; isinputvalue: 
   * {
     transition: all 0.3s ease-in-out;
     color: ${(props) =>
-      props.isvalid === 'true' ? props.theme.color.MainKeyColor : props.theme.color.Error};
+      props.isvalid === 'true'
+        ? props.isfocus === 'true' || props.isinputvalue === 'true'
+          ? props.theme.color.MainKeyColor
+          : props.theme.color.NonFocused
+        : props.theme.color.Error};
   }
-
   input {
     color: ${(props) => (props.isvalid === 'true' ? '#fff' : '#ff5c5c')};
   }

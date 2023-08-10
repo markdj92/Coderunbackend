@@ -14,10 +14,12 @@ import { RoomResponse } from '@/types/lobby';
 type RoomProps = {
   nickname: string;
   handleShowCreateRoom: () => void;
+  handleIssue: () => void;
 };
-const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
+const CreateRoom = ({ nickname, handleShowCreateRoom, handleIssue }: RoomProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSecret, setIsSecret] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
   const titleRef = useRef<HTMLInputElement>(null);
 
@@ -34,6 +36,7 @@ const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
       const publicState = e.target.value === '' ? 'PUBLIC' : 'PRIVATE';
       setRoomInfo({ ...roomInfo, [e.target.name]: e.target.value, ['status']: publicState });
     } else {
+      setErrorMessage('');
       setRoomInfo({ ...roomInfo, [e.target.name]: e.target.value });
     }
   };
@@ -43,10 +46,10 @@ const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
     socket.emit('create-room', roomInfo, (response: RoomResponse) => {
       setIsLoading(false);
       if (!response.success) {
-        return alert(response.payload.message);
+        return setErrorMessage(response.payload.message);
       }
       if (!response.payload.roomInfo) {
-        return alert('서버 문제가 발생했습니다.');
+        return handleIssue;
       }
       if (roomInfo.mode === 'STUDY') {
         navigate(`/room/${roomInfo.title}`, {
@@ -81,6 +84,7 @@ const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
             inputName='title'
             handleChange={handleChange}
             inputValue={roomInfo.title}
+            errorMessage={errorMessage}
           />
           <SettingContainer>
             <InputSet>
