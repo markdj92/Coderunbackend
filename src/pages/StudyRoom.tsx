@@ -1,17 +1,26 @@
-import { useCallback, useEffect, useState } from 'react';
+//@ts-nocheck
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { socket } from '@/apis/socketApi';
+import { webRtcSocketIo } from '@/apis/socketApi';
 import Alert from '@/components/public/Alert';
 import { HeaderLogo } from '@/components/public/HeaderLogo';
 import Badge from '@/components/Room/Badge';
 import ToolButtonBox from '@/components/Room/ToolButtonBox';
 import useSocketConnect from '@/hooks/useSocketConnect';
+import useVoice from '@/hooks/useVoice';
 import { BadgeStatus, RoomStatus, UserInfo } from '@/types/room';
+
+interface PeerInfo {
+  peerConnection: RTCPeerConnection;
+}
 
 const StudyRoom = () => {
   useSocketConnect();
+  const { localVideoRef, localStream } = useVoice();
+
   const location = useLocation();
   const { title, member_count, max_members, user_info, nickname, level } = location.state;
 
@@ -26,6 +35,162 @@ const StudyRoom = () => {
   const [maxPeople, setMaxPeople] = useState<number>(max_members);
   const [userInfos, setUserInfos] = useState<(UserInfo | BadgeStatus)[]>(user_info);
   const [roomlevel, setRoomLevel] = useState<number>(1);
+
+  const peerControl = useRef<{ [key: string]: PeerInfo }>({});
+  const shareRef = useRef(false);
+  const peerInfo = peerControl.current;
+
+  useEffect(() => {
+    const share = async () => {
+      if (!shareRef.current) {
+        webRtcSocketIo.emit('join', title);
+        shareRef.current = true;
+      }
+    };
+
+    const makePeerConnect = async (userId: string) => {
+      peerInfo[userId] = {
+        peerConnection: new RTCPeerConnection({
+          iceServers: [
+            {
+              urls: 'stun:stun.l.google.com:19302',
+            },
+          ],
+        }),
+      };
+      peerInfo[userId].peerConnection.addEventListener('icecandidate', icecandidate);
+      peerInfo[userId].peerConnection.addEventListener('addstream', addStream);
+
+      for (let track of localStream.getTracks()) {
+        await peerInfo[userId].peerConnection.addTrack(track, localStream);
+      }
+    };
+
+    // 연결 후보 교환
+    const icecandidate = async (data) => {
+      try {
+        if (data.candidate) {
+          webRtcSocketIo.emit('icecandidate', {
+            candidate: data.candidate,
+            title,
+          });
+        }
+      } catch (error) {
+        console.error('send candidate error : ', error);
+      }
+    };
+
+    // 상대 영상 & 비디오 추가
+    const addStream = (data) => {
+      let videoArea = document.createElement('video');
+      videoArea.autoplay = true;
+      videoArea.srcObject = data.stream;
+      let container = document.getElementById('root');
+      if (container) {
+        container.appendChild(videoArea);
+      } else {
+        console.error('Container element not found.');
+      }
+    };
+
+    // RTC socket
+
+    // 타 유저 보이스 채널 입장 확인
+    const handleEnter = async ({ userId }) => {
+      try {
+        if (peerInfo[userId] === undefined) {
+          await makePeerConnect(userId);
+          console.error(peerInfo[userId].peerConnection.connectionState);
+          const offer = await peerInfo[userId].peerConnection.createOffer();
+          await peerInfo[userId].peerConnection.setLocalDescription(offer);
+          webRtcSocketIo.emit('offer', { offer, title });
+        }
+      } catch (error) {
+        console.error('send offer error : ', error);
+      }
+    };
+
+    // 기존 유저로부터 보이스 연결 수신을 받음
+    const handleOffer = async ({ userId, offer }) => {
+      try {
+        if (peerInfo[userId] === undefined) {
+          await makePeerConnect(userId);
+          await peerInfo[userId].peerConnection.setRemoteDescription(offer);
+
+          const answer = await peerInfo[userId].peerConnection.createAnswer(offer);
+
+          await peerInfo[userId].peerConnection.setLocalDescription(answer);
+          webRtcSocketIo.emit('answer', {
+            answer,
+            toUserId: userId,
+            title,
+          });
+        }
+      } catch (error) {
+        console.error('receive offer and send answer error : ', error);
+      }
+    };
+
+    // 신규 유저로부터 응답을 받음
+    const handleAnswer = async ({ userId, answer, toUserId }) => {
+      try {
+        if (peerInfo[toUserId] === undefined) {
+          await peerInfo[userId].peerConnection.setRemoteDescription(answer);
+        }
+      } catch (error) {
+        console.error('receive and set answer error : ', error);
+      }
+    };
+
+    // 연결 후보를 수신 받음
+    const handleIceCandidate = async ({ userId, candidate }) => {
+      try {
+        // if (selectedCandidate[candidate.candidate] === undefined) {
+        //     selectedCandidate[candidate.candidate] = true;
+        await peerInfo[userId].peerConnection.addIceCandidate(candidate);
+        // };
+      } catch (error) {
+        console.error('set candidate error : ', error);
+      }
+    };
+
+    // 연결 해제 - 타인
+    const handleSomeoneLeaveRoom = async ({ userId }) => {
+      if (peerInfo[userId]) {
+        peerInfo[userId].peerConnection.close();
+        delete peerInfo[userId];
+      }
+    };
+
+    // 연결 해제 - 본인
+    const handleYouLeaveRoom = async ({ userId }) => {
+      for (let user in peerInfo) {
+        console.error(user);
+        peerInfo[userId].peerConnection.close();
+        delete peerInfo[userId];
+      }
+      webRtcSocketIo.emit('exit', title);
+    };
+
+    webRtcSocketIo.on('enter', handleEnter);
+    webRtcSocketIo.on('offer', handleOffer);
+    webRtcSocketIo.on('answer', handleAnswer);
+    webRtcSocketIo.on('icecandidate', handleIceCandidate);
+    webRtcSocketIo.on('someoneLeaveRoom', handleSomeoneLeaveRoom);
+    webRtcSocketIo.on('youLeaveRoom', handleYouLeaveRoom);
+
+    share();
+
+    return () => {
+      webRtcSocketIo.emit('leaveRoom', title);
+      webRtcSocketIo.off('enter', handleEnter);
+      webRtcSocketIo.off('offer', handleOffer);
+      webRtcSocketIo.off('answer', handleAnswer);
+      webRtcSocketIo.off('icecandidate', handleIceCandidate);
+      webRtcSocketIo.off('someoneLeaveRoom', handleSomeoneLeaveRoom);
+      webRtcSocketIo.off('youLeaveRoom', handleYouLeaveRoom);
+    };
+  }, []);
 
   const navigate = useNavigate();
 
@@ -176,6 +341,8 @@ const StudyRoom = () => {
           <ButtonStartArrow ablestart={ableStart ? 'true' : 'false'} />
         </StartButtonSection>
       </RightFrame>
+
+      <video style={{ display: 'none' }} autoPlay ref={localVideoRef}></video>
     </MainContainer>
   );
 };
