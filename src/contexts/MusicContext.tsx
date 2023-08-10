@@ -13,8 +13,25 @@ interface MusicChangeContextType {
 export const MusicContext = createContext<MusicContextType | null>(null);
 export const MusicChangeContext = createContext<MusicChangeContextType | null>(null);
 
-export const useMusic = () => useContext(MusicContext) as MusicContextType;
-export const useMusicChange = () => useContext(MusicChangeContext) as MusicChangeContextType;
+export const useMusic = () => {
+  const musicContext = useContext(MusicContext) as MusicContextType;
+
+  if (!musicContext) {
+    throw new Error('useMusic must be used within a MusicContextProvider');
+  }
+
+  return musicContext;
+};
+
+export const useMusicChange = () => {
+  const musicChangeContext = useContext(MusicChangeContext) as MusicChangeContextType;
+
+  if (!musicChangeContext) {
+    throw new Error('useMusic must be used within a MusicContextProvider');
+  }
+
+  return musicChangeContext;
+};
 
 const MusicProvider = ({ children }: { children: React.ReactNode }) => {
   const [isMusic, setIsMusic] = useState<boolean>(false);
