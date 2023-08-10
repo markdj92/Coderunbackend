@@ -11,7 +11,6 @@ import Badge from '@/components/Room/Badge';
 import ToolButtonBox from '@/components/Room/ToolButtonBox';
 import { useMusic } from '@/contexts/MusicContext';
 import useSocketConnect from '@/hooks/useSocketConnect';
-import useVoice from '@/hooks/useVoice';
 import { BadgeStatus, RoomStatus, UserInfo } from '@/types/room';
 
 interface PeerInfo {
@@ -20,16 +19,15 @@ interface PeerInfo {
 
 const StudyRoom = () => {
   useSocketConnect();
-  const { localVideoRef, localStream } = useVoice();
+  // const { localVideoRef, localStream } = useVoice();
 
   const location = useLocation();
   const { setIsMusic } = useMusic();
+
   const { title, member_count, max_members, user_info, nickname, level } = location.state;
 
   const [isLeaveRoom, setIsLeaveRoom] = useState(false);
   const [ableStart, setAbleStart] = useState<boolean>(false);
-  const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
-  const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
   const [roomName, setRoomName] = useState<string>(title);
   const [people, setPeople] = useState<number>(member_count);
   const [myIndex, setMyIndex] = useState<number>(0);
@@ -38,6 +36,7 @@ const StudyRoom = () => {
   const [userInfos, setUserInfos] = useState<(UserInfo | BadgeStatus)[]>(user_info);
   const [roomlevel, setRoomLevel] = useState<number>(1);
 
+  // 보이스 관련 코드
   const peerControl = useRef<{ [key: string]: PeerInfo }>({});
   const shareRef = useRef(false);
   const peerInfo = peerControl.current;
@@ -45,7 +44,7 @@ const StudyRoom = () => {
   useEffect(() => {
     const share = async () => {
       if (!shareRef.current) {
-        webRtcSocketIo.emit('join', title);
+        webRtcSocketIo.emit('joinRoom', title);
         shareRef.current = true;
       }
     };
@@ -63,9 +62,9 @@ const StudyRoom = () => {
       peerInfo[userId].peerConnection.addEventListener('icecandidate', icecandidate);
       peerInfo[userId].peerConnection.addEventListener('addstream', addStream);
 
-      for (let track of localStream.getTracks()) {
-        await peerInfo[userId].peerConnection.addTrack(track, localStream);
-      }
+      // for (let track of localStream.getTracks()) {
+      //   await peerInfo[userId].peerConnection.addTrack(track, localStream);
+      // }
     };
 
     // 연결 후보 교환
@@ -196,14 +195,6 @@ const StudyRoom = () => {
 
   const navigate = useNavigate();
 
-  const handleSpeaker = () => {
-    setIsSpeaker(!isSpeaker);
-  };
-
-  const handleMicrophone = () => {
-    setIsMicrophone(!isMicrophone);
-  };
-
   useEffect(() => {
     setIsMusic(false);
   }, []);
@@ -299,13 +290,7 @@ const StudyRoom = () => {
           <TitleBox>{title}</TitleBox>
           <DetailBox>Lv.{roomlevel}</DetailBox>
         </RoomInfoSection>
-        <ToolButtonBox
-          isSpeaker={isSpeaker}
-          isMicrophone={isMicrophone}
-          handleSpeaker={handleSpeaker}
-          handleMicrophone={handleMicrophone}
-          handleLeaveRoom={() => setIsLeaveRoom(true)}
-        />
+        <ToolButtonBox handleLeaveRoom={() => setIsLeaveRoom(true)} />
       </LeftFrame>
       <MainFrame>
         <MainContentBox>
@@ -345,7 +330,7 @@ const StudyRoom = () => {
         </StartButtonSection>
       </RightFrame>
 
-      <video style={{ display: 'none' }} autoPlay ref={localVideoRef}></video>
+      {/* <video style={{ display: 'none' }} autoPlay ref={localVideoRef}></video> */}
     </MainContainer>
   );
 };

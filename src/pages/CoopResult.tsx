@@ -21,8 +21,6 @@ const CoopResult = () => {
   const { title, nickname } = location.state;
 
   const [isLeaveRoom, setIsLeaveRoom] = useState(false);
-  const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
-  const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
 
   const [roomName, setRoomName] = useState('');
   const [roomLevel, setRoomLevel] = useState<number>(0);
@@ -32,14 +30,6 @@ const CoopResult = () => {
   const [winner, setWinner] = useState<string>('');
 
   const [seconds, setSeconds] = useState<number>(0);
-
-  const handleSpeaker = () => {
-    setIsSpeaker(!isSpeaker);
-  };
-
-  const handleMicrophone = () => {
-    setIsMicrophone(!isMicrophone);
-  };
 
   const onLeaveRoom = useCallback(() => {
     socket.emit('leave-room', { title: roomName }, () => {
@@ -124,13 +114,7 @@ const CoopResult = () => {
           <TitleBox>{title}</TitleBox>
           <DetailBox>Lv.{roomLevel}</DetailBox>
         </RoomInfoSection>
-        <ToolButtonBox
-          isSpeaker={isSpeaker}
-          isMicrophone={isMicrophone}
-          handleSpeaker={handleSpeaker}
-          handleMicrophone={handleMicrophone}
-          handleLeaveRoom={() => setIsLeaveRoom(true)}
-        />
+        <ToolButtonBox handleLeaveRoom={() => setIsLeaveRoom(true)} />
       </LeftFrame>
       <MainFrame>
         <MainContentBox>
