@@ -12,6 +12,7 @@ import { HttpModule } from '@nestjs/axios';
 import { SocketProvider } from './socket.provider';
 import { WebrtcModule } from './webrtc/webrtc.module';
 import { webRtcGateway } from './webrtc/webrtc.gateway';
+import { RoomGateway } from './webrtc/webrtc.gateway_two';
 
 
 
@@ -30,11 +31,10 @@ import { webRtcGateway } from './webrtc/webrtc.gateway';
     CodingtestModule,
     HttpModule,
     RoomModule,
-    WebrtcModule
-    
+    RoomGateway
   ],
   controllers: [],
-  providers: [SocketProvider, webRtcGateway]
+  providers: [SocketProvider]
 })
 
 export class AppModule {}
