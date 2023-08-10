@@ -74,7 +74,8 @@ isRunning: { [key: string]: boolean } = {};
 
  @SubscribeMessage('offer')
  handleOffer(@ConnectedSocket() socket, @MessageBody() data) {
-    const { title, offer, to } = data;
+     const { title, offer, to } = data;
+     console.log("offer", socket.id);
     if (this.rooms[title] && this.rooms[title].includes(to)) {
         socket.to(to).emit("offer", { title: title, offer: offer, from: socket.id });
     }
@@ -83,6 +84,7 @@ isRunning: { [key: string]: boolean } = {};
 
  @SubscribeMessage('answer')
  handleAnswer(@ConnectedSocket() socket, @MessageBody() data) {
+    console.log("answer", socket.id);
     const { title, answer, to } = data;
     if (this.rooms[title] && this.rooms[title].includes(to)) {
         socket.to(to).emit("answer", { title: title, answer: answer, from: socket.id });
@@ -93,7 +95,7 @@ isRunning: { [key: string]: boolean } = {};
  @SubscribeMessage('ice')
  handleIcecandidate(@ConnectedSocket() socket, @MessageBody() data) {
     const { title, icecandidate, to } = data;
-
+    console.log("ice", socket.id);
     if (this.rooms[title] && this.rooms[title].includes(to)) {
         socket.to(to).emit("ice", { title: title, icecandidate: icecandidate, from: socket.id });
     }
@@ -103,7 +105,7 @@ isRunning: { [key: string]: boolean } = {};
     
 @SubscribeMessage("leaveRoom")
 handleLeaveRoom(@ConnectedSocket() socket, @MessageBody() title) {
-
+    console.log("leaveRoom", socket.id);
     socket.broadcast.to(title).emit("someoneLeaveRoom", { userId: socket.id });
     return {success : true, payload : { userId: socket.id }}
 }
