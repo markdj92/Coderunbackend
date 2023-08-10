@@ -10,6 +10,9 @@ import { CodingTestService } from './codingtest/codingtest.service';
 import { CodingtestModule } from './codingtest/codingtest.module';
 import { HttpModule } from '@nestjs/axios';
 import { SocketProvider } from './socket.provider';
+import { WebrtcModule } from './webrtc/webrtc.module';
+import { webRtcGateway } from './webrtc/webrtc.gateway';
+
 
 
 @Module({
@@ -26,11 +29,12 @@ import { SocketProvider } from './socket.provider';
     PassportModule,
     CodingtestModule,
     HttpModule,
-    RoomModule
+    RoomModule,
+    WebrtcModule
     
   ],
   controllers: [],
-  providers: [SocketProvider]
+  providers: [SocketProvider, webRtcGateway]
 })
 
 export class AppModule {}
