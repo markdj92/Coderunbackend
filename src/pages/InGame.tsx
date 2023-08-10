@@ -300,6 +300,11 @@ const Container = styled.div`
   height: 100vh;
   width: 100vw;
   margin: 0;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   background-color: #263747;
   overflow: hidden;
   * {
