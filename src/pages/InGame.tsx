@@ -103,11 +103,11 @@ const InGame = () => {
     };
     const response = await postExecuteResult(executeData);
     const { data } = response;
+    if (data.success) answersound.play();
+    else wrongsound.play();
     setIsLoading(false);
     setIsSuccess(data.success);
     setRunResult(data.payload.result);
-    if (isSuccess) answersound.play();
-    else wrongsound.play();
   };
 
   const getQuizList = async () => {
@@ -320,13 +320,14 @@ const Container = styled.div`
 `;
 const SpinnerFrame = styled.div`
   position: absolute;
-  width: 100vw;
-  height: 100vh;
+  width: 90vw;
+  height: 90vh;
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 const AlertFrame = styled.div`
+  position: absolute;
   width: 100vw;
   height: 100vh;
   display: flex;
