@@ -137,7 +137,7 @@ const CoopResult = () => {
           <TimerBox>
             <TimerBar seconds={seconds} />
           </TimerBox>
-          <UserListSection height={winner === 'DRAW' ? '350' : '450'}>
+          <UserListSection height={winner === 'DRAW' ? '350px' : '450px'}>
             <ResultFrame
               title={winner === 'DRAW' ? `DRAW` : `SOLVED ${winner === 'RED' ? 'RED' : 'BLUE'}`}
               color={winner === 'DRAW' ? '#fcff5c' : winner === 'RED' ? '#FF5C5C' : '#39A0FF'}
@@ -152,7 +152,7 @@ const CoopResult = () => {
                 ))}
             </ResultFrame>
           </UserListSection>
-          <UserListSection height={'350'}>
+          <UserListSection height={'350px'}>
             <ResultFrame
               title={winner === 'DRAW' ? `DRAW` : `LOSE TEAM. ${winner === 'RED' ? 'BLUE' : 'RED'}`}
               color={winner === 'DRAW' ? '#fcff5c' : winner === 'RED' ? '#39A0FF' : '#FF5C5C'}
