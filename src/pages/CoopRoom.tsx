@@ -49,6 +49,10 @@ const CoopRoom = () => {
           countReady += 1;
         }
       });
+      const bgm = document.getElementById('bgm');
+      if (bgm instanceof HTMLAudioElement) {
+        bgm.pause();
+      }
       setAbleStart(member_count === countReady + 1 && countReady % 2 === 1);
       setMaxPeople(max_members);
       setUserInfos(user_info);
@@ -71,12 +75,18 @@ const CoopRoom = () => {
     setUserInfos(user_info);
 
     socket.on('room-status-changed', roomHandler);
+    socket.on('kicked', (title) => {
+      if (title === roomName) {
+        socket.emit('leave-room', { title: roomName }, () => {
+          navigate('/lobby', { state: { nickname, kicked: true } });
+        });
+      }
+    });
     socket.on('start', (response) => {
-      navigate('/coopgame', {
-        state: { nickname: nickname, user_info, title: response.title },
-      });
+      navigate('/coopgame', { state: { nickname: nickname, user_info, title: response.title } });
     });
     return () => {
+      socket.off('kicked');
       socket.off('start');
       socket.off('room-status-changed', roomHandler);
     };
