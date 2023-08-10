@@ -18,9 +18,10 @@ interface Props {
   roomInfo: RoomInformation;
   handleClickRoom: (title: string) => void;
   handlePrivate: () => void;
+  handleIssue: () => void;
 }
 
-const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props) => {
+const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate, handleIssue }: Props) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const onClickRoom = useCallback(
@@ -28,7 +29,7 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props)
       setIsLoading(true);
       socket.emit('join-room', { title: roomName }, (response: RoomResponse) => {
         setIsLoading(false);
-        if (!response.payload?.roomInfo) return alert('방 입장 실패!');
+        if (!response.payload?.roomInfo) return handleIssue();
         if (response.payload?.roomInfo.mode === 'COOPERATIVE') {
           navigate(`/cooproom/${roomName}`, {
             state: { ...response.payload.roomInfo, nickname },

@@ -53,6 +53,8 @@ const Lobby = () => {
   const logoutsound = new Audio('sounds/logout.MOV');
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isServerIssue, setIsServerIssue] = useState(false);
+  const [isEnterIssue, setIsEnterIssue] = useState(false);
 
   const handleShowCreateRoom = () => {
     setShownCreateRoom(!isShownCreateRoom);
@@ -76,9 +78,9 @@ const Lobby = () => {
     setIsLoading(true);
     socket.emit('quick-join', (response: RoomResponse) => {
       setIsLoading(false);
-      if (!response.success) return alert(response.payload.roomInfo);
+      if (!response.success) return setIsServerIssue(true);
       socket.emit('join-room', { title: response.payload.roomInfo }, (response: RoomResponse) => {
-        if (!response.payload?.roomInfo) return alert('방 입장 실패!');
+        if (!response.payload?.roomInfo) return setIsEnterIssue(true);
         navigate(`/room/${response.payload.roomInfo}`, {
           state: { ...response.payload.roomInfo, nickname },
         });
@@ -103,7 +105,11 @@ const Lobby = () => {
       )}
 
       {isShownCreateRoom && (
-        <CreateRoom nickname={nickname} handleShowCreateRoom={handleShowCreateRoom} />
+        <CreateRoom
+          nickname={nickname}
+          handleShowCreateRoom={handleShowCreateRoom}
+          handleIssue={() => setIsServerIssue(true)}
+        />
       )}
       {isLogout && (
         <Alert
@@ -114,6 +120,12 @@ const Lobby = () => {
       )}
       {isKicked && (
         <Alert title={TITLE_COMMENT.kicked} handleCloseAlert={() => setIsKicked(false)} />
+      )}
+      {isServerIssue && (
+        <Alert title={TITLE_COMMENT.errorServer} handleCloseAlert={() => setIsServerIssue(false)} />
+      )}
+      {isEnterIssue && (
+        <Alert title='방 입장에 실패하셨습니다.' handleCloseAlert={() => setIsEnterIssue(false)} />
       )}
       {isPrivateRoom && (
         <PrivateModal
@@ -149,6 +161,7 @@ const Lobby = () => {
           onClickRoom={(title: string) => setPrivateRoomName(title)}
           handlePrivate={handlePrivateRoom}
           level={+selectedLevel}
+          handleIssue={() => setIsEnterIssue(true)}
         />
       </MainFrame>
       <RightFrame>
