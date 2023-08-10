@@ -11,8 +11,8 @@ const Arrows = ({
   page: number;
   setPage: React.Dispatch<React.SetStateAction<number>>;
 }) => {
-  const leftsound = new Audio('sounds/arrowleft.MOV');
-  const rightsound = new Audio('sounds/arrowright.MOV');
+  const leftsound = new Audio('sounds/arrowleft.mov');
+  const rightsound = new Audio('sounds/arrowright.mov');
   const handleLeftClick = () => {
     if (page === 1) return;
     leftsound.play();
