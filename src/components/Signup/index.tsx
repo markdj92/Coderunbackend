@@ -10,7 +10,13 @@ import Modal from '../public/Modal';
 import { postCheckEmail, postSignUp } from '@/apis/authApi';
 import { useAuthForm } from '@/hooks/useAuthForm';
 
-const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
+const Signup = ({
+  handleShowSignup,
+  setIsSuccess,
+}: {
+  handleShowSignup: () => void;
+  setIsSuccess: () => void;
+}) => {
   const {
     emailRef,
     passwordRef,
@@ -23,7 +29,6 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
     errorMessage,
     setErrorMessage,
   } = useAuthForm();
-
   const handleCheckRePassword = () => {
     if (!validateUserInfo.checkPasswordDiff(userAccount.password, userAccount.rePassword)) {
       setErrorMessage({ ...errorMessage, rePassword: '비밀번호가 일치하지 않습니다.' });
@@ -38,8 +43,8 @@ const Signup = ({ handleShowSignup }: { handleShowSignup: () => void }) => {
     try {
       const response = await postSignUp(userAccount);
       if (response) {
-        alert('가입 완료!');
         handleShowSignup();
+        setIsSuccess();
       }
     } catch (error) {
       console.error(error);
