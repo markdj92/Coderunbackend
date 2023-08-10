@@ -26,7 +26,7 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props)
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { localVideoRef, myPeerConnection } = useVoiceHandle();
+  const { localStream, myPeerConnection } = useVoiceHandle();
   const peerInfo = myPeerConnection.current;
 
   const handleIce = (data, id) => {
@@ -65,10 +65,8 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props)
       peerInfo[userId].peerConnection.srcObject = event.streams[0];
     };
 
-    if (localVideoRef.current) {
-      localVideoRef.current
-        .getTracks()
-        .forEach((track) => peerInfo[userId].peerConnection.addTrack(track, localVideoRef.current));
+    for (let track of localStream.getTracks()) {
+      await peerInfo[userId].peerConnection.addTrack(track, localStream);
     }
   };
 
