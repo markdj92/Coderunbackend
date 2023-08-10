@@ -102,10 +102,6 @@ const Login = () => {
 
   useEffect(() => {
     socket.disconnect();
-    const bgm = document.getElementById('bgm');
-    if (bgm instanceof HTMLAudioElement) {
-      bgm.load();
-    }
   }, []);
 
   return (
