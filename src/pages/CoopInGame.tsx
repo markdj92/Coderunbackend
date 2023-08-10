@@ -13,7 +13,6 @@ import { postExecuteResult, postQuizInfo } from '@/apis/gameApi';
 import { socket } from '@/apis/socketApi';
 import EditorCodeMirror from '@/components/InGame/EditorCodeMirror';
 import GameBottom from '@/components/InGame/GameBottom';
-import GameLiveBoard from '@/components/InGame/GameLiveBoard';
 import GameNavbar from '@/components/InGame/GameNavbar';
 import QuizFrame from '@/components/InGame/QuizFrame';
 import QuizHeader from '@/components/InGame/QuizHeader';
@@ -36,8 +35,6 @@ const CoopInGame = () => {
   const teamColor = useRef<string>(
     user_info.findIndex((user) => user.nickname === nickname) < 5 ? 'RED' : 'BLUE',
   );
-  const [redTeam, setRedTeam] = useState<UserInfo[]>(user_info.slice(0, 5));
-  const [blueTeam, setBlueTeam] = useState<UserInfo[]>(user_info.slice(5, 10));
 
   const [isAlert, setIsAlert] = useState<boolean>(false);
   const [alertTitle, setAlertTitle] = useState<string>('');
@@ -124,8 +121,7 @@ const CoopInGame = () => {
     if (response.success) {
       const {
         result,
-        quiz_result,
-        user_info,
+        quiz_result, // user_info,
       }: { result: ExecuteResult; user_info: UserInfo | BadgeStatus; quiz_result: boolean } =
         response.payload;
       const { memory, cpuTime, output } = result;
@@ -133,8 +129,6 @@ const CoopInGame = () => {
       setRunResult({ memory, cpuTime, output });
       isSubmit[selectedQuiz] = true;
       setIsSubmit([...isSubmit]);
-      setRedTeam(user_info.slice(0, 5));
-      setBlueTeam(user_info.slice(5, 10));
       notifySuccessMessage('제출에 성공했습니다.');
     } else if (response.payload.message) {
       alert(response.payload.message);
@@ -223,7 +217,6 @@ const CoopInGame = () => {
             <Loading />
           </SpinnerFrame>
         )}
-        <GameLiveBoard userInGame={teamColor.current === 'RED' ? redTeam : blueTeam} />
         <GameFrame>
           <OptionSection>
             <QuizListGroup>
@@ -295,6 +288,11 @@ const Container = styled.div`
   height: 100vh;
   width: 100vw;
   margin: 0;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   background-color: #263747;
   overflow: hidden;
   * {
