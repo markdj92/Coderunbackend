@@ -9,6 +9,7 @@ import Alert from '@/components/public/Alert';
 import { HeaderLogo } from '@/components/public/HeaderLogo';
 import Badge from '@/components/Room/Badge';
 import ToolButtonBox from '@/components/Room/ToolButtonBox';
+import { useMusic } from '@/contexts/MusicContext';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import useVoice from '@/hooks/useVoice';
 import { BadgeStatus, RoomStatus, UserInfo } from '@/types/room';
@@ -22,6 +23,7 @@ const StudyRoom = () => {
   const { localVideoRef, localStream } = useVoice();
 
   const location = useLocation();
+  const { setIsMusic } = useMusic();
   const { title, member_count, max_members, user_info, nickname, level } = location.state;
 
   const [isLeaveRoom, setIsLeaveRoom] = useState(false);
@@ -203,6 +205,10 @@ const StudyRoom = () => {
   };
 
   useEffect(() => {
+    setIsMusic(false);
+  }, []);
+
+  useEffect(() => {
     const roomHandler = ({ title, member_count, max_members, user_info }: RoomStatus) => {
       setRoomName(title);
       setPeople(member_count);
@@ -224,10 +230,7 @@ const StudyRoom = () => {
       setMaxPeople(max_members);
       setUserInfos(user_info);
     };
-    const bgm = document.getElementById('bgm');
-    if (bgm instanceof HTMLAudioElement) {
-      bgm.pause();
-    }
+
     let countReady = 0;
     setRoomName(title);
     setRoomLevel(level);

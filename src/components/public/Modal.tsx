@@ -66,8 +66,8 @@ const CloseButton = styled.div`
 `;
 const SpinnerFrame = styled.div`
   position: absolute;
-  width: 100vw;
-  height: 100vh;
+  width: 90vw;
+  height: 90vh;
   display: flex;
   justify-content: center;
   align-items: center;
