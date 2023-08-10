@@ -68,7 +68,7 @@ isRunning: { [key: string]: boolean } = {};
     console.log("joinRoom join : ", title, socket.id);
     console.log("userlist", this.rooms[title]);
         
-    socket.broadcast.to(title).emit("user-join", this.rooms[title]);
+     socket.broadcast.to(title).emit("entry", { userId: socket.id });
     return  { success: true, payload : { title: title, userlist: this.rooms[title] } }; 
  }
 
