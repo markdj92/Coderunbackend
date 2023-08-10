@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -6,7 +6,6 @@ import ErrorPage from './Error';
 
 import IconLogout from '/icon/lobby/logout.svg';
 import IconSetting from '/icon/lobby/setting.svg';
-import IconSpeaker from '/icon/room/speaker_active.svg';
 
 import { postLogout } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
@@ -28,11 +27,13 @@ import RoomList from '@/components/Lobby/RoomList';
 import Alert from '@/components/public/Alert';
 import { HeaderLogo } from '@/components/public/HeaderLogo';
 import { Loading } from '@/components/public/Loading';
+import { useMusic } from '@/contexts/MusicContext';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomResponse } from '@/types/lobby';
 
 const Lobby = () => {
   useSocketConnect();
+  const { isSettingMusic, setIsMusic } = useMusic();
   const navigate = useNavigate();
   const location = useLocation();
   if (!location.state) {
@@ -50,23 +51,6 @@ const Lobby = () => {
   const [selectedLevel, setLevel] = useState(0);
 
   const logoutsound = new Audio('sounds/logout.MOV');
-
-  const bgm = document.getElementById('bgm');
-
-  const [backgroundmusic, setbgm] = useState(true);
-  const handleBGM = () => {
-    setbgm(!backgroundmusic);
-  };
-
-  useEffect(() => {
-    if (bgm instanceof HTMLAudioElement) {
-      if (backgroundmusic) {
-        bgm.play();
-      } else {
-        bgm.pause();
-      }
-    }
-  }, [backgroundmusic]);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -105,6 +89,10 @@ const Lobby = () => {
   const handlePrivateRoom = () => {
     setIsPrivateRoom(!isPrivateRoom);
   };
+
+  useEffect(() => {
+    setIsMusic(isSettingMusic);
+  }, []);
 
   return (
     <MainContainer>
@@ -152,7 +140,6 @@ const Lobby = () => {
           </RoomButtonBox>
           <RoomButtonBox>
             {nickname} 님 반갑습니다!
-            <IconButton icon={IconSpeaker} alt='bgm' onClick={handleBGM} />
             <IconButton icon={IconSetting} alt='setting' onClick={handleSetting} />
             <IconButton icon={IconLogout} alt='setting' onClick={() => setIsLogout(true)} />
           </RoomButtonBox>
