@@ -19,12 +19,15 @@ import QuizFrame from '@/components/InGame/QuizFrame';
 import QuizHeader from '@/components/InGame/QuizHeader';
 import RunFrame from '@/components/InGame/RunFrame';
 import Alert from '@/components/public/Alert';
+import { Loading } from '@/components/public/Loading';
 import { useToast } from '@/components/public/Toast';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { ExecuteResult, QuizInfo } from '@/types/inGame';
 
 const CoopInGame = () => {
   useSocketConnect();
+  const answersound = new Audio('sounds/correctchime.mp3');
+  const wrongsound = new Audio('sounds/wrongbeep.mp3');
 
   const toast = useToast();
   const navigate = useNavigate();
@@ -57,6 +60,7 @@ const CoopInGame = () => {
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
 
+  const [isLoading, setIsLoading] = useState(false);
   const handleProvider = (pro: WebsocketProvider) => {
     setProvider(pro);
   };
@@ -89,6 +93,8 @@ const CoopInGame = () => {
     });
 
   const executeCode = async () => {
+    setIsLoading(true);
+
     const code = ytext.toString();
 
     if (code === '') return notifyErrorMessage('코드를 작성해주세요.');
@@ -101,6 +107,10 @@ const CoopInGame = () => {
     };
     const response = await postExecuteResult(executeData);
     const { data } = response;
+    if (data.success) answersound.play();
+    else wrongsound.play();
+    setIsLoading(false);
+
     setIsSuccess(data.success);
     setRunResult(data.payload.result);
   };
@@ -110,6 +120,7 @@ const CoopInGame = () => {
   };
 
   const handleGetUserInGame = async (response) => {
+    setIsLoading(false);
     if (response.success) {
       const {
         result,
@@ -133,6 +144,7 @@ const CoopInGame = () => {
   };
 
   const submitCode = () => {
+    setIsLoading(true);
     const code = ytext.toString();
 
     const executeData = {
@@ -206,6 +218,11 @@ const CoopInGame = () => {
       )}
       <GameNavbar />
       <MainFrame>
+        {isLoading && (
+          <SpinnerFrame onClick={() => {}}>
+            <Loading />
+          </SpinnerFrame>
+        )}
         <GameLiveBoard userInGame={teamColor.current === 'RED' ? redTeam : blueTeam} />
         <GameFrame>
           <OptionSection>
@@ -296,8 +313,16 @@ const Container = styled.div`
     background: 172334;
   }
 `;
-
+const SpinnerFrame = styled.div`
+  position: absolute;
+  width: 90vw;
+  height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
 const AlertFrame = styled.div`
+  position: absolute;
   width: 100vw;
   height: 100vh;
   display: flex;
