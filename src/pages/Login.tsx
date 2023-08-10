@@ -7,7 +7,7 @@ import { PATH_ROUTE, USER_NICKNAME_KEY, USER_TOKEN_KEY } from '@/constants';
 import { validateUserInfo } from '@/utils';
 
 import { postLogin, setInitName } from '@/apis/authApi';
-import { socket } from '@/apis/socketApi';
+import { socket, webRtcSocketIo } from '@/apis/socketApi';
 import CustomButton from '@/components/public/CustomButton';
 import CustomInput from '@/components/public/CustomInput';
 import SetNickname from '@/components/SetNickname';
@@ -44,6 +44,7 @@ const Login = () => {
 
         if (!!nickname) {
           socket.connect();
+          webRtcSocketIo.connect();
           localStorage.setItem(USER_NICKNAME_KEY, nickname);
           navigate(PATH_ROUTE.lobby, { state: { nickname } });
         } else {

@@ -1,4 +1,5 @@
-import { createContext, useCallback, useContext, useState } from 'react';
+//@ts-nocheck
+import { createContext, useCallback, useContext, useRef, useState } from 'react';
 
 interface VoiceChatContextType {
   isSpeaker: boolean;
@@ -10,8 +11,18 @@ interface VoiceChangeContextType {
   toggleSpeaker: () => void;
 }
 
+interface VoiceHandleContextType {
+  localVideoRef: React.MutableRefObject<HTMLVideoElement>;
+  localStream: MediaStream | undefined;
+  setLocalStream: React.Dispatch<React.SetStateAction<MediaStream | undefined>>;
+  myPeerConnection: Record<string, RTCPeerConnection>;
+  peerFaceRef: Record<string, HTMLVideoElement>;
+  myStream: MediaStream | undefined;
+}
+
 export const VoiceChatContext = createContext<VoiceChatContextType | null>(null);
 export const VoiceChangeContext = createContext<VoiceChangeContextType | null>(null);
+export const VoiceHandleContext = createContext<VoiceHandleContextType | null>(null);
 
 export const useVoiceChat = () => {
   const voiceContext = useContext(VoiceChatContext) as VoiceChatContextType;
@@ -33,15 +44,27 @@ export const useVoiceChange = () => {
   return voiceChangeContext;
 };
 
+export const useVoiceHandle = () => {
+  const voiceHandleContext = useContext(VoiceHandleContext) as VoiceHandleContextType;
+
+  if (!voiceHandleContext) {
+    throw new Error('useVoiceHandle must be used within a VoiceHandleContextProvider');
+  }
+
+  return voiceHandleContext;
+};
+
 const VoiceChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
   const [isSettingSpeaker, setIsSettingSpeaker] = useState<boolean>(true);
   const [isMic, setIsMic] = useState<boolean>(true);
   const [isSettingMic, setIsSettingMic] = useState<boolean>(true);
 
-  // const myPeerConnection = useRef({}); //피어 연결 객체
-  // const roomName = useRef(); //참관코드 - RTC 연결에 사용되는 변수
-  // const [joinUser, setJoinUser] = useState([]); //접속한 유저 정보
+  const localVideoRef = useRef(null);
+  const [localStream, setLocalStream] = useState();
+  const myPeerConnection = useRef({});
+  const peerFaceRef = useRef({});
+  const myStream = useRef(undefined);
 
   const toggleSpeaker = useCallback(() => {
     setIsSettingSpeaker((prev) => !prev);
@@ -54,13 +77,23 @@ const VoiceChatProvider = ({ children }: { children: React.ReactNode }) => {
   }, [isSettingMic, setIsMic]);
 
   const voiceChatContextValue = { isSpeaker, isMic };
+  const voiceHandleContextValue = {
+    localVideoRef,
+    localStream,
+    setLocalStream,
+    myPeerConnection,
+    peerFaceRef,
+    myStream,
+  };
   const voiceChangeContextValue = { toggleSpeaker, toggleMic };
 
   return (
     <VoiceChatContext.Provider value={voiceChatContextValue}>
-      <VoiceChangeContext.Provider value={voiceChangeContextValue}>
-        {children}
-      </VoiceChangeContext.Provider>
+      <VoiceHandleContext.Provider value={voiceHandleContextValue}>
+        <VoiceChangeContext.Provider value={voiceChangeContextValue}>
+          {children}
+        </VoiceChangeContext.Provider>
+      </VoiceHandleContext.Provider>
     </VoiceChatContext.Provider>
   );
 };
