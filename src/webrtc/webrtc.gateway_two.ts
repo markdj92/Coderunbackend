@@ -36,67 +36,71 @@ isRunning: { [key: string]: boolean } = {};
  @SubscribeMessage('createRoom')
  async handleMessage(@ConnectedSocket() socket, @MessageBody() title) {
 
- //방장이 방에 입장하도록 한다.
- socket.join(title);
-
- this.rooms[title] = []; // 방 참가자 초기화
- this.rooms[title].push(socket.id);
- this.isRunning[title] = false; // 방이 시작되었는지 여부 초기화
-
- console.log("createRoom join: ", title, socket.id);
-
+    //방장이 방에 입장하도록 한다.
+    socket.join(title);
+    this.rooms[title] = []; // 방 참가자 초기화
+    this.rooms[title].push(socket.id);
+    this.isRunning[title] = false; // 방이 시작되었는지 여부 초기화
+    console.log("createRoom join: ", title, socket.id);
+    
+    return { success: true }; 
  }
 
  @SubscribeMessage('joinRoom')
  handleJoinRoom(@ConnectedSocket() socket, @MessageBody() title) {
 
- if (!this.rooms[title]) {
- socket.emit("join-fail", "존재하지 않는 방입니다.");
- return;
- }
- if (this.rooms[title].length >= 10) {
- socket.emit("join-fail", "방이 꽉 찼습니다.");
- return;
- }
- if (this.isRunning[title]) {
- socket.emit("join-fail", "현재 진행중인 방입니다.");
- return;
- }
+    if (!this.rooms[title]) {
+        socket.emit("join-fail", "존재하지 않는 방입니다.");
+        return { success: false };
+    }
+    if (this.rooms[title].length >= 10) {
+        socket.emit("join-fail", "방이 꽉 찼습니다.");
+        return  { success: false }; 
+    }
+ 
+    if (this.isRunning[title]) {
+        socket.emit("join-fail", "현재 진행중인 방입니다.");
+        return  { success: false }; 
+    }
 
- socket.join(title);
+    socket.join(title);
 
- this.rooms[title].push(socket.id); //방 목록에 추가
- console.log("user list", this.rooms[title]);
+    this.rooms[title].push(socket.id); //방 목록에 추가
+    console.log("user list", this.rooms[title]);
 
- console.log("joinRoom join : ", title, socket.id);
- socket.emit("join-succ", { title: title, userlist: this.rooms[title] });
- console.log("userlist", this.rooms[title]);
-     
- socket.broadcast.to(title).emit("user-join", this.rooms[title]);
+    console.log("joinRoom join : ", title, socket.id);
+    socket.emit("join-succ", { title: title, userlist: this.rooms[title] });
+    console.log("userlist", this.rooms[title]);
+        
+    socket.broadcast.to(title).emit("user-join", this.rooms[title]);
+    return  { success: true }; 
  }
 
  @SubscribeMessage('offer')
  handleOffer(@ConnectedSocket() socket, @MessageBody() data) {
- const { title, offer, to } = data;
- if (this.rooms[title] && this.rooms[title].includes(to)) {
- socket.to(to).emit("offer", { title: title, offer: offer, from: socket.id });
- }
+    const { title, offer, to } = data;
+    if (this.rooms[title] && this.rooms[title].includes(to)) {
+        socket.to(to).emit("offer", { title: title, offer: offer, from: socket.id });
+    }
+     return  { success: true }; 
  }
 
  @SubscribeMessage('answer')
  handleAnswer(@ConnectedSocket() socket, @MessageBody() data) {
- const { title, answer, to } = data;
- if (this.rooms[title] && this.rooms[title].includes(to)) {
- socket.to(to).emit("answer", { title: title, answer: answer, from: socket.id });
- }
+    const { title, answer, to } = data;
+    if (this.rooms[title] && this.rooms[title].includes(to)) {
+        socket.to(to).emit("answer", { title: title, answer: answer, from: socket.id });
+    }
+    return  { success: true }; 
  }
 
  @SubscribeMessage('ice')
  handleIcecandidate(@ConnectedSocket() socket, @MessageBody() data) {
- const { title, icecandidate, to } = data;
+    const { title, icecandidate, to } = data;
 
- if (this.rooms[title] && this.rooms[title].includes(to)) {
- socket.to(to).emit("ice", { title: title, icecandidate: icecandidate, from: socket.id });
- }
- }
+    if (this.rooms[title] && this.rooms[title].includes(to)) {
+        socket.to(to).emit("ice", { title: title, icecandidate: icecandidate, from: socket.id });
+    }
+        return  { success: true }; 
+}
 }
