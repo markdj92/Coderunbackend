@@ -97,6 +97,14 @@ isRunning: { [key: string]: boolean } = {};
     if (this.rooms[title] && this.rooms[title].includes(to)) {
         socket.to(to).emit("ice", { title: title, icecandidate: icecandidate, from: socket.id });
     }
-        return  { success: true }; 
+    
+    return { success: true }; 
+ }
+    
+@SubscribeMessage("leaveRoom")
+handleLeaveRoom(@ConnectedSocket() socket, @MessageBody() title) {
+
+    socket.broadcast.to(title).emit("someoneLeaveRoom", { userId: socket.id });
+    return {success : true, payload : { userId: socket.id }}
 }
 }
