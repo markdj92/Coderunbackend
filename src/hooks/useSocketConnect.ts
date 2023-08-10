@@ -5,7 +5,7 @@ import { PATH_ROUTE, USER_NICKNAME_KEY, USER_TOKEN_KEY } from '@/constants';
 import { getUserToken } from '@/utils';
 
 import { getNicknameByToken, postLogout } from '@/apis/authApi';
-import { attempt, socket } from '@/apis/socketApi';
+import { attempt, socket, webRtcSocketIo } from '@/apis/socketApi';
 
 const useSocketConnect = () => {
   const navigate = useNavigate();
@@ -69,6 +69,7 @@ const useSocketConnect = () => {
         attempt.tryCount += 1;
         if (attempt.tryCount > attempt.maxCount - 1) {
           localStorage.removeItem(USER_TOKEN_KEY);
+          localStorage.removeItem(USER_NICKNAME_KEY);
           navigate(PATH_ROUTE.login);
         }
       });
@@ -77,6 +78,28 @@ const useSocketConnect = () => {
       socket.off('connect');
       socket.off('disconnect');
       socket.off('connect_error');
+    };
+  }, [navigate]);
+
+  useEffect(() => {
+    webRtcSocketIo.on('connect', () => {
+      attempt.tryCount = 0;
+      webRtcSocketIo.off('connect_error');
+    });
+    webRtcSocketIo.on('disconnect', () => {
+      webRtcSocketIo.on('connect_error', () => {
+        attempt.tryCount += 1;
+        if (attempt.tryCount > attempt.maxCount - 1) {
+          localStorage.removeItem(USER_TOKEN_KEY);
+          localStorage.removeItem(USER_NICKNAME_KEY);
+          navigate(PATH_ROUTE.login);
+        }
+      });
+    });
+    return () => {
+      webRtcSocketIo.off('connect');
+      webRtcSocketIo.off('disconnect');
+      webRtcSocketIo.off('connect_error');
     };
   }, [navigate]);
 };
