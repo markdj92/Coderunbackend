@@ -18,7 +18,7 @@ const Alert = ({
   backDropOpacity?: number;
   isLoading?: boolean;
 }) => {
-  const alertsound = new Audio('sounds/alertsound.wav');
+  const alertsound = new Audio('../sounds/alertsound.wav');
   useEffect(() => {
     alertsound.play();
   }, []);
