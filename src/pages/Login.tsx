@@ -161,8 +161,8 @@ const Login = () => {
 const MainFrame = styled.div`
   background: url('./background.png');
   background-blend-mode: screen;
-
   background-size: cover;
+  background-position: center;
   font-family: 'Raleway', sans-serif;
   display: flex;
   justify-content: center;

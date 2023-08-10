@@ -5,6 +5,8 @@ import styled from 'styled-components';
 import LockIcon from '/icon/public/lock.svg';
 import QuestionIcon from '/icon/public/question.svg';
 import StarIcon from '/icon/public/star.svg';
+import RedStarIcon from '/icon/public/star_red.svg';
+import BlueStarIcon from '/icon/public/star_blue.svg';
 
 import { socket } from '@/apis/socketApi';
 import { Menu } from '@/components/public/ContextMenu';
@@ -17,6 +19,7 @@ const Badge = ({
   isRoomAuth,
   badgeNumber,
   title,
+  coop,
 }: {
   user: UserInfo | BadgeStatus;
   isOwner: boolean;
@@ -24,6 +27,7 @@ const Badge = ({
   badgeNumber: number;
   isRoomAuth: boolean;
   title: string;
+  coop?: boolean;
 }) => {
   const outerRef = useRef<HTMLDivElement>(null);
 
@@ -101,15 +105,24 @@ const Badge = ({
   if (isMine)
     return (
       <Container>
-        <UserCard islock={user.status ? 'true' : 'false'}>
+        <UserCard
+          islock={user.status ? 'true' : 'false'}
+          team={coop ? (badgeNumber < 5 ? 'red' : 'blue') : ''}
+        >
           <InfoBox>
-            <UserImg ismine={isMine ? 'true' : 'false'}>
+            <UserImg
+              team={coop ? (badgeNumber < 5 ? 'red' : 'blue') : ''}
+              ismine={isMine ? 'true' : 'false'}
+            >
               <img id='profile-image' src={'/images/anonymous.jpg'} />
             </UserImg>
-            <InfoFrame>
+            <InfoFrame team={coop ? (badgeNumber < 5 ? 'red' : 'blue') : ''}>
               <p>User</p>
               <p className='nickname'>
-                {isMine && <img src={StarIcon} />} {user.nickname}
+                {isMine && (
+                  <img src={coop ? (badgeNumber < 5 ? RedStarIcon : BlueStarIcon) : StarIcon} />
+                )}{' '}
+                {user.nickname}
               </p>
               <p className='level'>LV {user.level}</p>
             </InfoFrame>
@@ -147,12 +160,16 @@ const Badge = ({
         </Menu>
       )}
       <Container>
-        <UserCard ref={outerRef} islock={user.status ? 'true' : 'false'}>
+        <UserCard
+          ref={outerRef}
+          islock={user.status ? 'true' : 'false'}
+          team={coop ? (badgeNumber < 5 ? 'red' : 'blue') : ''}
+        >
           <InfoBox>
             <UserImg ismine={isMine ? 'true' : 'false'}>
               <img id='profile-image' src={'/images/anonymous.jpg'} />
             </UserImg>
-            <InfoFrame>
+            <InfoFrame team={coop ? (badgeNumber < 5 ? 'red' : 'blue') : ''}>
               <p>User</p>
               <p className='nickname'>
                 {isMine && <img src={StarIcon} />}
@@ -202,11 +219,19 @@ const InfoBox = styled.div`
   width: 65%;
 `;
 
-const UserImg = styled.div<{ ismine?: string }>`
+const UserImg = styled.div<{ team?: string; ismine?: string }>`
   min-width: 104px;
   min-height: 104px;
   border-radius: 50%;
-  border: 5px solid ${(props) => (props.ismine === 'true' ? '#92dab870' : '#35353f')};
+  border: 5px solid
+    ${(props) =>
+      props.ismine === 'true'
+        ? props.team === 'blue'
+          ? '#399fff68'
+          : props.team === 'red'
+          ? '#ff5c5c6f'
+          : '#92dab870'
+        : '#35353f'};
   background-color: #26262d;
 
   * {
@@ -265,7 +290,7 @@ const NonUserCard = styled.div<{ islock: string }>`
   }
 `;
 
-const UserCard = styled.div<{ islock: string; ismine?: string }>`
+const UserCard = styled.div<{ islock: string; ismine?: string; team?: string }>`
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -276,7 +301,14 @@ const UserCard = styled.div<{ islock: string; ismine?: string }>`
     linear-gradient(#26262d, #26262d) padding-box,
     linear-gradient(
         to bottom right,
-        ${(props) => (props.islock === 'true' ? '#59fff5' : '#838393')},
+        ${(props) =>
+          props.islock === 'true'
+            ? props.team === 'blue'
+              ? '#39A0FF'
+              : props.team === 'red'
+              ? '#FF5C5C'
+              : '#59fff5'
+            : '#838393'},
         transparent
       )
       border-box,
@@ -291,10 +323,22 @@ const UserCard = styled.div<{ islock: string; ismine?: string }>`
   border-radius: 80px;
 
   box-shadow: ${(props) =>
-    props.islock === 'true' ? '0px 0px 24px 0px #59fff5' : '0px 0px 10px 0px #59fff5'};
+    props.islock === 'true'
+      ? props.team === 'blue'
+        ? '0px 0px 24px 0px #39A0FF'
+        : props.team === 'red'
+        ? '0px 0px 24px 0px #FF5C5C'
+        : '0px 0px 24px 0px #59fff5'
+      : props.team === 'blue'
+      ? '0px 0px 10px 0px #39A0FF'
+      : props.team === 'red'
+      ? '0px 0px 10px 0px #FF5C5C'
+      : '0px 0px 10px 0px #59fff5'};
 
   .ready {
-    border: 2.4px solid #6bd9a4;
+    border: 2.4px solid
+      ${(props) =>
+        props.team === 'blue' ? '#39A0FF' : props.team === 'red' ? '#FF5C5C' : '#6bd9a4'};
     box-shadow: 0px 0px 5px 0px #59fff5;
     color: #eee;
     font-family: ${(props) => props.theme.font.title};
@@ -306,7 +350,8 @@ const UserCard = styled.div<{ islock: string; ismine?: string }>`
   }
 
   &:hover {
-    border-color: #6bd9a4;
+    border-color: ${(props) =>
+      props.team === 'blue' ? '#39A0FF' : props.team === 'red' ? '#FF5C5C' : '#6bd9a4'};
   }
 `;
 
@@ -345,7 +390,7 @@ const NonTitle = styled.div`
   letter-spacing: -0.64px;
 `;
 
-const InfoFrame = styled.div`
+const InfoFrame = styled.div<{ team?: string }>`
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -356,7 +401,12 @@ const InfoFrame = styled.div`
     width: 24px;
   }
   p {
-    color: ${(props) => props.theme.color.MainKeyColor};
+    color: ${(props) =>
+      props.team === 'blue'
+        ? '#39A0FF'
+        : props.team === 'red'
+        ? '#FF5C5C'
+        : props.theme.color.MainKeyColor};
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -365,7 +415,12 @@ const InfoFrame = styled.div`
   }
   .nickname {
     width: 100%;
-    color: ${(props) => props.theme.color.MainKeyColor};
+    color: ${(props) =>
+      props.team === 'blue'
+        ? '#39A0FF'
+        : props.team === 'red'
+        ? '#FF5C5C'
+        : props.theme.color.MainKeyColor};
     font-family: ${(props) => props.theme.font.title};
     text-shadow: #3f3d4d 2px 0 3px;
     text-transform: uppercase;
