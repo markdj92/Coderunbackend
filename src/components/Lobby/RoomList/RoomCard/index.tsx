@@ -27,7 +27,7 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate, handleIs
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { myPeerConnection, makeConnection, setJoinUser } = useVoiceHandle();
+  const { myPeerConnection, makeConnection, handleJoinUser } = useVoiceHandle();
 
   const onClickRoom = useCallback(
     (roomName: string) => {
@@ -54,7 +54,12 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate, handleIs
                 }
               }
             }
-            setJoinUser(payload.userlist.filter((id) => id !== webRtcSocketIo.id));
+
+            console.error(
+              'filter error check: ',
+              handleJoinUser(payload.userlist.filter((id) => id !== webRtcSocketIo.id)),
+            );
+            handleJoinUser(payload.userlist.filter((id) => id !== webRtcSocketIo.id));
             if (response.payload?.roomInfo.mode === 'COOPERATIVE') {
               navigate(`/cooproom/${roomName}`, {
                 state: { ...response.payload.roomInfo, nickname },
