@@ -120,7 +120,11 @@ const StudyRoom = () => {
   useEffect(() => {
     //참관자 입장
     webRtcSocketIo.on('entry', async (data) => {
-      setJoinUser(data.filter((id) => id !== socket.current.id));
+      console.error(
+        'entey error check: ',
+        handleJoinUser(data.filter((id) => id !== socket.current.id)),
+      );
+      handleJoinUser(data.filter((id) => id !== socket.current.id));
     });
 
     //offer를 받는 쪽
