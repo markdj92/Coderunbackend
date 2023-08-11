@@ -16,7 +16,11 @@ const ReviewBottom = ({
 };
 
 const Container = styled.div`
+  position: fixed;
+  z-index: 1;
+  bottom: 0;
   width: 100%;
+  height: 10%;
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
@@ -29,9 +33,9 @@ const Container = styled.div`
 `;
 
 const RunButton = styled.button`
-  font-size: 1rem;
+  font-size: 220%;
   font-weight: 600;
-  padding: 0.7rem 1rem;
+  padding: 0rem 1rem;
   border-radius: 0.2rem;
   background-color: #44576c;
   &:hover {
@@ -40,9 +44,9 @@ const RunButton = styled.button`
 `;
 
 const SubmitButton = styled.button`
-  font-size: 1rem;
+  font-size: 220%;
   font-weight: 600;
-  padding: 0.4375rem 0.8125rem;
+  padding: 0rem 0.8125rem;
   border-radius: 0.2rem;
   background-color: #0078ff;
   &:hover {
