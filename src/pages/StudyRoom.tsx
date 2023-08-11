@@ -16,6 +16,7 @@ import { BadgeStatus, RoomStatus, UserInfo } from '@/types/room';
 const StudyRoom = () => {
   useSocketConnect();
   const location = useLocation();
+  const navigate = useNavigate();
   const { setIsMusic } = useMusic();
 
   const { myPeerConnection, makeConnection, handleJoinUser } = useVoiceHandle();
@@ -31,8 +32,6 @@ const StudyRoom = () => {
   const [maxPeople, setMaxPeople] = useState<number>(max_members);
   const [userInfos, setUserInfos] = useState<(UserInfo | BadgeStatus)[]>(user_info);
   const [roomLevel, setRoomLevel] = useState<number>(1);
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     setIsMusic(false);
@@ -56,6 +55,7 @@ const StudyRoom = () => {
           countReady += 1;
         }
       });
+
       setAbleStart(member_count === countReady + 1);
       setMaxPeople(max_members);
       setUserInfos(user_info);

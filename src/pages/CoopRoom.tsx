@@ -15,16 +15,14 @@ import { RoomStatus, UserInfo, BadgeStatus } from '@/types/room';
 const CoopRoom = () => {
   useSocketConnect();
 
-  const [isLeaveRoom, setIsLeaveRoom] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-
+  const { setIsMusic } = useMusic();
   const { myPeerConnection, makeConnection, handleJoinUser } = useVoiceHandle();
-
   const { title, member_count, max_members, user_info, nickname, level } = location.state;
 
+  const [isLeaveRoom, setIsLeaveRoom] = useState(false);
   const [ableStart, setAbleStart] = useState<boolean>(false);
-
   const [roomName, setRoomName] = useState<string>(title);
   const [people, setPeople] = useState<number>(member_count);
   const [myIndex, setMyIndex] = useState<number>(0);
@@ -33,11 +31,16 @@ const CoopRoom = () => {
   const [userInfos, setUserInfos] = useState<(UserInfo | BadgeStatus)[]>(user_info);
 
   useEffect(() => {
+    setIsMusic(false);
+  }, []);
+
+  useEffect(() => {
     const roomHandler = (response: RoomStatus) => {
       const { title, member_count, max_members, user_info } = response;
       setRoomName(title);
       setPeople(member_count);
       let countReady = 0;
+
       user_info.forEach((user: UserInfo | BadgeStatus, index: number) => {
         if (user === 'LOCK' || user === 'EMPTY') return;
         if (user.nickname === nickname) {
@@ -50,10 +53,7 @@ const CoopRoom = () => {
           countReady += 1;
         }
       });
-      const bgm = document.getElementById('bgm');
-      if (bgm instanceof HTMLAudioElement) {
-        bgm.pause();
-      }
+
       setAbleStart(member_count === countReady + 1 && countReady % 2 === 1);
       setMaxPeople(max_members);
       setUserInfos(user_info);
