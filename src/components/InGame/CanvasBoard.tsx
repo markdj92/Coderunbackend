@@ -154,7 +154,7 @@ const CanvasBoard = (props: CanvasBoardType) => {
       drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color, false);
     };
 
-    // socketRef.current = io('http://localhost:3004', {
+    // socketRef.current = io('http://localhost:3100', {
     socketRef.current = io('http://52.69.242.42:3100', {
       path: '/canvas/',
     });

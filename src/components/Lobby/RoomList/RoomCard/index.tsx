@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -9,7 +10,8 @@ import LevelForm from './LevelForm';
 import MembersFrom from './MembersFrom';
 import Title from './Title';
 
-import { socket } from '@/apis/socketApi';
+import { socket, webRtcSocketIo } from '@/apis/socketApi';
+import { useVoiceHandle } from '@/contexts/VoiceChatContext';
 import { RoomResponse } from '@/types/lobby';
 import { RoomInformation } from '@/types/room';
 
@@ -23,21 +25,55 @@ interface Props {
 const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+
+  const { myPeerConnection, makeConnection, setJoinUser } = useVoiceHandle();
+
   const onClickRoom = useCallback(
     (roomName: string) => {
       setIsLoading(true);
       socket.emit('join-room', { title: roomName }, (response: RoomResponse) => {
         setIsLoading(false);
         if (!response.payload?.roomInfo) return alert('방 입장 실패!');
-        if (response.payload?.roomInfo.mode === 'COOPERATIVE') {
-          navigate(`/cooproom/${roomName}`, {
-            state: { ...response.payload.roomInfo, nickname },
-          });
-        } else {
-          navigate(`/room/${roomName}`, {
-            state: { ...response.payload.roomInfo, nickname },
-          });
-        }
+
+        webRtcSocketIo.emit('joinRoom', { title: roomName }, async ({ success, payload }) => {
+          if (!success) return alert('방 입장 실패!');
+          console.error(payload);
+          try {
+            for (const id in payload.userlist) {
+              console.error('123: ', id, payload.userlist[id], webRtcSocketIo.id);
+              if (payload.userlist[id] !== webRtcSocketIo.id) {
+                if (!myPeerConnection.current[payload.userlist[id]]) {
+                  makeConnection(payload.userlist[id], payload.title);
+
+                  const offer = await myPeerConnection.current[payload.userlist[id]].createOffer();
+                  myPeerConnection.current[payload.userlist[id]].setLocalDescription(offer);
+                  console.error('offer: ', roomName, offer, payload.userlist[id]);
+                  webRtcSocketIo.emit('offer', {
+                    title: roomName,
+                    offer: offer,
+                    to: payload.userlist[id],
+                  });
+                }
+              }
+            }
+            console.error(
+              'localStream: ',
+              payload.userlist.filter((id) => id !== webRtcSocketIo.id),
+            );
+            setJoinUser(payload.userlist.filter((id) => id !== webRtcSocketIo.id));
+            if (response.payload?.roomInfo.mode === 'COOPERATIVE') {
+              navigate(`/cooproom/${roomName}`, {
+                state: { ...response.payload.roomInfo, nickname },
+              });
+            } else {
+              navigate(`/room/${roomName}`, {
+                state: { ...response.payload.roomInfo, nickname },
+              });
+            }
+          } catch (error) {
+            console.error('Error creating offer!', error);
+          }
+        });
       });
     },
     [navigate],

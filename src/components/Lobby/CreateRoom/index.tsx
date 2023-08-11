@@ -5,7 +5,7 @@ import { styled } from 'styled-components';
 
 import Modal from '../../public/Modal';
 
-import { socket } from '@/apis/socketApi';
+import { socket, webRtcSocketIo } from '@/apis/socketApi';
 import CustomButtonTiny from '@/components/public/CustomButtonTiny';
 import CustomInputSmall from '@/components/public/CustomInputSmall';
 import { useInput } from '@/hooks/useInput';
@@ -48,15 +48,24 @@ const CreateRoom = ({ nickname, handleShowCreateRoom }: RoomProps) => {
       if (!response.payload.roomInfo) {
         return alert('서버 문제가 발생했습니다.');
       }
-      if (roomInfo.mode === 'STUDY') {
-        navigate(`/room/${roomInfo.title}`, {
-          state: { ...response.payload.roomInfo, nickname },
-        });
-      } else {
-        navigate(`/cooproom/${roomInfo.title}`, {
-          state: { ...response.payload.roomInfo, nickname },
-        });
-      }
+      webRtcSocketIo.emit(
+        'createRoom',
+        { title: roomInfo.title },
+        ({ success }: { success: boolean }) => {
+          if (!success) {
+            return alert('웹소켓 연결에 실패');
+          }
+          if (roomInfo.mode === 'STUDY') {
+            navigate(`/room/${roomInfo.title}`, {
+              state: { ...response.payload.roomInfo, nickname },
+            });
+          } else {
+            navigate(`/cooproom/${roomInfo.title}`, {
+              state: { ...response.payload.roomInfo, nickname },
+            });
+          }
+        },
+      );
     });
   };
   useEffect(() => {
