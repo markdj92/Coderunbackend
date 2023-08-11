@@ -17,7 +17,7 @@ const ReviewBottom = ({
 
 const Container = styled.div`
   position: fixed;
-  z-index: 1;
+  z-index: 3;
   bottom: 0;
   width: 100%;
   height: 10%;

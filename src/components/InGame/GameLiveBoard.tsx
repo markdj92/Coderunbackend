@@ -35,7 +35,6 @@ const Container = styled.div`
 `;
 
 const UserListSection = styled.div`
-  margin: 10px 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -43,17 +42,14 @@ const UserListSection = styled.div`
 `;
 
 const UserCard = styled.div`
-  font-family: ${(props) => props.theme.font.Content};
   width: 80px;
-  padding: 10px 0;
-  color: ${(props) => props.theme.color.LightGray};
+  height: 80px;
+  border-radius: 50%;
+  background-color: #1a213a;
+  margin: 0.5rem 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-weight: 500;
-  :hover {
-    color: ${(props) => props.theme.color.DarkGray};
-  }
 `;
 
 export default GameLiveBoard;
