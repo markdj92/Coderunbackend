@@ -54,10 +54,6 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate, handleIs
                 }
               }
             }
-            console.error(
-              'localStream: ',
-              payload.userlist.filter((id) => id !== webRtcSocketIo.id),
-            );
             setJoinUser(payload.userlist.filter((id) => id !== webRtcSocketIo.id));
             if (response.payload?.roomInfo.mode === 'COOPERATIVE') {
               navigate(`/cooproom/${roomName}`, {
