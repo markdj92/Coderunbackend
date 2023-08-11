@@ -60,7 +60,7 @@ const EditorCodeMirror: React.FC<Props> = ({
     });
 
     const editorPlaceHolder = `print("welcome to coding learn")`;
-    f;
+
     const state = EditorState.create({
       doc: ytext.toString(),
       extensions: [
