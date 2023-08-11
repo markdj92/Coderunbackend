@@ -1,12 +1,14 @@
+//@ts-nocheck
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { styled } from 'styled-components';
 
-import { socket } from '@/apis/socketApi';
+import { socket, webRtcSocketIo } from '@/apis/socketApi';
 import Alert from '@/components/public/Alert';
 import { HeaderLogo } from '@/components/public/HeaderLogo';
 import Badge from '@/components/Room/Badge';
 import ToolButtonBox from '@/components/Room/ToolButtonBox';
+import { useVoiceHandle } from '@/contexts/VoiceChatContext';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomStatus, UserInfo, BadgeStatus } from '@/types/room';
 
@@ -16,6 +18,8 @@ const CoopRoom = () => {
   const [isLeaveRoom, setIsLeaveRoom] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { myPeerConnection, makeConnection, handleJoinUser } = useVoiceHandle();
 
   const { title, member_count, max_members, user_info, nickname, level } = location.state;
 
@@ -75,7 +79,9 @@ const CoopRoom = () => {
     socket.on('kicked', (title) => {
       if (title === roomName) {
         socket.emit('leave-room', { title: roomName }, () => {
-          navigate('/lobby', { state: { nickname, kicked: true } });
+          webRtcSocketIo.emit('leaveRoom', { title: roomName }, () => {
+            navigate('/lobby', { state: { nickname } });
+          });
         });
       }
     });
@@ -100,9 +106,75 @@ const CoopRoom = () => {
   const leaveRoomTitle = '정말 나가시겠습니까?';
   const onLeaveRoom = useCallback(() => {
     socket.emit('leave-room', { title: roomName }, () => {
-      navigate('/lobby', { state: { nickname } });
+      webRtcSocketIo.emit('leaveRoom', { title: roomName }, () => {
+        navigate('/lobby', { state: { nickname } });
+      });
     });
   }, [navigate, roomName]);
+
+  useEffect(() => {
+    //참관자 입장
+    webRtcSocketIo.on('entry', async (data) => {
+      console.error(
+        'entey error check: ',
+        handleJoinUser(data.filter((id) => id !== webRtcSocketIo.id)),
+      );
+      handleJoinUser(data.filter((id) => id !== webRtcSocketIo.id));
+    });
+
+    //offer를 받는 쪽
+    webRtcSocketIo.on('offer', async (data) => {
+      if (!myPeerConnection.current[data.from]) {
+        makeConnection(data.from, title);
+      }
+
+      if (myPeerConnection.current[data.from].connectionState === 'stable') {
+        return;
+      }
+
+      myPeerConnection.current[data.from].setRemoteDescription(
+        new RTCSessionDescription(data.offer),
+      );
+      const answer = await myPeerConnection.current[data.from].createAnswer(data.offer);
+      await myPeerConnection.current[data.from].setLocalDescription(answer);
+
+      //answer를 보내는 쪽
+      webRtcSocketIo.emit('answer', {
+        title: title,
+        answer: answer,
+        to: data.from,
+      });
+    });
+
+    //answer 받기
+    webRtcSocketIo.on('answer', async (data) => {
+      await myPeerConnection.current[data.from].setRemoteDescription(data.answer);
+    });
+
+    //ice를 받는 쪽
+    webRtcSocketIo.on('ice', async (data) => {
+      if (myPeerConnection.current[data.from]) {
+        await myPeerConnection.current[data.from].addIceCandidate(data.icecandidate);
+      }
+    });
+
+    // 연결 해제 - 타인
+    webRtcSocketIo.on('someoneLeaveRoom', ({ userId }) => {
+      if (myPeerConnection.current[userId]) {
+        myPeerConnection.current[userId].close();
+        delete myPeerConnection.current[userId];
+      }
+    });
+
+    return () => {
+      webRtcSocketIo.off('entry');
+      webRtcSocketIo.off('offer');
+      webRtcSocketIo.off('answer');
+      webRtcSocketIo.off('ice');
+      webRtcSocketIo.off('someoneLeaveRoom');
+    };
+  }, [roomName]);
+
   return (
     <MainContainer>
       {isLeaveRoom && (

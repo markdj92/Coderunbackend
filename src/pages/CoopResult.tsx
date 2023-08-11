@@ -33,7 +33,9 @@ const CoopResult = () => {
 
   const onLeaveRoom = useCallback(() => {
     socket.emit('leave-room', { title: roomName }, () => {
-      navigate('/lobby', { state: { nickname } });
+      webRtcSocketIo.emit('leaveRoom', { title: roomName }, () => {
+        navigate('/lobby', { state: { nickname } });
+      });
     });
   }, [navigate, roomName]);
 
