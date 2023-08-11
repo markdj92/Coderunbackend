@@ -7,8 +7,8 @@ import { PATH_ROUTE, USER_NICKNAME_KEY, USER_TOKEN_KEY } from '@/constants';
 import { validateUserInfo } from '@/utils';
 
 import { postLogin, setInitName } from '@/apis/authApi';
-import Alert from '@/components/public/Alert';
 import { socket, webRtcSocketIo } from '@/apis/socketApi';
+import Alert from '@/components/public/Alert';
 import CustomButton from '@/components/public/CustomButton';
 import CustomInput from '@/components/public/CustomInput';
 import SetNickname from '@/components/SetNickname';
@@ -88,7 +88,6 @@ const Login = () => {
       socket.connect();
       navigate(PATH_ROUTE.lobby, { state: { nickname } });
     } catch (error: any) {
-      console.error(error.response.data);
       if (error.response.data.message) setErrorNickname(error.response.data.message);
       else setErrorNickname('닉네임 설정에 실패했습니다. 다시 시도해주세요!');
     }

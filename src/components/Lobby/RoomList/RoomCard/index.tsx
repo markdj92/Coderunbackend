@@ -37,18 +37,15 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate, handleIs
         if (!response.payload?.roomInfo) return handleIssue();
 
         webRtcSocketIo.emit('joinRoom', { title: roomName }, async ({ success, payload }) => {
-          if (!success) return return handleIssue();
-          console.error(payload);
+          if (!success) return handleIssue();
           try {
             for (const id in payload.userlist) {
-              console.error('123: ', id, payload.userlist[id], webRtcSocketIo.id);
               if (payload.userlist[id] !== webRtcSocketIo.id) {
                 if (!myPeerConnection.current[payload.userlist[id]]) {
                   makeConnection(payload.userlist[id], payload.title);
 
                   const offer = await myPeerConnection.current[payload.userlist[id]].createOffer();
                   myPeerConnection.current[payload.userlist[id]].setLocalDescription(offer);
-                  console.error('offer: ', roomName, offer, payload.userlist[id]);
                   webRtcSocketIo.emit('offer', {
                     title: roomName,
                     offer: offer,
@@ -72,7 +69,7 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate, handleIs
               });
             }
           } catch (error) {
-            console.error('Error creating offer!', error);
+            console.error(error);
           }
         });
       });

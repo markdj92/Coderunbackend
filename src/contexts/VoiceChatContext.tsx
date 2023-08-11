@@ -106,10 +106,6 @@ const VoiceChatProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     myPeerConnection.current[id].oniceconnectionstatechange = () => {
-      console.error(
-        'ICE connection state change:',
-        myPeerConnection.current[id].iceConnectionState,
-      );
       if (myPeerConnection.current[id].iceConnectionState === 'disconnected') {
         myPeerConnection.current[id].close();
         delete myPeerConnection.current[id];
@@ -117,7 +113,6 @@ const VoiceChatProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     myPeerConnection.current[id].ontrack = (event) => {
-      console.error('got an stream from my peer', id, event.streams[0]);
       let videoElement = peerFaceRef.current[id];
       if (!videoElement) {
         // Create a new video element if it doesn't exist
@@ -132,7 +127,6 @@ const VoiceChatProvider = ({ children }: { children: React.ReactNode }) => {
       }
       videoElement.srcObject = event.streams[0];
     };
-    console.error(`myPeerConnection.current[${id}].ontrack`, myPeerConnection.current[id]);
 
     if (myStream.current) {
       myStream.current
