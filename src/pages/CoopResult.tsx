@@ -5,7 +5,7 @@ import { styled } from 'styled-components';
 import { TITLE_COMMENT } from '@/constants';
 
 import { postResult } from '@/apis/roomApi';
-import { socket } from '@/apis/socketApi';
+import { socket, webRtcSocketIo } from '@/apis/socketApi';
 import Alert from '@/components/public/Alert';
 import TimerBar from '@/components/public/TimerBar';
 import ResultFrame from '@/components/Result/ResultFrame';
