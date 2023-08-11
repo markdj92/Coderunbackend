@@ -101,8 +101,7 @@ const StudyRoom = () => {
 
   const onLeaveRoom = useCallback(() => {
     socket.emit('leave-room', { title: roomName }, () => {
-      webRtcSocketIo.emit('leaveRoom', { title: roomName }, (response) => {
-        console.error(response.payload.userId);
+      webRtcSocketIo.emit('leaveRoom', { title: roomName }, () => {
         for (let user in myPeerConnection.current) {
           console.error(user);
           myPeerConnection.current[user].close();
@@ -123,15 +122,12 @@ const StudyRoom = () => {
 
   useEffect(() => {
     //참관자 입장
-    console.error('방장 webRtcSocketIo on');
     webRtcSocketIo.on('entry', async (data) => {
-      console.error('entry: ', data);
       setJoinUser(data.filter((id) => id !== socket.current.id));
     });
 
     //offer를 받는 쪽
     webRtcSocketIo.on('offer', async (data) => {
-      console.error('offer', data);
       if (!myPeerConnection.current[data.from]) {
         makeConnection(data.from, title);
       }
@@ -147,8 +143,6 @@ const StudyRoom = () => {
       await myPeerConnection.current[data.from].setLocalDescription(answer);
 
       //answer를 보내는 쪽
-
-      console.error('answer send: ', title, answer, data.from);
       webRtcSocketIo.emit('answer', {
         title: title,
         answer: answer,
