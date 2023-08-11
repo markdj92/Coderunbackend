@@ -24,4 +24,5 @@ export const PATH_API = Object.freeze({
   codingtest: '/codingtest',
   execute: '/execute',
   resultList: '/resultList',
+  voice: '/voice',
 });

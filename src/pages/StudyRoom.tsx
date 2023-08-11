@@ -1,13 +1,15 @@
+//@ts-nocheck
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { socket } from '@/apis/socketApi';
+import { socket, webRtcSocketIo } from '@/apis/socketApi';
 import Alert from '@/components/public/Alert';
 import { HeaderLogo } from '@/components/public/HeaderLogo';
 import Badge from '@/components/Room/Badge';
 import ToolButtonBox from '@/components/Room/ToolButtonBox';
 import { useMusic } from '@/contexts/MusicContext';
+import { useVoiceHandle } from '@/contexts/VoiceChatContext';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { BadgeStatus, RoomStatus, UserInfo } from '@/types/room';
 
@@ -15,29 +17,22 @@ const StudyRoom = () => {
   useSocketConnect();
   const location = useLocation();
   const { setIsMusic } = useMusic();
+
+  const { myPeerConnection, makeConnection } = useVoiceHandle();
+
   const { title, member_count, max_members, user_info, nickname, level } = location.state;
 
   const [isLeaveRoom, setIsLeaveRoom] = useState(false);
   const [ableStart, setAbleStart] = useState<boolean>(false);
-  const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
-  const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
   const [roomName, setRoomName] = useState<string>(title);
   const [people, setPeople] = useState<number>(member_count);
   const [myIndex, setMyIndex] = useState<number>(0);
   const [ownerIndex, setOwnerIndex] = useState<number>(0);
   const [maxPeople, setMaxPeople] = useState<number>(max_members);
   const [userInfos, setUserInfos] = useState<(UserInfo | BadgeStatus)[]>(user_info);
-  const [roomlevel, setRoomLevel] = useState<number>(1);
+  const [roomLevel, setRoomLevel] = useState<number>(1);
 
   const navigate = useNavigate();
-
-  const handleSpeaker = () => {
-    setIsSpeaker(!isSpeaker);
-  };
-
-  const handleMicrophone = () => {
-    setIsMicrophone(!isMicrophone);
-  };
 
   useEffect(() => {
     setIsMusic(false);
@@ -94,6 +89,7 @@ const StudyRoom = () => {
     socket.on('start', (response) => {
       navigate('/game', { state: { nickname: nickname, title: response.title } });
     });
+
     return () => {
       socket.off('kicked');
       socket.off('start');
@@ -102,9 +98,18 @@ const StudyRoom = () => {
   }, []);
 
   const leaveRoomTitle = '정말 나가시겠습니까?';
+
   const onLeaveRoom = useCallback(() => {
     socket.emit('leave-room', { title: roomName }, () => {
-      navigate('/lobby', { state: { nickname } });
+      webRtcSocketIo.emit('leaveRoom', { title: roomName }, (response) => {
+        console.error(response.payload.userId);
+        for (let user in myPeerConnection.current) {
+          console.error(user);
+          myPeerConnection.current[user].close();
+          delete myPeerConnection.current[user];
+        }
+        navigate('/lobby', { state: { nickname } });
+      });
     });
   }, [navigate, roomName]);
 
@@ -115,6 +120,70 @@ const StudyRoom = () => {
   const onGameRoom = () => {
     socket.emit('start', { title: roomName });
   };
+
+  useEffect(() => {
+    //참관자 입장
+    console.error('방장 webRtcSocketIo on');
+    webRtcSocketIo.on('entry', async (data) => {
+      console.error('entry: ', data);
+      setJoinUser(data.filter((id) => id !== socket.current.id));
+    });
+
+    //offer를 받는 쪽
+    webRtcSocketIo.on('offer', async (data) => {
+      console.error('offer', data);
+      if (!myPeerConnection.current[data.from]) {
+        makeConnection(data.from, title);
+      }
+
+      if (myPeerConnection.current[data.from].connectionState === 'stable') {
+        return;
+      }
+
+      myPeerConnection.current[data.from].setRemoteDescription(
+        new RTCSessionDescription(data.offer),
+      );
+      const answer = await myPeerConnection.current[data.from].createAnswer(data.offer);
+      await myPeerConnection.current[data.from].setLocalDescription(answer);
+
+      //answer를 보내는 쪽
+
+      console.error('answer send: ', title, answer, data.from);
+      webRtcSocketIo.emit('answer', {
+        title: title,
+        answer: answer,
+        to: data.from,
+      });
+    });
+
+    //answer 받기
+    webRtcSocketIo.on('answer', async (data) => {
+      await myPeerConnection.current[data.from].setRemoteDescription(data.answer);
+    });
+
+    //ice를 받는 쪽
+    webRtcSocketIo.on('ice', async (data) => {
+      if (myPeerConnection.current[data.from]) {
+        await myPeerConnection.current[data.from].addIceCandidate(data.icecandidate);
+      }
+    });
+
+    // 연결 해제 - 타인
+    webRtcSocketIo.on('someoneLeaveRoom', ({ userId }) => {
+      if (myPeerConnection.current[userId]) {
+        myPeerConnection.current[userId].close();
+        delete myPeerConnection.current[userId];
+      }
+    });
+
+    return () => {
+      webRtcSocketIo.off('entry');
+      webRtcSocketIo.off('offer');
+      webRtcSocketIo.off('answer');
+      webRtcSocketIo.off('ice');
+      webRtcSocketIo.off('someoneLeaveRoom');
+    };
+  }, [roomName]);
 
   return (
     <MainContainer>
@@ -132,15 +201,9 @@ const StudyRoom = () => {
         <RoomInfoSection>
           <ModeBox>STUDY MODE.</ModeBox>
           <TitleBox>{title}</TitleBox>
-          <DetailBox>Lv.{roomlevel}</DetailBox>
+          <DetailBox>Lv.{roomLevel}</DetailBox>
         </RoomInfoSection>
-        <ToolButtonBox
-          isSpeaker={isSpeaker}
-          isMicrophone={isMicrophone}
-          handleSpeaker={handleSpeaker}
-          handleMicrophone={handleMicrophone}
-          handleLeaveRoom={() => setIsLeaveRoom(true)}
-        />
+        <ToolButtonBox handleLeaveRoom={() => setIsLeaveRoom(true)} />
       </LeftFrame>
       <MainFrame>
         <MainContentBox>

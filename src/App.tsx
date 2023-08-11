@@ -6,6 +6,7 @@ import PageRouter from '@/routes';
 import MusicPlayerToggle from './components/public/MusicPlayerToggle';
 import { ToastProvider, Toast } from './components/public/Toast';
 import MusicProvider from './contexts/MusicContext';
+import VoiceChatProvider from './contexts/VoiceChatContext';
 import GlobalStyle from './styles/GlobalStyle';
 import { theme } from './styles/theme';
 
@@ -15,13 +16,15 @@ function App() {
   return (
     <React.Suspense fallback={<div>Loading...</div>}>
       <MusicProvider>
-        <ThemeProvider theme={theme}>
-          <ToastProvider toastInstance={toastInstance}>
-            <MusicPlayerToggle />
-            <GlobalStyle />
-            <PageRouter />
-          </ToastProvider>
-        </ThemeProvider>
+        <VoiceChatProvider>
+          <ThemeProvider theme={theme}>
+            <ToastProvider toastInstance={toastInstance}>
+              <MusicPlayerToggle />
+              <GlobalStyle />
+              <PageRouter />
+            </ToastProvider>
+          </ThemeProvider>
+        </VoiceChatProvider>
       </MusicProvider>
     </React.Suspense>
   );

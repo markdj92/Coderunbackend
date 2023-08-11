@@ -15,31 +15,26 @@ import SpeakerMuteIcon from '/icon/room/speakerMute.svg';
 import MicMuteActiveIcon from '/icon/room/micMute_active.svg';
 import SpeakerMuteActiveIcon from '/icon/room/speakerMute_active.svg';
 
+import { useVoiceChange, useVoiceChat } from '@/contexts/VoiceChatContext';
+
 interface Props {
-  isSpeaker: boolean;
-  isMicrophone: boolean;
   handleLeaveRoom: () => void;
-  handleMicrophone: () => void;
-  handleSpeaker: () => void;
 }
 
-const ToolButtonBox = ({
-  isSpeaker,
-  isMicrophone,
-  handleLeaveRoom,
-  handleMicrophone,
-  handleSpeaker,
-}: Props) => {
+const ToolButtonBox = ({ handleLeaveRoom }: Props) => {
+  const { isSpeaker, isMic } = useVoiceChat();
+  const { toggleSpeaker, toggleMic } = useVoiceChange();
+
   return (
     <IconButtonsBox>
-      {isMicrophone ? (
-        <IconButton icon={MicIcon} hoverIcon={MicActiveIcon} alt='mic' onClick={handleMicrophone} />
+      {isMic ? (
+        <IconButton icon={MicIcon} hoverIcon={MicActiveIcon} alt='mic' onClick={toggleMic} />
       ) : (
         <IconButton
           icon={MicMuteIcon}
           hoverIcon={MicMuteActiveIcon}
           alt='mic'
-          onClick={handleMicrophone}
+          onClick={toggleMic}
         />
       )}
       {isSpeaker ? (
@@ -47,14 +42,14 @@ const ToolButtonBox = ({
           icon={SpeakerIcon}
           hoverIcon={SpeakerActiveIcon}
           alt='speaker'
-          onClick={handleSpeaker}
+          onClick={toggleSpeaker}
         />
       ) : (
         <IconButton
           icon={SpeakerMuteIcon}
           hoverIcon={SpeakerMuteActiveIcon}
           alt='speaker'
-          onClick={handleSpeaker}
+          onClick={toggleSpeaker}
         />
       )}
       <IconButton icon={SettingIcon} hoverIcon={SettingActiveIcon} alt='setting' />

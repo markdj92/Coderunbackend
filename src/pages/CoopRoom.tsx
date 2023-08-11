@@ -21,9 +21,6 @@ const CoopRoom = () => {
 
   const [ableStart, setAbleStart] = useState<boolean>(false);
 
-  const [isSpeaker, setIsSpeaker] = useState<boolean>(true);
-  const [isMicrophone, setIsMicrophone] = useState<boolean>(true);
-
   const [roomName, setRoomName] = useState<string>(title);
   const [people, setPeople] = useState<number>(member_count);
   const [myIndex, setMyIndex] = useState<number>(0);
@@ -92,14 +89,6 @@ const CoopRoom = () => {
     };
   }, []);
 
-  const handleSpeaker = () => {
-    setIsSpeaker(!isSpeaker);
-  };
-
-  const handleMicrophone = () => {
-    setIsMicrophone(!isMicrophone);
-  };
-
   const onReady = () => {
     socket.emit('ready', { title: roomName });
   };
@@ -133,13 +122,7 @@ const CoopRoom = () => {
           <DetailBox>Lv.{level}</DetailBox>
         </RoomInfoSection>
 
-        <ToolButtonBox
-          isSpeaker={isSpeaker}
-          isMicrophone={isMicrophone}
-          handleSpeaker={handleSpeaker}
-          handleMicrophone={handleMicrophone}
-          handleLeaveRoom={() => setIsLeaveRoom(true)}
-        />
+        <ToolButtonBox handleLeaveRoom={() => setIsLeaveRoom(true)} />
       </LeftFrame>
       <MainFrame>
         <MainContentBox>
@@ -192,7 +175,8 @@ const CoopRoom = () => {
 const MainContainer = styled.div`
   background: url('/background_lobby.png');
   background-blend-mode: luminosity;
-  background-size: contain;
+  background-size: cover;
+  background-position: center;
   font-family: 'Noto Sans KR', sans-serif;
   display: flex;
   flex-direction: row;
