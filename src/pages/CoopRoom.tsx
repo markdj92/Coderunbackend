@@ -81,7 +81,7 @@ const CoopRoom = () => {
       if (title === roomName) {
         socket.emit('leave-room', { title: roomName }, () => {
           webRtcSocketIo.emit('leaveRoom', { title: roomName }, () => {
-            navigate('/lobby', { state: { nickname, kicked } });
+            navigate('/lobby', { state: { nickname, kicked: true } });
           });
         });
       }
