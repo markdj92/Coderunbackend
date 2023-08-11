@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { TITLE_COMMENT } from '@/constants';
 
 import { postResult } from '@/apis/roomApi';
-import { socket } from '@/apis/socketApi';
+import { socket, webRtcSocketIo } from '@/apis/socketApi';
 import Alert from '@/components/public/Alert';
 import TimerBar from '@/components/public/TimerBar';
 import ToggleButton from '@/components/public/ToggleButton';
@@ -23,7 +23,7 @@ const StudyResult = () => {
 
   const [isLeaveRoom, setIsLeaveRoom] = useState(false);
 
-  const [roomName, setRoomName] = useState('');
+  const [roomName, setRoomName] = useState(title);
   const [roomLevel, setRoomLevel] = useState<number>(0);
   const [userInfos, setUserInfos] = useState<UserInfo[]>();
   const [solvedUsers, setSolvedUsers] = useState<UserInfo[]>();
@@ -45,7 +45,9 @@ const StudyResult = () => {
 
   const onLeaveRoom = useCallback(() => {
     socket.emit('leave-room', { title: roomName }, () => {
-      navigate('/lobby', { state: { nickname } });
+      webRtcSocketIo.emit('leaveRoom', { title }, () => {
+        navigate('/lobby', { state: { nickname } });
+      });
     });
   }, [navigate, roomName]);
 

@@ -11,6 +11,7 @@ import { postLogout } from '@/apis/authApi';
 import { socket } from '@/apis/socketApi';
 import Button from '@/components/Lobby/Button';
 import CreateRoom from '@/components/Lobby/CreateRoom';
+import DropBox from '@/components/Lobby/DropBox';
 
 import {
   PATH_ROUTE,
@@ -20,7 +21,6 @@ import {
   USER_NICKNAME_KEY,
 } from '@/constants';
 
-import DropBox from '@/components/Lobby/DropBox';
 import IconButton from '@/components/Lobby/IconButton';
 import PrivateModal from '@/components/Lobby/PrivateModal';
 import RoomList from '@/components/Lobby/RoomList';
@@ -28,6 +28,7 @@ import Alert from '@/components/public/Alert';
 import { HeaderLogo } from '@/components/public/HeaderLogo';
 import { Loading } from '@/components/public/Loading';
 import { useMusic } from '@/contexts/MusicContext';
+import { useVoiceHandle } from '@/contexts/VoiceChatContext';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomResponse } from '@/types/lobby';
 
@@ -55,6 +56,8 @@ const Lobby = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isServerIssue, setIsServerIssue] = useState(false);
   const [isEnterIssue, setIsEnterIssue] = useState(false);
+
+  const { myPeerConnection, handleJoinUser } = useVoiceHandle();
 
   const handleShowCreateRoom = () => {
     setShownCreateRoom(!isShownCreateRoom);
@@ -91,6 +94,14 @@ const Lobby = () => {
   const handlePrivateRoom = () => {
     setIsPrivateRoom(!isPrivateRoom);
   };
+
+  useEffect(() => {
+    for (let user in myPeerConnection.current) {
+      myPeerConnection.current[user].close();
+      delete myPeerConnection.current[user];
+    }
+    handleJoinUser([]);
+  }, []);
 
   useEffect(() => {
     setIsMusic(isSettingMusic);
