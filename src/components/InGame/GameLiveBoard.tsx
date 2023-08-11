@@ -30,24 +30,30 @@ const GameLiveBoard = ({
   );
 };
 
-const Container = styled.div``;
+const Container = styled.div`
+  margin: 1rem 0;
+`;
 
 const UserListSection = styled.div`
+  margin: 10px 0;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 `;
 
 const UserCard = styled.div`
+  font-family: ${(props) => props.theme.font.Content};
   width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background-color: #1f1e4d;
-  margin: 0.5rem;
+  padding: 10px 0;
+  color: ${(props) => props.theme.color.LightGray};
   display: flex;
   justify-content: center;
   align-items: center;
+  font-weight: 500;
+  :hover {
+    color: ${(props) => props.theme.color.DarkGray};
+  }
 `;
 
 export default GameLiveBoard;
