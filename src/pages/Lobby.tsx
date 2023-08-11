@@ -28,7 +28,7 @@ import Alert from '@/components/public/Alert';
 import { HeaderLogo } from '@/components/public/HeaderLogo';
 import { Loading } from '@/components/public/Loading';
 import { useMusic } from '@/contexts/MusicContext';
-// import { useVoiceHandle } from '@/contexts/VoiceChatContext';
+import { useVoiceHandle } from '@/contexts/VoiceChatContext';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomResponse } from '@/types/lobby';
 
@@ -57,7 +57,7 @@ const Lobby = () => {
   const [isServerIssue, setIsServerIssue] = useState(false);
   const [isEnterIssue, setIsEnterIssue] = useState(false);
 
-  // const { myPeerConnection, handleJoinUser } = useVoiceHandle();
+  const { myPeerConnection, handleJoinUser } = useVoiceHandle();
 
   const handleShowCreateRoom = () => {
     setShownCreateRoom(!isShownCreateRoom);
@@ -95,13 +95,13 @@ const Lobby = () => {
     setIsPrivateRoom(!isPrivateRoom);
   };
 
-  // useEffect(() => {
-  //   for (let user in myPeerConnection.current) {
-  //     myPeerConnection.current[user].close();
-  //     delete myPeerConnection.current[user];
-  //   }
-  //   handleJoinUser([]);
-  // }, []);
+  useEffect(() => {
+    for (let user in myPeerConnection.current) {
+      myPeerConnection.current[user].close();
+      delete myPeerConnection.current[user];
+    }
+    handleJoinUser([]);
+  }, []);
 
   useEffect(() => {
     setIsMusic(isSettingMusic);
