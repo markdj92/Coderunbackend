@@ -219,7 +219,6 @@ const InGame = () => {
           </SpinnerFrame>
         )}
 
-        {isSubmit && <GameLiveBoard userInGame={userInGame} handleSetViewer={handleSetViewer} />}
         <GameFrame>
           <OptionSection>
             <QuizListGroup>
@@ -234,6 +233,9 @@ const InGame = () => {
                 </button>
               ))}
             </QuizListGroup>
+            {isSubmit && (
+              <GameLiveBoard userInGame={userInGame} handleSetViewer={handleSetViewer} />
+            )}
             <MediaGroupButton>
               <button onClick={handleSpeaker}>
                 {isSpeaker ? (
@@ -350,7 +352,7 @@ const MainFrame = styled.div`
 
 const GameFrame = styled.div`
   display: flex;
-  height: 100%;
+  height: 81%;
 `;
 
 const QuizListGroup = styled.div`
