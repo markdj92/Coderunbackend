@@ -1,34 +1,40 @@
+//@ts-nocheck
 import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 
 import { useVoiceHandle } from '@/contexts/VoiceChatContext';
 
 const Root = () => {
-  const { localVideoRef, localStream, setLocalStream } = useVoiceHandle();
+  const { myFaceRef, myStream, peerFaceRef, joinUser } = useVoiceHandle();
   useEffect(() => {
     const getMedia = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: true,
         });
-        if (localStream === undefined) {
-          setLocalStream(stream);
-        }
-
-        if (localVideoRef.current) {
-          localVideoRef.current.muted = true;
-          localVideoRef.current.srcObject = stream;
-        }
+        myStream.current = stream;
+        myFaceRef.current.muted = true;
+        myFaceRef.current.srcObject = myStream.current;
       } catch (error) {
         console.error(error);
       }
     };
     getMedia();
-  }, [localStream]);
+  }, [joinUser]);
+
   return (
     <>
       <Outlet />
-      <video autoPlay style={{ display: 'block' }} ref={localVideoRef}></video>
+      {joinUser.map((user, index) => (
+        <video
+          key={index}
+          ref={(el) => {
+            peerFaceRef.current[user] = el;
+          }}
+          autoPlay
+        ></video>
+      ))}
+      <video autoPlay style={{ display: 'block' }} ref={myFaceRef}></video>
     </>
   );
 };

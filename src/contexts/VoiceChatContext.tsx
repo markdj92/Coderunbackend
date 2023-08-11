@@ -1,6 +1,8 @@
 //@ts-nocheck
 import { createContext, useCallback, useContext, useRef, useState } from 'react';
 
+import { webRtcSocketIo } from '@/apis/socketApi';
+
 interface VoiceChatContextType {
   isSpeaker: boolean;
   isMic: boolean;
@@ -12,12 +14,11 @@ interface VoiceChangeContextType {
 }
 
 interface VoiceHandleContextType {
-  localVideoRef: React.MutableRefObject<HTMLVideoElement>;
-  localStream: MediaStream | undefined;
-  setLocalStream: React.Dispatch<React.SetStateAction<MediaStream | undefined>>;
-  myPeerConnection: Record<string, RTCPeerConnection>;
-  peerFaceRef: Record<string, HTMLVideoElement>;
-  myStream: MediaStream | undefined;
+  joinUser: string[];
+  setJoinUser: React.Dispatch<React.SetStateAction<string>>;
+  myPeerConnection: React.MutableRefObject<{}>;
+  peerFaceRef: React.MutableRefObject<{}>;
+  makeConnection: (userId: string) => void;
 }
 
 export const VoiceChatContext = createContext<VoiceChatContextType | null>(null);
@@ -60,11 +61,12 @@ const VoiceChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [isMic, setIsMic] = useState<boolean>(true);
   const [isSettingMic, setIsSettingMic] = useState<boolean>(true);
 
-  const localVideoRef = useRef(null);
-  const [localStream, setLocalStream] = useState();
-  const myPeerConnection = useRef({});
-  const peerFaceRef = useRef({});
-  const myStream = useRef(undefined);
+  const [joinUser, setJoinUser] = useState([]);
+
+  const myFaceRef = useRef(); //내 비디오 요소
+  const peerFaceRef = useRef<Record<string, HTMLVideoElement>>({}); //상대방 비디오 요소
+  const myStream = useRef(null);
+  const myPeerConnection = useRef({}); //피어 연결 객체
 
   const toggleSpeaker = useCallback(() => {
     setIsSettingSpeaker((prev) => !prev);
@@ -76,14 +78,78 @@ const VoiceChatProvider = ({ children }: { children: React.ReactNode }) => {
     setIsMic(!isSettingMic);
   }, [isSettingMic, setIsMic]);
 
+  const handleIce = (data, title, id) => {
+    webRtcSocketIo.emit('ice', {
+      title,
+      icecandidate: data.candidate,
+      to: id,
+    });
+  };
+
+  const makeConnection = (id, title) => {
+    myPeerConnection.current[id] = new RTCPeerConnection({
+      iceServers: [
+        {
+          urls: [
+            'stun:stun.l.google.com:19302',
+            'stun:stun1.l.google.com:19302',
+            'stun:stun2.l.google.com:19302',
+            'stun:stun3.l.google.com:19302',
+            'stun:stun4.l.google.com:19302',
+          ],
+        },
+      ],
+    });
+
+    myPeerConnection.current[id].addEventListener('icecandidate', (data) =>
+      handleIce(data, title, id),
+    );
+
+    myPeerConnection.current[id].oniceconnectionstatechange = () => {
+      console.error(
+        'ICE connection state change:',
+        myPeerConnection.current[id].iceConnectionState,
+      );
+      if (myPeerConnection.current[id].iceConnectionState === 'disconnected') {
+        myPeerConnection.current[id].close();
+        delete myPeerConnection.current[id];
+      }
+    };
+
+    myPeerConnection.current[id].ontrack = (event) => {
+      console.error('got an stream from my peer', id, event.streams[0]);
+      let videoElement = peerFaceRef.current[id];
+      if (!videoElement) {
+        // Create a new video element if it doesn't exist
+        const newVideoElement = document.createElement('video');
+        newVideoElement.autoplay = true;
+        newVideoElement.style.display = 'block';
+        newVideoElement.ref = (el) => {
+          peerFaceRef.current[id] = el;
+        };
+        document.body.appendChild(newVideoElement);
+        videoElement = newVideoElement;
+      }
+      videoElement.srcObject = event.streams[0];
+    };
+    console.error(`myPeerConnection.current[${id}].ontrack`, myPeerConnection.current[id]);
+
+    if (myStream.current) {
+      myStream.current
+        .getTracks()
+        .forEach((track) => myPeerConnection.current[id].addTrack(track, myStream.current));
+    }
+  };
+
   const voiceChatContextValue = { isSpeaker, isMic };
   const voiceHandleContextValue = {
-    localVideoRef,
-    localStream,
-    setLocalStream,
+    myStream,
+    myFaceRef,
+    joinUser,
+    setJoinUser,
     myPeerConnection,
     peerFaceRef,
-    myStream,
+    makeConnection,
   };
   const voiceChangeContextValue = { toggleSpeaker, toggleMic };
 

@@ -26,49 +26,7 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props)
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { localStream, myPeerConnection } = useVoiceHandle();
-  const peerInfo = myPeerConnection.current;
-
-  const handleIce = (data, id) => {
-    webRtcSocketIo.emit('ice', {
-      title: roomName,
-      icecandidate: data.candidate,
-      to: id,
-    });
-  };
-
-  const makeConnection = async (userId) => {
-    peerInfo[userId] = new Object();
-    peerInfo[userId].peerConnection = new RTCPeerConnection({
-      iceServers: [
-        {
-          urls: [
-            'stun:stun.l.google.com:19302',
-            'stun:stun1.l.google.com:19302',
-            'stun:stun2.l.google.com:19302',
-            'stun:stun3.l.google.com:19302',
-            'stun:stun4.l.google.com:19302',
-          ],
-        },
-      ],
-    });
-    peerInfo[userId].peerConnection.addEventListener('icecandidate', (data) => handleIce(data, id));
-
-    peerInfo[userId].peerConnection.oniceconnectionstatechange = () => {
-      if (peerInfo[userId].peerConnection.iceConnectionState === 'disconnected') {
-        peerInfo[userId].peerConnection.close();
-        delete peerInfo[userId].peerConnection;
-      }
-    };
-
-    peerInfo[userId].peerConnection.ontrack = (event) => {
-      peerInfo[userId].peerConnection.srcObject = event.streams[0];
-    };
-
-    for (let track of localStream.getTracks()) {
-      await peerInfo[userId].peerConnection.addTrack(track, localStream);
-    }
-  };
+  const { myPeerConnection, makeConnection, setJoinUser } = useVoiceHandle();
 
   const onClickRoom = useCallback(
     (roomName: string) => {
@@ -79,14 +37,17 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props)
 
         webRtcSocketIo.emit('joinRoom', { title: roomName }, async ({ success, payload }) => {
           if (!success) return alert('방 입장 실패!');
+          console.error(payload);
           try {
             for (const id in payload.userlist) {
+              console.error('123: ', id, payload.userlist[id], webRtcSocketIo.id);
               if (payload.userlist[id] !== webRtcSocketIo.id) {
-                if (!peerInfo[payload.userlist[id]]) {
-                  makeConnection(payload.userlist[id]);
+                if (!myPeerConnection.current[payload.userlist[id]]) {
+                  makeConnection(payload.userlist[id], payload.title);
 
-                  const offer = await peerInfo[payload.userlist[id]].peerConnection.createOffer();
-                  peerInfo[payload.userlist[id]].peerConnection.setLocalDescription(offer);
+                  const offer = await myPeerConnection.current[payload.userlist[id]].createOffer();
+                  myPeerConnection.current[payload.userlist[id]].setLocalDescription(offer);
+                  console.error('offer: ', roomName, offer, payload.userlist[id]);
                   webRtcSocketIo.emit('offer', {
                     title: roomName,
                     offer: offer,
@@ -95,6 +56,11 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props)
                 }
               }
             }
+            console.error(
+              'localStream: ',
+              payload.userlist.filter((id) => id !== webRtcSocketIo.id),
+            );
+            setJoinUser(payload.userlist.filter((id) => id !== webRtcSocketIo.id));
             if (response.payload?.roomInfo.mode === 'COOPERATIVE') {
               navigate(`/cooproom/${roomName}`, {
                 state: { ...response.payload.roomInfo, nickname },

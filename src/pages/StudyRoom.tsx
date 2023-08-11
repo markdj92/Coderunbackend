@@ -18,8 +18,7 @@ const StudyRoom = () => {
   const location = useLocation();
   const { setIsMusic } = useMusic();
 
-  const { localVideoRef, localStream, myPeerConnection } = useVoiceHandle();
-  const peerInfo = myPeerConnection.current;
+  const { myPeerConnection, makeConnection } = useVoiceHandle();
 
   const { title, member_count, max_members, user_info, nickname, level } = location.state;
 
@@ -104,10 +103,10 @@ const StudyRoom = () => {
     socket.emit('leave-room', { title: roomName }, () => {
       webRtcSocketIo.emit('leaveRoom', { title: roomName }, (response) => {
         console.error(response.payload.userId);
-        for (let user in peerInfo) {
+        for (let user in myPeerConnection.current) {
           console.error(user);
-          peerInfo[user].peerConnection.close();
-          delete peerInfo[user];
+          myPeerConnection.current[user].close();
+          delete myPeerConnection.current[user];
         }
         navigate('/lobby', { state: { nickname } });
       });
@@ -122,77 +121,34 @@ const StudyRoom = () => {
     socket.emit('start', { title: roomName });
   };
 
-  const handleIce = (data, id) => {
-    webRtcSocketIo.emit('ice', {
-      title: roomName,
-      icecandidate: data.candidate,
-      to: id,
-    });
-  };
-
-  const makeConnection = async (userId) => {
-    peerInfo[userId] = new Object();
-    peerInfo[userId].peerConnection = new RTCPeerConnection({
-      iceServers: [
-        {
-          urls: [
-            'stun:stun.l.google.com:19302',
-            'stun:stun1.l.google.com:19302',
-            'stun:stun2.l.google.com:19302',
-            'stun:stun3.l.google.com:19302',
-            'stun:stun4.l.google.com:19302',
-          ],
-        },
-      ],
-    });
-    peerInfo[userId].peerConnection.addEventListener('icecandidate', (data) => handleIce(data, id));
-
-    peerInfo[userId].peerConnection.oniceconnectionstatechange = () => {
-      if (peerInfo[userId].peerConnection.iceConnectionState === 'disconnected') {
-        peerInfo[userId].peerConnection.close();
-        delete peerInfo[userId].peerConnection;
-      }
-    };
-
-    peerInfo[userId].peerConnection.ontrack = (event) => {
-      peerInfo[userId].peerConnection.srcObject = event.streams[0];
-    };
-
-    if (localVideoRef.current) {
-      localVideoRef.current
-        .getTracks()
-        .forEach((track) => peerInfo[userId].peerConnection.addTrack(track, localVideoRef.current));
-    }
-  };
-
   useEffect(() => {
     //참관자 입장
-    webRtcSocketIo.on('entry', async ({ userId }) => {
-      if (peerInfo[userId] === undefined) {
-        await makeConnection(userId);
-        const offer = await peerInfo[userId].peerConnection.createOffer();
-        await peerInfo[userId].peerConnection.setLocalDescription(offer);
-        webRtcSocket.emit('offer', { offer, selectedRoom });
-      }
+    console.error('방장 webRtcSocketIo on');
+    webRtcSocketIo.on('entry', async (data) => {
+      console.error('entry: ', data);
+      setJoinUser(data.filter((id) => id !== socket.current.id));
     });
 
     //offer를 받는 쪽
     webRtcSocketIo.on('offer', async (data) => {
-      if (!peerInfo[data.from]) {
-        makeConnection(data.from);
+      console.error('offer', data);
+      if (!myPeerConnection.current[data.from]) {
+        makeConnection(data.from, title);
       }
 
-      if (peerInfo[data.from].peerConnection.connectionState === 'stable') {
+      if (myPeerConnection.current[data.from].connectionState === 'stable') {
         return;
       }
 
-      peerInfo[data.from].peerConnection.setRemoteDescription(
+      myPeerConnection.current[data.from].setRemoteDescription(
         new RTCSessionDescription(data.offer),
       );
-      const answer = await peerInfo[data.from].peerConnection.createAnswer(data.offer);
-      await peerInfo[data.from].setLocalDescription(answer);
+      const answer = await myPeerConnection.current[data.from].createAnswer(data.offer);
+      await myPeerConnection.current[data.from].setLocalDescription(answer);
 
       //answer를 보내는 쪽
+
+      console.error('answer send: ', title, answer, data.from);
       webRtcSocketIo.emit('answer', {
         title: title,
         answer: answer,
@@ -202,21 +158,21 @@ const StudyRoom = () => {
 
     //answer 받기
     webRtcSocketIo.on('answer', async (data) => {
-      await peerInfo[data.from].peerConnection.setRemoteDescription(data.answer);
+      await myPeerConnection.current[data.from].setRemoteDescription(data.answer);
     });
 
     //ice를 받는 쪽
     webRtcSocketIo.on('ice', async (data) => {
-      if (peerInfo[data.from]) {
-        await peerInfo[data.from].addIceCandidate(data.icecandidate);
+      if (myPeerConnection.current[data.from]) {
+        await myPeerConnection.current[data.from].addIceCandidate(data.icecandidate);
       }
     });
 
     // 연결 해제 - 타인
     webRtcSocketIo.on('someoneLeaveRoom', ({ userId }) => {
-      if (peerInfo[userId]) {
-        peerInfo[userId].peerConnection.close();
-        delete peerInfo[userId];
+      if (myPeerConnection.current[userId]) {
+        myPeerConnection.current[userId].close();
+        delete myPeerConnection.current[userId];
       }
     });
 
@@ -227,7 +183,7 @@ const StudyRoom = () => {
       webRtcSocketIo.off('ice');
       webRtcSocketIo.off('someoneLeaveRoom');
     };
-  }, [localStream]);
+  }, [roomName]);
 
   return (
     <MainContainer>
