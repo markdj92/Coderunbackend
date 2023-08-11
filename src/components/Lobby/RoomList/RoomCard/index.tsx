@@ -20,9 +20,10 @@ interface Props {
   roomInfo: RoomInformation;
   handleClickRoom: (title: string) => void;
   handlePrivate: () => void;
+  handleIssue: () => void;
 }
 
-const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props) => {
+const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate, handleIssue }: Props) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -33,10 +34,10 @@ const RoomCard = ({ nickname, roomInfo, handleClickRoom, handlePrivate }: Props)
       setIsLoading(true);
       socket.emit('join-room', { title: roomName }, (response: RoomResponse) => {
         setIsLoading(false);
-        if (!response.payload?.roomInfo) return alert('방 입장 실패!');
+        if (!response.payload?.roomInfo) return handleIssue();
 
         webRtcSocketIo.emit('joinRoom', { title: roomName }, async ({ success, payload }) => {
-          if (!success) return alert('방 입장 실패!');
+          if (!success) return return handleIssue();
           console.error(payload);
           try {
             for (const id in payload.userlist) {

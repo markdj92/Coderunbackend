@@ -13,11 +13,13 @@ const RoomList = ({
   handlePrivate,
   onClickRoom,
   level,
+  handleIssue,
 }: {
   nickname: string;
   handlePrivate: () => void;
   onClickRoom: (title: string) => void;
   level: number;
+  handleIssue: () => void;
 }) => {
   const [roomList, setRoomList] = useState<RoomInformation[]>([]);
   const [page, setPage] = useState<number>(1);
@@ -57,6 +59,7 @@ const RoomList = ({
             roomInfo={roomList[index]}
             handleClickRoom={onClickRoom}
             handlePrivate={handlePrivate}
+            handleIssue={handleIssue}
           />
         ))}
       </ContentFrame>

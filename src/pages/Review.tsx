@@ -138,7 +138,7 @@ const Review = () => {
     getQuizList()
       .then((response) => {
         if (response.data === null) {
-          alert('퀴즈 정보를 불러오는데 실패했습니다.');
+          setAlertTitle('퀴즈 정보를 불러오는데 실패했습니다.');
           return;
         }
         setQuizList(response.data);

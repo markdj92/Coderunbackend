@@ -104,7 +104,7 @@ const CoopInGame = () => {
     };
     const response = await postExecuteResult(executeData);
     const { data } = response;
-    if (data.success) answersound.play();
+    if (!!data.success) answersound.play();
     else wrongsound.play();
     setIsLoading(false);
 
@@ -131,7 +131,7 @@ const CoopInGame = () => {
       setIsSubmit([...isSubmit]);
       notifySuccessMessage('제출에 성공했습니다.');
     } else if (response.payload.message) {
-      alert(response.payload.message);
+      notifyInfoMessage(response.payload.message);
     } else {
       notifyErrorMessage('제출에 실패했습니다.');
     }
@@ -173,7 +173,8 @@ const CoopInGame = () => {
     getQuizList()
       .then((response) => {
         if (response.data === null) {
-          alert('퀴즈 정보를 불러오는데 실패했습니다.');
+          setAlertTitle('퀴즈 정보를 불러오는데 실패했습니다.');
+          setIsAlert(true);
           return;
         }
         setQuizList(response.data);

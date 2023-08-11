@@ -7,6 +7,7 @@ import { PATH_ROUTE, USER_NICKNAME_KEY, USER_TOKEN_KEY } from '@/constants';
 import { validateUserInfo } from '@/utils';
 
 import { postLogin, setInitName } from '@/apis/authApi';
+import Alert from '@/components/public/Alert';
 import { socket, webRtcSocketIo } from '@/apis/socketApi';
 import CustomButton from '@/components/public/CustomButton';
 import CustomInput from '@/components/public/CustomInput';
@@ -17,6 +18,7 @@ import { useAuthForm } from '@/hooks/useAuthForm';
 const Login = () => {
   const [isShownSignup, setShownSignup] = useState(false);
   const [isShownSetNickname, setShownSetNickname] = useState(false);
+  const [signupSuccess, setSignupSuccess] = useState(false);
 
   const {
     emailRef,
@@ -107,7 +109,12 @@ const Login = () => {
 
   return (
     <MainFrame>
-      {isShownSignup && <Signup handleShowSignup={handleShowSignup} />}
+      {signupSuccess && (
+        <Alert title='가입을 축하드립니다!' handleCloseAlert={() => setSignupSuccess(false)} />
+      )}
+      {isShownSignup && (
+        <Signup handleShowSignup={handleShowSignup} setIsSuccess={() => setSignupSuccess(true)} />
+      )}
       {isShownSetNickname && (
         <SetNickname
           handleSetNickname={handleSetNickname}
