@@ -54,7 +54,7 @@ export type ToastPositions = {
 };
 
 export interface MessageStyleProps {
-  messageType: MessageType;
+  messagetype: MessageType;
 }
 
 export interface ProgressBarStyleProps extends MessageStyleProps {

@@ -1,6 +1,7 @@
 //@ts-nocheck
 import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
+import styled from 'styled-components';
 
 import { useVoiceHandle } from '@/contexts/VoiceChatContext';
 
@@ -25,18 +26,26 @@ const Root = () => {
   return (
     <>
       <Outlet />
-      {joinUser.map((user, index) => (
-        <video
-          key={index}
-          ref={(el) => {
-            peerFaceRef.current[user] = el;
-          }}
-          autoPlay
-        ></video>
-      ))}
-      <video autoPlay style={{ display: 'block' }} ref={myFaceRef}></video>
+      <RtcContainer>
+        {joinUser.map((user, index) => (
+          <video
+            key={index}
+            ref={(el) => {
+              peerFaceRef.current[user] = el;
+            }}
+            autoPlay
+          ></video>
+        ))}
+        <video autoPlay ref={myFaceRef}></video>
+      </RtcContainer>
     </>
   );
 };
+
+const RtcContainer = styled.div`
+  display: none;
+  width: 0;
+  height: 0;
+`;
 
 export default Root;

@@ -159,8 +159,7 @@ const CoopInGame = () => {
     setIsAlert(true);
   };
 
-  const handleFinishGame = (response) => {
-    console.error(response);
+  const handleFinishGame = () => {
     setTimeout(goToResult, 5000);
     notifyInfoMessage('5초 뒤 결과 페이지로 이동합니다.', 5000);
   };
