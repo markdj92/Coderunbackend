@@ -219,7 +219,7 @@ const InGame = () => {
           </SpinnerFrame>
         )}
 
-        <GameFrame>
+        <GameFrame issubmit={isSubmit}>
           <OptionSection>
             <QuizListGroup>
               {quizList.map((quiz, index) => (
@@ -336,8 +336,7 @@ const SpinnerFrame = styled.div`
 `;
 const AlertFrame = styled.div`
   position: absolute;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -350,9 +349,9 @@ const MainFrame = styled.div`
   justify-content: space-between;
 `;
 
-const GameFrame = styled.div`
+const GameFrame = styled.div<{ issubmit: boolean }>`
   display: flex;
-  height: 81%;
+  height: ${(props) => (props.issubmit ? '100%' : '81%')};
 `;
 
 const QuizListGroup = styled.div`
