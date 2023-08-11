@@ -167,7 +167,6 @@ const Review = () => {
     <Container>
       <GameNavbar />
       <MainFrame>
-        <GameLiveBoard userInGame={userInGame} />
         <GameFrame>
           <OptionSection>
             <QuizListGroup>
@@ -182,6 +181,7 @@ const Review = () => {
                 </button>
               ))}
             </QuizListGroup>
+            <GameLiveBoard userInGame={userInGame} />
             <MediaGroupButton>
               <button onClick={handleSpeaker}>
                 {isSpeaker ? (
@@ -268,7 +268,7 @@ const MainFrame = styled.div`
 
 const GameFrame = styled.div`
   display: flex;
-  height: 100%;
+  height: 81%;
 `;
 
 const QuizListGroup = styled.div`
