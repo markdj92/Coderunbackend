@@ -41,6 +41,20 @@ const useSocketConnect = () => {
   }, []);
 
   useEffect(() => {
+    if (!webRtcSocketIo.connected) {
+      const userToken = getUserToken();
+      if (!!userToken) {
+        webRtcSocketIo.io.opts.extraHeaders = {
+          Authorization: userToken,
+        };
+
+        fetchUserNickName();
+        webRtcSocketIo.connect();
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     const getNickname = async () => {
       try {
         const response = await getNicknameByToken();
