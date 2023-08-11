@@ -82,7 +82,9 @@ const StudyRoom = () => {
     socket.on('kicked', (title) => {
       if (title === roomName) {
         socket.emit('leave-room', { title: roomName }, () => {
-          navigate('/lobby', { state: { nickname, kicked: true } });
+          webRtcSocketIo.emit('leaveRoom', { title: roomName }, () => {
+            navigate('/lobby', { state: { nickname } });
+          });
         });
       }
     });
@@ -102,11 +104,6 @@ const StudyRoom = () => {
   const onLeaveRoom = useCallback(() => {
     socket.emit('leave-room', { title: roomName }, () => {
       webRtcSocketIo.emit('leaveRoom', { title: roomName }, () => {
-        for (let user in myPeerConnection.current) {
-          console.error(user);
-          myPeerConnection.current[user].close();
-          delete myPeerConnection.current[user];
-        }
         navigate('/lobby', { state: { nickname } });
       });
     });

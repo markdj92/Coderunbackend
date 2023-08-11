@@ -15,8 +15,8 @@ interface VoiceChangeContextType {
 
 interface VoiceHandleContextType {
   joinUser: string[];
-  setJoinUser: React.Dispatch<React.SetStateAction<string>>;
-  myPeerConnection: React.MutableRefObject<{}>;
+  handleJoinUser: (data: string[]) => void;
+  myPeerConnection: any;
   peerFaceRef: React.MutableRefObject<{}>;
   makeConnection: (userId: string) => void;
 }
@@ -66,7 +66,11 @@ const VoiceChatProvider = ({ children }: { children: React.ReactNode }) => {
   const myFaceRef = useRef(); //내 비디오 요소
   const peerFaceRef = useRef<Record<string, HTMLVideoElement>>({}); //상대방 비디오 요소
   const myStream = useRef(null);
-  const myPeerConnection = useRef({}); //피어 연결 객체
+  const myPeerConnection = useRef<any>({}); //피어 연결 객체
+
+  const handleJoinUser = (data) => {
+    setJoinUser(data);
+  };
 
   const toggleSpeaker = useCallback(() => {
     setIsSettingSpeaker((prev) => !prev);
@@ -140,7 +144,7 @@ const VoiceChatProvider = ({ children }: { children: React.ReactNode }) => {
     myStream,
     myFaceRef,
     joinUser,
-    setJoinUser,
+    handleJoinUser,
     myPeerConnection,
     peerFaceRef,
     makeConnection,
