@@ -17,7 +17,6 @@ export class SocketProvider {
   private onConnection(socket: Socket) {
     console.log('connection');
     socket.on('joinRoom', function (roomKey) {
-      console.log('joinRoom', roomKey);
       socket.join(roomKey);
     });
     socket.on('drawing', function (data) {
