@@ -8,6 +8,7 @@ import Alert from '@/components/public/Alert';
 import { HeaderLogo } from '@/components/public/HeaderLogo';
 import Badge from '@/components/Room/Badge';
 import ToolButtonBox from '@/components/Room/ToolButtonBox';
+import { useMusic } from '@/contexts/MusicContext';
 import { useVoiceHandle } from '@/contexts/VoiceChatContext';
 import useSocketConnect from '@/hooks/useSocketConnect';
 import { RoomStatus, UserInfo, BadgeStatus } from '@/types/room';
@@ -80,7 +81,7 @@ const CoopRoom = () => {
       if (title === roomName) {
         socket.emit('leave-room', { title: roomName }, () => {
           webRtcSocketIo.emit('leaveRoom', { title: roomName }, () => {
-            navigate('/lobby', { state: { nickname } });
+            navigate('/lobby', { state: { nickname, kicked } });
           });
         });
       }
@@ -139,6 +140,7 @@ const CoopRoom = () => {
       await myPeerConnection.current[data.from].setLocalDescription(answer);
 
       //answer를 보내는 쪽
+
       webRtcSocketIo.emit('answer', {
         title: title,
         answer: answer,

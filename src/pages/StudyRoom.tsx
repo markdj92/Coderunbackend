@@ -83,7 +83,7 @@ const StudyRoom = () => {
       if (title === roomName) {
         socket.emit('leave-room', { title: roomName }, () => {
           webRtcSocketIo.emit('leaveRoom', { title: roomName }, () => {
-            navigate('/lobby', { state: { nickname } });
+            navigate('/lobby', { state: { nickname, kicked } });
           });
         });
       }
