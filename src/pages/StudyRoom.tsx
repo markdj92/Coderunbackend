@@ -18,7 +18,7 @@ const StudyRoom = () => {
   const location = useLocation();
   const { setIsMusic } = useMusic();
 
-  const { myPeerConnection, makeConnection } = useVoiceHandle();
+  const { myPeerConnection, makeConnection, handleJoinUser } = useVoiceHandle();
 
   const { title, member_count, max_members, user_info, nickname, level } = location.state;
 
@@ -122,9 +122,9 @@ const StudyRoom = () => {
     webRtcSocketIo.on('entry', async (data) => {
       console.error(
         'entey error check: ',
-        handleJoinUser(data.filter((id) => id !== socket.current.id)),
+        handleJoinUser(data.filter((id) => id !== webRtcSocketIo.id)),
       );
-      handleJoinUser(data.filter((id) => id !== socket.current.id));
+      handleJoinUser(data.filter((id) => id !== webRtcSocketIo.id));
     });
 
     //offer를 받는 쪽

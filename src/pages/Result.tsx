@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { styled } from 'styled-components';
 
 import { postResult } from '@/apis/roomApi';
-import { socket } from '@/apis/socketApi';
+import { socket, webRtcSocketIo } from '@/apis/socketApi';
 import Header from '@/components/Result/Header';
 import Timer from '@/components/Result/Timer';
 import User from '@/components/Result/User';
@@ -135,7 +135,9 @@ const Result = () => {
 
   const onLeaveRoom = useCallback(() => {
     socket.emit('leave-room', { title: roomName }, () => {
-      navigate('/lobby', { state: { nickname } });
+      webRtcSocketIo.emit('leaveRoom', { title: roomName }, () => {
+        navigate('/lobby', { state: { nickname } });
+      });
     });
   }, [navigate, roomName]);
 
