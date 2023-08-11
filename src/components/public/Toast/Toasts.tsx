@@ -16,21 +16,21 @@ export default function Toasts({ position, messages, closeMessage }: ToastProps)
       {messages.map(({ id, message, type, duration }) => (
         <Style.Toast
           key={id}
-          messageType={type}
+          messagetype={type}
           duration={duration}
           aria-label={toastAriaLabel(type)}
         >
           {getIcon(type)}
-          <Style.Message messageType={type}>{message}</Style.Message>
+          <Style.Message messagetype={type}>{message}</Style.Message>
           <Style.CloseButton
             aria-label='Close toast message'
             type='button'
-            messageType={type}
+            messagetype={type}
             onClick={() => closeMessage(id, position)}
           >
             <Icon.Close />
           </Style.CloseButton>
-          <Style.ProgressBar messageType={type} duration={duration} />
+          <Style.ProgressBar messagetype={type} duration={duration} />
         </Style.Toast>
       ))}
     </Style.ToastContainer>
