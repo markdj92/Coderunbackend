@@ -6,6 +6,7 @@ import { EditorState } from '@codemirror/state';
 import { keymap, EditorView, placeholder } from '@codemirror/view';
 import { basicSetup } from 'codemirror';
 import { useEffect, useRef } from 'react';
+import styled from 'styled-components';
 import { yCollab } from 'y-codemirror.next';
 import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
@@ -42,8 +43,8 @@ const EditorCodeMirror: React.FC<Props> = ({
     }
 
     const newDoc = new Y.Doc();
-    const newProvider = new WebsocketProvider('ws://52.69.242.42:8000', viewer, newDoc);
-    // const newProvider = new WebsocketProvider('ws://localhost:8000', viewer, newDoc);
+    // const newProvider = new WebsocketProvider('ws://52.69.242.42:8000', viewer, newDoc);
+    const newProvider = new WebsocketProvider('ws://localhost:8000', viewer, newDoc);
     setYtext(newDoc.getText('codemirror'));
     handleProvider(newProvider);
   }, [viewer]);
@@ -89,7 +90,7 @@ const EditorCodeMirror: React.FC<Props> = ({
   }, [provider]);
 
   return (
-    <div>
+    <Container>
       <div
         className='codemirror-editor'
         ref={editor}
@@ -99,8 +100,14 @@ const EditorCodeMirror: React.FC<Props> = ({
           fontSize: '2rem',
         }}
       />
-    </div>
+    </Container>
   );
 };
+
+const Container = styled.div`
+  .codemirror-editor .cm-ySelectionInfo {
+    opacity: 1;
+  }
+`;
 
 export default EditorCodeMirror;
