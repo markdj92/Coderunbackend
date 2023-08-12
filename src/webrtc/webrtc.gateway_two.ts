@@ -2,7 +2,6 @@ import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSo
 import { Server, Socket } from 'socket.io';
 import { RoomService } from 'src/room/room.service';
 
-
 interface WebRTC extends Socket {
     title : string
 }
@@ -41,56 +40,56 @@ isRunning = {};
  }
 
  @SubscribeMessage('createRoom')
- async handleMessage(@ConnectedSocket() socket : WebRTC, @MessageBody() title) {
+handleMessage(@ConnectedSocket() socket : WebRTC, @MessageBody() title) {
 
     //방장이 방에 입장하도록 한다.
     socket.join(title);
     this.rooms[title] = []; // 방 참가자 초기화
-    this.rooms[title].push(socket.id);
+     this.rooms[title].push(socket.id);
+     
     this.isRunning[title] = false; // 방이 시작되었는지 여부 초기화
     console.log("createRoom join: ", title, socket.id);
-     socket.title = title;
+    socket.title = title;
+     
     return { success: true }; 
  }
 
- @SubscribeMessage('joinRoom')
- handleJoinRoom(@ConnectedSocket()  socket : WebRTC, @MessageBody() title) {
+@SubscribeMessage('joinRoom')
+handleJoinRoom(@ConnectedSocket() socket: WebRTC, @MessageBody() title) {
 
-    if (!this.rooms[title]) {
-        return { success: false, payload : { message : "존재하지 않는 방입니다." }};
-    }
-    if (this.rooms[title].length >= 10) {
-        return { success: false, payload : { message : "방이 꽉 찼습니다." }};
-    }
- 
-    if (this.isRunning[title]) {
-        return { success: false, payload : { message : "현재 진행중인 방입니다." }};
-    }
+  // 이전에 참여한 방에서 나가기
+  if (socket.title) {
+    this.handleLeaveRoom(socket, socket.title);
+  }
 
-    socket.join(title);
-    socket.title = title;       
-    this.rooms[title].push(socket.id); //방 목록에 추가
-     
-    console.log("user list", this.rooms[title]);
-    console.log("joinRoom join : ", title, socket.id);
-    console.log("userlist", this.rooms[title]);
-        
-     socket.broadcast.to(title).emit("entry", { userId: this.rooms[title] });
-    return  { success: true, payload : { title: title, userlist: this.rooms[title] } }; 
- }
+  if (!this.rooms[title]) {
+    return { success: false, payload: { message: "존재하지 않는 방입니다." } };
+  }
+  if (this.rooms[title].length >= 10) {
+    return { success: false, payload: { message: "방이 꽉 찼습니다." } };
+  }
+
+  if (this.isRunning[title]) {
+    return { success: false, payload: { message: "현재 진행중인 방입니다." } };
+  }
+
+  socket.join(title);
+  socket.title = title;
+  this.rooms[title].push(socket.id); //방 목록에 추가
+
+  socket.broadcast.to(title).emit("entry", { userId: this.rooms[title] });
+  return { success: true, payload: { title: title, userlist: this.rooms[title] } };
+}
 
  @SubscribeMessage('offer')
  handleOffer(@ConnectedSocket()  socket : WebRTC,
      @MessageBody('title') title,
       @MessageBody('offer') offer,
-       @MessageBody('to') to) {
+       @MessageBody('to') to ) {
 
-     console.log("offer!")
-     console.log("title :", title, " , offer :", offer, " to :", to);
-     console.log("offer", socket.id);
      console.log("include : ", this.rooms[socket.title])
-    if (this.rooms[ socket.title] ) {
-        socket.to(to).emit("offer", { title:  socket.title, offer: offer, from: socket.id });
+    if (this.rooms[socket.title]) {
+        socket.to(to).emit("offer", { title: socket.title, offer: offer, from: socket.id });
     }
      return  { success: true }; 
  }
@@ -98,9 +97,10 @@ isRunning = {};
  @SubscribeMessage('answer')
  handleAnswer(@ConnectedSocket()  socket : WebRTC, @MessageBody() data) {
     console.log("answer", socket.id);
-    const { title, answer, to } = data;
-    if (this.rooms[ socket.title]) {
-        socket.to(to).emit("answer", { title: title, answer: answer, from: socket.id });
+     const { title, answer, to } = data;
+     
+     if (this.rooms[socket.title]) {
+        socket.to(to).emit("answer", { title: socket.title, answer: answer, from: socket.id });
     }
     return  { success: true }; 
  }
@@ -108,18 +108,28 @@ isRunning = {};
  @SubscribeMessage('ice')
  handleIcecandidate(@ConnectedSocket()  socket : WebRTC, @MessageBody() data) {
     const { title, icecandidate, to } = data;
-    console.log("ice", socket.id);
+     console.log("ice", socket.id);
+     
     if (this.rooms[socket.title] ) {
-        socket.to(to).emit("ice", { title: title, icecandidate: icecandidate, from: socket.id });
+        socket.to(to).emit("ice", { title: socket.title, icecandidate: icecandidate, from: socket.id });
     }
     
     return { success: true }; 
  }
     
-@SubscribeMessage("leaveRoom")
-handleLeaveRoom(@ConnectedSocket()  socket : WebRTC, @MessageBody() title) {
-    console.log("leaveRoom", socket.id);
-    socket.broadcast.to(socket.title).emit("someoneLeaveRoom", { userId: socket.id });
-    return {success : true, payload : { userId: socket.id }}
-}
+    @SubscribeMessage("leaveRoom")
+    handleLeaveRoom(@ConnectedSocket() socket: WebRTC, @MessageBody() title) {
+      console.log("leaveRoom", socket.id);
+      socket.leave(socket.title);
+      this.removeSocketFromRooms(socket);
+      
+        // const index = this.rooms[title].indexOf(socket.id);
+        // if (index > -1) {
+        //     this.rooms[title].splice(index, 1);
+        // }
+        console.log("room list for leaving ", this.rooms[title]);
+
+        socket.broadcast.to(socket.title).emit("someoneLeaveRoom", { userId: socket.id });
+        return { success: true, payload: { userId: socket.id } }
+    }
 }
