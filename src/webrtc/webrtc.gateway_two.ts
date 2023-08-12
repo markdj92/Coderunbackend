@@ -41,12 +41,11 @@ isRunning = {};
 
  @SubscribeMessage('createRoom')
 handleMessage(@ConnectedSocket() socket : WebRTC, @MessageBody() title) {
-
+   console.log("create, title : ", title);
     //방장이 방에 입장하도록 한다.
     socket.join(title);
     this.rooms[title] = []; // 방 참가자 초기화
-     this.rooms[title].push(socket.id);
-     
+    this.rooms[title].push(socket.id);
     this.isRunning[title] = false; // 방이 시작되었는지 여부 초기화
     console.log("createRoom join: ", title, socket.id);
     socket.title = title;
@@ -76,16 +75,14 @@ handleJoinRoom(@ConnectedSocket() socket: WebRTC, @MessageBody() title) {
   socket.join(title);
   socket.title = title;
   this.rooms[title].push(socket.id); //방 목록에 추가
-
+  console.log("join", this.rooms[title]);
   socket.broadcast.to(title).emit("entry", { userId: this.rooms[title] });
-  return { success: true, payload: { title: title, userlist: this.rooms[title] } };
+  return { success: true, payload: { title: title, userlist: this.rooms[title]} };
 }
 
  @SubscribeMessage('offer')
  handleOffer(@ConnectedSocket()  socket : WebRTC,
-     @MessageBody('title') title,
-      @MessageBody('offer') offer,
-       @MessageBody('to') to ) {
+     @MessageBody('title') title, @MessageBody('offer') offer, @MessageBody('to') to ) {
 
      console.log("include : ", this.rooms[socket.title])
     if (this.rooms[socket.title]) {
@@ -121,15 +118,13 @@ handleJoinRoom(@ConnectedSocket() socket: WebRTC, @MessageBody() title) {
     handleLeaveRoom(@ConnectedSocket() socket: WebRTC, @MessageBody() title) {
       console.log("leaveRoom", socket.id);
       socket.leave(socket.title);
-      this.removeSocketFromRooms(socket);
-      
         // const index = this.rooms[title].indexOf(socket.id);
         // if (index > -1) {
         //     this.rooms[title].splice(index, 1);
         // }
-        console.log("room list for leaving ", this.rooms[title]);
+      console.log("room list for leaving ", this.rooms[title]);
 
-        socket.broadcast.to(socket.title).emit("someoneLeaveRoom", { userId: socket.id });
-        return { success: true, payload: { userId: socket.id } }
+      socket.broadcast.to(socket.title).emit("someoneLeaveRoom", { userId: socket.id });
+      return { success: true, payload: { userId: socket.id } }
     }
 }
