@@ -62,11 +62,12 @@ const Login = () => {
           setErrorMessage({ ...errorMessage, password: error.response.data.message });
           passwordRef.current?.focus();
         }
+      } else {
+        setErrorMessage({
+          ...errorMessage,
+          password: '서버에 문제가 있습니다. 잠시 후 다시 시도해주세요.',
+        });
       }
-      setErrorMessage({
-        ...errorMessage,
-        password: '서버에 문제가 있습니다. 잠시 후 다시 시도해주세요.',
-      });
     }
   };
 
